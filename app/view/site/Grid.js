@@ -5,7 +5,6 @@ Ext.define("JCertifBO.view.site.Grid", {
     cls: 'admin-options-grid',
 
     requires: [
-        'Ext.grid.plugin.RowEditing', 
         'Ext.toolbar.Toolbar',
         'Ext.form.field.ComboBox',
         'JCertifBO.store.Countries',
@@ -15,11 +14,6 @@ Ext.define("JCertifBO.view.site.Grid", {
     border: false,
     
     initComponent: function() {
-        
-        var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-            clicksToEdit: 2,
-            autoCancel: false,
-        });
 
         Ext.apply(this, {
 
@@ -27,84 +21,47 @@ Ext.define("JCertifBO.view.site.Grid", {
                 text: 'Id',
                 dataIndex: 'id',
                 flex: 1,
-                editor: 'numberfield',
                 hidden: true
             }, {
                 text: 'Name',
                 dataIndex: 'name',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Street',
                 dataIndex: 'street',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Country',
                 dataIndex: 'country',
-                flex: 1,
-                editor: {
-                  xtype : 'combo',
-                  store: Ext.create('JCertifBO.store.Countries'),
-        					queryMode: 'local',
-        					triggerAction: 'all',
-        					displayField: 'country',
-                  valueField: 'cid',
-                  listeners:{
-                    select:function(combo, value) {
-                      var comboCity = Ext.getCmp('grid-combo-city'); 
-                      comboCity.enable();       
-                      comboCity.clearValue();
-                      comboCity.store.clearFilter(true);
-                      comboCity.store.filter('cid',  combo.getValue());
-                    }
-                  }
-                }
+                flex: 1
             }, {
                 text: 'City',
                 dataIndex: 'city',
-                flex: 1,
-                editor: {
-                  xtype : 'combo',
-                  id:'grid-combo-city',
-        					store: Ext.create('JCertifBO.store.Cities'),
-        					queryMode: 'local',
-        					triggerAction: 'all',
-        					disabled: true,
-        					displayField: 'city',
-                  valueField: 'city',
-                  lastQuery: ''
-                }
+                flex: 1
             }, {
                 text: 'Contact',
                 dataIndex: 'contact',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Website',
                 dataIndex: 'website',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Description',
                 dataIndex: 'description',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Photo',
                 dataIndex: 'photo',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Latitude',
                 dataIndex: 'latitude',
-                flex: 1,
-                editor: 'numberfield'
+                flex: 1
             }, {
                 text: 'Longitude',
                 dataIndex: 'longitude',
-                flex: 1,
-                editor: 'numberfield'
+                flex: 1
             }, {
                 text: 'version',
                 dataIndex: 'version',
@@ -136,7 +93,6 @@ Ext.define("JCertifBO.view.site.Grid", {
                 }]
             }],
             
-            plugins: [rowEditing],
             listeners: {
                 'selectionchange': function(selectionModel, records) {
                   this.down('#removeSite').setDisabled(!records.length);

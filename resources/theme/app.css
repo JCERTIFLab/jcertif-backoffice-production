@@ -42,6 +42,45 @@
     color: #eee;
 }
 
+.logout-icon {
+    background-image: url(../images/logout.png) !important;
+    width:25px!important; height:25px!important;
+    border : none; 
+}
+
+.google-auth-icon {
+    background-image: url(../images/google.png) !important;
+    width:25px!important; height:25px!important;
+    border : none; 
+    float: left;
+}
+
+.github-auth-icon {
+    background-image: url(../images/github.png) !important;
+    width:25px!important; height:25px!important;
+    border : none; 
+    float: left;
+}
+
+.upload-icon {
+    background: url(../images/image_add.png) no-repeat 0 0 !important;
+}
+
+.x-message-box .ext-mb-upload {
+    background: url("../images/download.gif") no-repeat scroll 6px 0px transparent;
+    height: 52px!important;
+}
+
+.preview-img{
+    display:table;
+    text-align:center;
+    border:1px solid #dddddd;
+    width:100px!important; height:100px!important;
+    margin:auto;
+  	margin-left: 140px;
+  	padding: 5px;
+}
+
 .admin-options-add {
     background-image: url(../images/add.gif) !important;
 }
@@ -52,6 +91,14 @@
 
 .admin-options-refresh {
     background-image: url(../images/table_refresh.png) !important;
+}
+
+.admin-options-download {
+    background-image: url(../images/page_white_get.png) !important;
+}
+
+.admin-options-upload {
+    background-image: url(../images/page_white_put.png) !important;
 }
 
 .admin-options {

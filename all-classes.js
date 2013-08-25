@@ -47039,18 +47039,21 @@ Ext.define("JCertifBO.view.AppHeader", {
     alias: 'widget.appheader',
     layout: 'hbox',
     cls: 'app-header',
-    
+  
     items: [{
         xtype: 'component',
         autoEl: {
             tag: 'h1'
         },
-        html: 'JCertif BackOffice',
+        html: 'JCertif BackOffice v' + VERSION,
         flex: 1
     },{
+        cls: 'logout-icon',
         xtype: 'button',
-        text: 'D&eacute;connexion',
-        action: 'logout'
+        action: 'logout',
+        tooltip: 'Logout',
+        autoWidth : true,
+        autoHeight : true
     }]
 });
 Ext.define("JCertifBO.view.option.Show", {
@@ -51189,6 +51192,16 @@ Ext.define('JCertifBO.view.Login', {
 			} ]
 		} ];
 		this.buttons = [ {
+			cls : 'google-auth-icon',
+			action : 'googleplus-login',
+			autoWidth : true,
+      autoHeight : true
+		},{
+			cls : 'github-auth-icon',
+			action : 'github-login',
+			autoWidth : true,
+      autoHeight : true
+		},{
 			text : 'Reset',
 			action : 'reset'
 		}, {
@@ -54396,12 +54409,13 @@ Ext.define("JCertifBO.view.referentiel.Add", {
   		this.callParent(arguments);
   	}
 });
-Ext.define("JCertifBO.view.sponsor.Add", {
+Ext.define("JCertifBO.view.session.Export", {
     extend : 'Ext.window.Window',
-  	alias : 'widget.sponsoradd',
-  	title : "Ajout d'un nouveau sponsor",
-  	width : 400,
-  	height : 400,
+  	alias : 'widget.sessionexport',
+  	title : "Choix du format d'export",
+  	width : 200,
+  	height : 150,
+  	border : 0,
   	autoShow : true,
   	closable : true,
   	draggable : true,
@@ -54414,813 +54428,165 @@ Ext.define("JCertifBO.view.sponsor.Add", {
   		align : 'center',
   		pack : 'center'
   	},
-  	
+  	buttonAlign : 'center',
+    
   	initComponent : function() {
+  	
+  	  var formats = Ext.create('Ext.data.Store', {
+          fields: ['name', 'value'],
+          data : [
+              {"name":"csv", "value":"csv"}
+          ]
+      });
+  		this.items = [ {
+  			xtype : 'combo',
+  			store : formats,
+  			displayField: 'name',
+        valueField: 'value',
+        value: 'csv',
+        width : 75,
+  	    height : 25,
+  			name : 'format',
+  			itemId : 'format'
+  			} ];
+  		this.buttons = [ {
+  		  text : 'OK',
+  			action : 'export'
+  		}];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.speaker.Export", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.speakerexport',
+  	title : "Choix du format d'export",
+  	width : 200,
+  	height : 150,
+  	border : 0,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  	buttonAlign : 'center',
+    
+  	initComponent : function() {
+  	
+  	  var formats = Ext.create('Ext.data.Store', {
+          fields: ['name', 'value'],
+          data : [
+              {"name":"csv", "value":"csv"}
+          ]
+      });
+  		this.items = [ {
+  			xtype : 'combo',
+  			store : formats,
+  			displayField: 'name',
+        valueField: 'value',
+        value: 'csv',
+        width : 75,
+  	    height : 25,
+  			name : 'format',
+  			itemId : 'format'
+  			} ];
+  		this.buttons = [ {
+  		  text : 'OK',
+  			action : 'export'
+  		}];
+  
+  		this.callParent(arguments);
+  	}
+});
+/**
+ * @class Ext.ux.Exporter
+ * @author Ed Spencer (http://edspencer.net), with modifications from iwiznia.
+ * Class providing a common way of downloading data in .xls or .csv format
+ */
+Ext.define("Ext.ux.exporter.Exporter", {
+    uses: [
+        "Ext.ux.exporter.Base64",
+        "Ext.ux.exporter.Button",
+        "Ext.ux.exporter.csvFormatter.CsvFormatter",
+        "Ext.ux.exporter.wikiFormatter.WikiFormatter",
+        "Ext.ux.exporter.excelFormatter.ExcelFormatter"
+    ],
 
-  		this.items = [ {
-  			xtype : 'form',
-  			border : 0,
-  			items : [ {
-  					xtype : 'textfield',
-  					vtype: 'email',
-  					fieldLabel : 'Email',
-  					name : 'email',
-  					itemId : 'email',
-  					emptyText : 'email',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Name',
-  					name : 'name',
-  					itemId : 'name',
-  					emptyText : 'name',
-  					allowblank : false,
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'Level',
-  					store: Ext.create('JCertifBO.store.SponsorLevels'),
-  					displayField: 'label',
-            valueField: 'label',
-  					name : 'level',
-  					itemId : 'level',
-  					emptyText : 'level',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Website',
-  					name : 'website',
-  					itemId : 'website',
-  					emptyText : 'website',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Logo',
-  					name : 'logo',
-  					itemId : 'logo',
-  					emptyText : 'logo',
-  					allowblank : false,
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'Country',
-  					store: Ext.create('JCertifBO.store.Countries'),
-  					queryMode: 'local',
-  					triggerAction: 'all',
-  					displayField: 'country',
-            valueField: 'cid',
-  					name : 'country',
-  					itemId : 'country',
-  					emptyText : 'country',
-  					allowblank : false,
-  					listeners:{
-              select:function(combo, value) {
-                var comboCity = Ext.getCmp('add-combo-city'); 
-                comboCity.enable();       
-                comboCity.clearValue();
-                comboCity.store.clearFilter(true);
-                comboCity.store.filter('cid',  combo.getValue());
-              }
+    statics: {
+        exportAny: function(component, formatter, config) {
+            var func = "export";
+            if(!component.is) {
+                func = func + "Store";
+            } else if(component.is("gridpanel")) {
+                func = func + "Grid";
+            } else if (component.is("treepanel")) {
+                func = func + "Tree";
+            } else {
+                func = func + "Store";
+                component = component.getStore();
             }
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'City',
-  					id:'add-combo-city',
-  					store: Ext.create('JCertifBO.store.Cities'),
-  					queryMode: 'local',
-  					triggerAction: 'all',
-  					disabled: true,
-  					displayField: 'city',
-            valueField: 'city',
-            lastQuery: '',
-  					name : 'city',
-  					itemId : 'city',
-  					emptyText : 'city',
-  					allowblank : false
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Phone',
-  					name : 'phone',
-  					itemId : 'phone',
-  					emptyText : 'phone'
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'About',
-  					name : 'about',
-  					itemId : 'about',
-  					emptyText : 'about'
-  				},{
-  					xtype : 'textfield',
-  					name : 'provider',
-  					itemId : 'provider',
-  					hidden: true
-  				},{
-  					xtype : 'textfield',
-  					name : 'user',
-  					itemId : 'user',
-  					hidden: true
-  				},{
-  					xtype : 'textfield',
-  					name : 'access_token',
-  					itemId : 'access_token',
-  					hidden: true
-  				}]
-  		} ];
-  		this.buttons = [ {
-  			text : 'Cancel',
-  			action : 'cancel'
-  		}, {
-  			text : 'Add',
-  			action : 'add'
-  		} ];
-  
-  		this.callParent(arguments);
-  	}
-});
-Ext.define("JCertifBO.view.site.Add", {
-    extend : 'Ext.window.Window',
-  	alias : 'widget.siteadd',
-  	title : "Ajout d'un nouveau site",
-  	width : 400,
-  	height : 450,
-  	autoShow : true,
-  	closable : true,
-  	draggable : true,
-  	shadow : 'frame',
-  	shadowOffset : 10,
-  	padding : 10,
-  	bodyPadding : 10,
-  	layout : {
-  		type : 'vbox',
-  		align : 'center',
-  		pack : 'center'
-  	},
-  
-  	initComponent : function() {
-        
-  		this.items = [ {
-  			xtype : 'form',
-  			border : 0,
-  			items : [ {
-  					xtype : 'textfield',
-  					fieldLabel : 'Name',
-  					name : 'name',
-  					itemId : 'name',
-  					emptyText : 'name',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Street',
-  					name : 'street',
-  					itemId : 'street',
-  					emptyText : 'street',
-  					allowblank : false,
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'Country',
-  					store: Ext.create('JCertifBO.store.Countries'),
-  					queryMode: 'local',
-  					triggerAction: 'all',
-  					displayField: 'country',
-            valueField: 'cid',
-  					name : 'country',
-  					itemId : 'country',
-  					emptyText : 'country',
-  					allowblank : false,
-  					listeners:{
-              select:function(combo, value) {
-                var comboCity = Ext.getCmp('add-combo-city'); 
-                comboCity.enable();       
-                comboCity.clearValue();
-                comboCity.store.clearFilter(true);
-                comboCity.store.filter('cid',  combo.getValue());
-              }
-            }
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'City',
-  					id:'add-combo-city',
-  					store: Ext.create('JCertifBO.store.Cities'),
-  					queryMode: 'local',
-  					triggerAction: 'all',
-  					disabled: true,
-  					displayField: 'city',
-            valueField: 'city',
-            lastQuery: '',
-  					name : 'city',
-  					itemId : 'city',
-  					emptyText : 'city',
-  					allowblank : false
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Contact',
-  					name : 'contact',
-  					itemId : 'contact',
-  					emptyText : 'contact',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Website',
-  					name : 'website',
-  					itemId : 'website',
-  					emptyText : 'website'
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Description',
-  					name : 'description',
-  					itemId : 'description',
-  					emptyText : 'description',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Photo',
-  					name : 'photo',
-  					itemId : 'photo',
-  					emptyText : 'photo'
-  				},{
-  					xtype : 'numberfield',
-  					fieldLabel : 'Latitude',
-  					name : 'latitude',
-  					itemId : 'latitude',
-  					emptyText : 'latitude'
-  				},{
-  					xtype : 'numberfield',
-  					fieldLabel : 'Longitude',
-  					name : 'longitude',
-  					itemId : 'longitude',
-  					emptyText : 'longitude'
-  				},{
-  					xtype : 'textfield',
-  					name : 'provider',
-  					itemId : 'provider',
-  					hidden: true
-  				},{
-  					xtype : 'textfield',
-  					name : 'user',
-  					itemId : 'user',
-  					hidden: true
-  				},{
-  					xtype : 'textfield',
-  					name : 'access_token',
-  					itemId : 'access_token',
-  					hidden: true
-  				}]
-  		} ];
-  		this.buttons = [ {
-  			text : 'Cancel',
-  			action : 'cancel'
-  		}, {
-  			text : 'Add',
-  			action : 'add'
-  		} ];
-  
-  		this.callParent(arguments);
-  	}
-});
-Ext.define("JCertifBO.view.room.Add", {
-    extend : 'Ext.window.Window',
-  	alias : 'widget.roomadd',
-  	title : "Ajout d'une nouvelle salle",
-  	width : 400,
-  	height : 300,
-  	autoShow : true,
-  	closable : true,
-  	draggable : true,
-  	shadow : 'frame',
-  	shadowOffset : 10,
-  	padding : 10,
-  	bodyPadding : 10,
-  	layout : {
-  		type : 'vbox',
-  		align : 'center',
-  		pack : 'center'
-  	},
-  	
-  	store : 'Sites',
-  	
-  	initComponent : function() {
-  
-  		this.items = [ {
-  			xtype : 'form',
-  			border : 0,
-  			items : [ {
-  					xtype : 'textfield',
-  					fieldLabel : 'Name',
-  					name : 'name',
-  					itemId : 'name',
-  					emptyText : 'name',
-  					allowblank : false,
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'Site',
-  					store : this.store,
-  					displayField: 'name',
-            valueField: 'id',
-  					name : 'site',
-  					itemId : 'site',
-  					emptyText : 'site',
-  					allowblank : false,
-  				},{
-  					xtype : 'numberfield',
-  					fieldLabel : 'Seats',
-  					name : 'seats',
-  					itemId : 'seats',
-  					emptyText : 'seats',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Description',
-  					name : 'description',
-  					itemId : 'description',
-  					emptyText : 'description',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Photo',
-  					name : 'photo',
-  					itemId : 'photo',
-  					emptyText : 'photo'
-  				},{
-  					xtype : 'textfield',
-  					name : 'provider',
-  					itemId : 'provider',
-  					hidden: true
-  				},{
-  					xtype : 'textfield',
-  					name : 'user',
-  					itemId : 'user',
-  					hidden: true
-  				},{
-  					xtype : 'textfield',
-  					name : 'access_token',
-  					itemId : 'access_token',
-  					hidden: true
-  				}]
-  		} ];
-  		this.buttons = [ {
-  			text : 'Cancel',
-  			action : 'cancel'
-  		}, {
-  			text : 'Add',
-  			action : 'add'
-  		} ];
-  
-  		this.callParent(arguments);
-  	}
-});
-Ext.define("JCertifBO.view.session.Add", {
-    extend : 'Ext.window.Window',
-  	alias : 'widget.sessionadd',
-  	title : "Ajout d'une nouvelle session",
-  	width : 400,
-  	height : 450,
-  	autoShow : true,
-  	closable : true,
-  	draggable : true,
-  	shadow : 'frame',
-  	shadowOffset : 10,
-  	padding : 10,
-  	bodyPadding : 10,
-  	layout : {
-  		type : 'vbox',
-  		align : 'center',
-  		pack : 'center'
-  	},
-  	
-  	initComponent : function() {
-        
-  		this.items = [ {
-  			xtype : 'form',
-  			border : 0,
-  			items : [ {
-  					xtype : 'textfield',
-  					fieldLabel : 'Title',
-  					name : 'title',
-  					itemId : 'title',
-  					emptyText : 'title',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Summary',
-  					name : 'summary',
-  					itemId : 'summary',
-  					emptyText : 'summary',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Description',
-  					name : 'description',
-  					itemId : 'description',
-  					emptyText : 'description',
-  					allowblank : false,
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'Status',
-  					store: Ext.create('JCertifBO.store.SessionStatuses'),
-  					displayField: 'label',
-            valueField: 'label',
-  					name : 'status',
-  					itemId : 'status',
-  					emptyText : 'status',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Keyword',
-  					name : 'keyword',
-  					itemId : 'keyword',
-  					emptyText : 'keyword',
-  					allowblank : false,
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'Category',
-  					store: Ext.create('JCertifBO.store.Categories'),
-  					displayField: 'label',
-            valueField: 'label',
-  					name : 'category',
-  					itemId : 'category',
-  					emptyText : 'category',
-  					allowblank : false,
-  				},{
-  					xtype : 'datefield',
-  					fieldLabel : 'Start',
-  					name : 'start',
-  					format: 'd/m/Y H:m',
-  					itemId : 'start',
-  					emptyText : 'start'
-  				},{
-  					xtype : 'datefield',
-  					fieldLabel : 'End',
-  					name : 'end',
-  					format: 'd/m/Y H:m',
-  					itemId : 'end',
-  					emptyText : 'end'
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'Speakers',
-  					store: Ext.create('JCertifBO.store.Speakers'),
-  					tpl: '<tpl for="."><div class="x-boundlist-item">{firstname} {lastname}</div></tpl>',
-            valueField: 'email',
-            multiSelect: true,
-  					name : 'speakers',
-  					itemId : 'speakers',
-  					emptyText : 'speakers'
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'Room',
-  					store: Ext.create('JCertifBO.store.Rooms'),
-  					displayField: 'name',
-            valueField: 'id',
-  					name : 'room',
-  					itemId : 'room',
-  					emptyText : 'room'
-  				},{
-  					xtype : 'textfield',
-  					name : 'provider',
-  					itemId : 'provider',
-  					hidden: true
-  				},{
-  					xtype : 'textfield',
-  					name : 'user',
-  					itemId : 'user',
-  					hidden: true
-  				},{
-  					xtype : 'textfield',
-  					name : 'access_token',
-  					itemId : 'access_token',
-  					hidden: true
-  				}]
-  		} ];
-  		this.buttons = [ {
-  			text : 'Cancel',
-  			action : 'cancel'
-  		}, {
-  			text : 'Add',
-  			action : 'add'
-  		} ];
-  
-  		this.callParent(arguments);
-  	}
-});
-Ext.define("JCertifBO.view.speaker.Add", {
-    extend : 'Ext.window.Window',
-  	alias : 'widget.speakeradd',
-  	title : "Ajout d'un nouveau pr&eacute;sentateur",
-  	width : 400,
-  	height : 500,
-  	autoShow : true,
-  	closable : true,
-  	draggable : true,
-  	shadow : 'frame',
-  	shadowOffset : 10,
-  	padding : 10,
-  	bodyPadding : 10,
-  	layout : {
-  		type : 'vbox',
-  		align : 'center',
-  		pack : 'center'
-  	},
-  	
-  	initComponent : function() {
-        
-  		this.items = [ {
-  			xtype : 'form',
-  			border : 0,
-  			items : [ {
-  					xtype : 'textfield',
-  					vtype : 'email',
-  					fieldLabel : 'Email',
-  					name : 'email',
-  					itemId : 'email',
-  					emptyText : 'email',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Password',
-  					name : 'password',
-  					itemId : 'password',
-  					emptyText : 'password',
-  					minLength: 8,
-  					allowblank : false,
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'Title',
-  					store: Ext.create('JCertifBO.store.Titles'),
-  					displayField: 'label',
-            valueField: 'label',
-  					name : 'title',
-  					itemId : 'title',
-  					emptyText : 'title'
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Lastname',
-  					name : 'lastname',
-  					itemId : 'lastname',
-  					emptyText : 'lastname',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Firstname',
-  					name : 'firstname',
-  					itemId : 'firstname',
-  					emptyText : 'firstname',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Website',
-  					name : 'website',
-  					itemId : 'website',
-  					emptyText : 'website'
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'Country',
-  					store: Ext.create('JCertifBO.store.Countries'),
-  					queryMode: 'local',
-  					triggerAction: 'all',
-  					displayField: 'country',
-            valueField: 'cid',
-  					name : 'country',
-  					itemId : 'country',
-  					emptyText : 'country',
-  					allowblank : false,
-  					listeners:{
-              select:function(combo, value) {
-                var comboCity = Ext.getCmp('add-combo-city'); 
-                comboCity.enable();       
-                comboCity.clearValue();
-                comboCity.store.clearFilter(true);
-                comboCity.store.filter('cid',  combo.getValue());
-              }
-            }
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'City',
-  					id:'add-combo-city',
-  					store: Ext.create('JCertifBO.store.Cities'),
-  					queryMode: 'local',
-  					triggerAction: 'all',
-  					disabled: true,
-  					displayField: 'city',
-            valueField: 'city',
-            lastQuery: '',
-  					name : 'city',
-  					itemId : 'city',
-  					emptyText : 'city',
-  					allowblank : false
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Company',
-  					name : 'company',
-  					itemId : 'company',
-  					emptyText : 'company'
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Phone',
-  					name : 'phone',
-  					itemId : 'phone',
-  					emptyText : 'phone'
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Photo',
-  					name : 'photo',
-  					itemId : 'photo',
-  					emptyText : 'photo'
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Biography',
-  					name : 'biography',
-  					itemId : 'biography',
-  					emptyText : 'biography'
-  				},{
-  					xtype : 'textfield',
-  					name : 'provider',
-  					itemId : 'provider',
-  					hidden: true
-  				},{
-  					xtype : 'textfield',
-  					name : 'user',
-  					itemId : 'user',
-  					hidden: true
-  				},{
-  					xtype : 'textfield',
-  					name : 'access_token',
-  					itemId : 'access_token',
-  					hidden: true
-  				}]
-  		} ];
-  		this.buttons = [ {
-  			text : 'Cancel',
-  			action : 'cancel'
-  		}, {
-  			text : 'Add',
-  			action : 'add'
-  		} ];
-  
-  		this.callParent(arguments);
-  	}
-});
-Ext.define("JCertifBO.view.participant.Add", {
-    extend : 'Ext.window.Window',
-  	alias : 'widget.participantadd',
-  	title : "Ajout d'un nouveau participant",
-  	width : 400,
-  	height : 500,
-  	autoShow : true,
-  	closable : true,
-  	draggable : true,
-  	shadow : 'frame',
-  	shadowOffset : 10,
-  	padding : 10,
-  	bodyPadding : 10,
-  	layout : {
-  		type : 'vbox',
-  		align : 'center',
-  		pack : 'center'
-  	},
-  
-  	initComponent : function() {
-        
-  		this.items = [ {
-  			xtype : 'form',
-  			border : 0,
-  			items : [ {
-  					xtype : 'textfield',
-  					vtype : 'email',
-  					fieldLabel : 'Email',
-  					name : 'email',
-  					itemId : 'email',
-  					emptyText : 'email',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Password',
-  					name : 'password',
-  					itemId : 'password',
-  					emptyText : 'password',
-  					minLength: 8,
-  					allowblank : false,
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'Title',
-  					store: Ext.create('JCertifBO.store.Titles'),
-  					displayField: 'label',
-            valueField: 'label',
-  					name : 'title',
-  					itemId : 'title',
-  					emptyText : 'title'
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Lastname',
-  					name : 'lastname',
-  					itemId : 'lastname',
-  					emptyText : 'lastname',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Firstname',
-  					name : 'firstname',
-  					itemId : 'firstname',
-  					emptyText : 'firstname',
-  					allowblank : false,
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Website',
-  					name : 'website',
-  					itemId : 'website',
-  					emptyText : 'website'
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'Country',
-  					store: Ext.create('JCertifBO.store.Countries'),
-  					queryMode: 'local',
-  					triggerAction: 'all',
-  					displayField: 'country',
-            valueField: 'cid',
-  					name : 'country',
-  					itemId : 'country',
-  					emptyText : 'country',
-  					allowblank : false,
-  					listeners:{
-              select:function(combo, value) {
-                var comboCity = Ext.getCmp('add-combo-city'); 
-                comboCity.enable();       
-                comboCity.clearValue();
-                comboCity.store.clearFilter(true);
-                comboCity.store.filter('cid',  combo.getValue());
-              }
-            }
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'City',
-  					id:'add-combo-city',
-  					store: Ext.create('JCertifBO.store.Cities'),
-  					queryMode: 'local',
-  					triggerAction: 'all',
-  					disabled: true,
-  					displayField: 'city',
-            valueField: 'city',
-            lastQuery: '',
-  					name : 'city',
-  					itemId : 'city',
-  					emptyText : 'city',
-  					allowblank : false
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Company',
-  					name : 'company',
-  					itemId : 'company',
-  					emptyText : 'company'
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Phone',
-  					name : 'phone',
-  					itemId : 'phone',
-  					emptyText : 'phone'
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Photo',
-  					name : 'photo',
-  					itemId : 'photo',
-  					emptyText : 'photo'
-  				},{
-  					xtype : 'textfield',
-  					fieldLabel : 'Biography',
-  					name : 'biography',
-  					itemId : 'biography',
-  					emptyText : 'biography'
-  				},{
-  					xtype : 'combo',
-  					fieldLabel : 'Sessions',
-  					store: Ext.create('JCertifBO.store.Sessions'),
-  					displayField: 'title',
-            valueField: 'id',
-  					name : 'sessions',
-  					itemId : 'sessions',
-  					emptyText : 'sessions'
-  				},{
-  					xtype : 'textfield',
-  					name : 'provider',
-  					itemId : 'provider',
-  					hidden: true
-  				},{
-  					xtype : 'textfield',
-  					name : 'user',
-  					itemId : 'user',
-  					hidden: true
-  				},{
-  					xtype : 'textfield',
-  					name : 'access_token',
-  					itemId : 'access_token',
-  					hidden: true
-  				}]
-  		} ];
-  		this.buttons = [ {
-  			text : 'Cancel',
-  			action : 'cancel'
-  		}, {
-  			text : 'Add',
-  			action : 'add'
-  		} ];
-  
-  		this.callParent(arguments);
-  	}
+
+            return this[func](component, this.getFormatterByName(formatter), config);
+        },
+
+        /**
+         * Exports a grid, using the .xls formatter by default
+         * @param {Ext.grid.GridPanel} grid The grid to export from
+         * @param {Object} config Optional config settings for the formatter
+         */
+        exportGrid: function(grid, formatter, config) {
+          config = config || {};
+          formatter = this.getFormatterByName(formatter);
+
+          var columns = Ext.Array.filter(grid.columns, function(col) {
+              return !col.hidden; // && (!col.xtype || col.xtype != "actioncolumn");
+          });
+
+          Ext.applyIf(config, {
+            title  : grid.title,
+            columns: columns
+          });
+
+          return formatter.format(grid.store, config);
+        },
+
+        exportStore: function(store, formatter, config) {
+           config = config || {};
+           formatter = this.getFormatterByName(formatter);
+
+           Ext.applyIf(config, {
+             columns: store.fields ? store.fields.items : store.model.prototype.fields.items
+           });
+
+           return formatter.format(store, config);
+        },
+
+        exportTree: function(tree, formatter, config) {
+          config    = config || {};
+          formatter = this.getFormatterByName(formatter);
+
+          var store = tree.store || config.store;
+
+          Ext.applyIf(config, {
+            title: tree.title
+          });
+
+          return formatter.format(store, config);
+        },
+
+        getFormatterByName: function(formatter) {
+            formatter = formatter ? formatter : "csv";
+            formatter = !Ext.isString(formatter) ? formatter : Ext.create("Ext.ux.exporter." + formatter + "Formatter." + Ext.String.capitalize(formatter) + "Formatter");
+            return formatter;
+        }
+    }
 });
 /*
 This file is part of Ext JS 4.2
@@ -57180,6 +56546,124 @@ at http://www.sencha.com/contact.
 Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
+ *
+ */
+Ext.define('Ext.form.field.FileButton', {
+    extend: 'Ext.button.Button',
+    alias: 'widget.filebutton',
+    
+    childEls: [
+        'btnEl', 'btnWrap', 'btnInnerEl', 'btnIconEl', 'fileInputEl'
+    ],
+    
+    inputCls: Ext.baseCSSPrefix + 'form-file-input',
+    
+    cls: Ext.baseCSSPrefix + 'form-file-btn',
+    
+    preventDefault: false,
+
+    renderTpl: [
+        '<span id="{id}-btnWrap" class="{baseCls}-wrap',
+            '<tpl if="splitCls"> {splitCls}</tpl>',
+            '{childElCls}" unselectable="on">',
+            '<span id="{id}-btnEl" class="{baseCls}-button">',
+                '<span id="{id}-btnInnerEl" class="{baseCls}-inner {innerCls}',
+                    '{childElCls}" unselectable="on">',
+                    '{text}',
+                '</span>',
+                '<span role="img" id="{id}-btnIconEl" class="{baseCls}-icon-el {iconCls}',
+                    '{childElCls} {glyphCls}" unselectable="on" style="',
+                    '<tpl if="iconUrl">background-image:url({iconUrl});</tpl>',
+                    '<tpl if="glyph && glyphFontFamily">font-family:{glyphFontFamily};</tpl>">',
+                    '<tpl if="glyph">&#{glyph};</tpl><tpl if="iconCls || iconUrl">&#160;</tpl>',
+                '</span>',
+            '</span>',
+        '</span>',
+        '<input id="{id}-fileInputEl" class="{childElCls} {inputCls}" type="file" size="1" name="{inputName}">'
+    ],
+    
+    getTemplateArgs: function(){
+        var args = this.callParent();
+        args.inputCls = this.inputCls;
+        args.inputName = this.inputName;
+        return args;
+    },
+    
+    afterRender: function(){
+        var me = this;
+        me.callParent(arguments);
+        me.fileInputEl.on('change', me.fireChange, me);    
+    },
+    
+    fireChange: function(e){
+        this.fireEvent('change', this, e, this.fileInputEl.dom.value);
+    },
+    
+    /**
+     * @private
+     * Creates the file input element. It is inserted into the trigger button component, made
+     * invisible, and floated on top of the button's other content so that it will receive the
+     * button's clicks.
+     */
+    createFileInput : function(isTemporary) {
+        var me = this;
+        me.fileInputEl = me.el.createChild({
+            name: me.inputName,
+            id: !isTemporary ? me.id + '-fileInputEl' : undefined,
+            cls: me.inputCls,
+            tag: 'input',
+            type: 'file',
+            size: 1
+        });
+        me.fileInputEl.on('change', me.fireChange, me);  
+    },
+    
+    reset: function(remove){
+        if (remove) {
+            this.fileInputEl.remove();
+        }
+        this.createFileInput(!remove);
+    },
+    
+    restoreInput: function(el){
+        this.fileInputEl.remove();
+        el = Ext.get(el);
+        this.el.appendChild(el);
+        this.fileInputEl = el;
+    },
+    
+    onDisable: function(){
+        this.callParent();
+        this.fileInputEl.dom.disabled = true;
+    },
+
+    onEnable : function() {
+        this.callParent();
+        this.fileInputEl.dom.disabled = false;
+    }
+});
+
+/*
+This file is part of Ext JS 4.2
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+*/
+/**
  * @class Ext.data.SortTypes
  * This class defines a series of static methods that are used on a
  * {@link Ext.data.Field} for performing sorting. The methods cast the 
@@ -58185,243 +57669,6 @@ at http://www.sencha.com/contact.
 Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
- * The AbstractPlugin class is the base class from which user-implemented plugins should inherit.
- *
- * This class defines the essential API of plugins as used by Components by defining the following methods:
- *
- *   - `init` : The plugin initialization method which the owning Component calls at Component initialization time.
- *
- *     The Component passes itself as the sole parameter.
- *
- *     Subclasses should set up bidirectional links between the plugin and its client Component here.
- *
- *   - `destroy` : The plugin cleanup method which the owning Component calls at Component destruction time.
- *
- *     Use this method to break links between the plugin and the Component and to free any allocated resources.
- *
- *   - `enable` : The base implementation just sets the plugin's `disabled` flag to `false`
- *
- *   - `disable` : The base implementation just sets the plugin's `disabled` flag to `true`
- */
-Ext.define('Ext.AbstractPlugin', {
-    disabled: false,
-
-    /**
-     * @property {Boolean} isPlugin
-     * `true` in this class to identify an object as an instantiated Plugin, or subclass thereof.
-     */
-    isPlugin: true,
-
-    /**
-     * Instantiates the plugin.
-     * @param {Object} [config] Configuration object.
-     */
-    constructor: function(config) {
-        this.pluginConfig = config;
-        Ext.apply(this, config);
-    },
-
-    /**
-     * Creates clone of the plugin.
-     * @param {Object} [overrideCfg] Additional config for the derived plugin.
-     */
-    clonePlugin: function(overrideCfg) {
-        return new this.self(Ext.apply({}, overrideCfg, this.pluginConfig));
-    },
-
-    /**
-     * Sets the component to which this plugin is attached.
-     * @param {Ext.Component} cmp Owner component.
-     */
-    setCmp: function(cmp) {
-        this.cmp = cmp;
-    },
-
-    /**
-     * Returns the component to which this plugin is attached.
-     * @return {Ext.Component} Owner component.
-     */
-    getCmp: function() {
-        return this.cmp;
-    },
-
-    /**
-     * @cfg {String} pluginId
-     * A name for the plugin that can be set at creation time to then retrieve the plugin
-     * through {@link Ext.AbstractComponent#getPlugin getPlugin} method.  For example:
-     *
-     *     var grid = Ext.create('Ext.grid.Panel', {
-     *         plugins: [{
-     *             ptype: 'cellediting',
-     *             clicksToEdit: 2,
-     *             pluginId: 'cellplugin'
-     *         }]
-     *     });
-     *
-     *     // later on:
-     *     var plugin = grid.getPlugin('cellplugin');
-     */
-
-    /**
-     * @method
-     * The init method is invoked after initComponent method has been run for the client Component.
-     *
-     * The supplied implementation is empty. Subclasses should perform plugin initialization, and set up bidirectional
-     * links between the plugin and its client Component in their own implementation of this method.
-     * @param {Ext.Component} client The client Component which owns this plugin.
-     */
-    init: Ext.emptyFn,
-
-    /**
-     * @method
-     * The destroy method is invoked by the owning Component at the time the Component is being destroyed.
-     *
-     * The supplied implementation is empty. Subclasses should perform plugin cleanup in their own implementation of
-     * this method.
-     */
-    destroy: Ext.emptyFn,
-
-    /**
-     * The base implementation just sets the plugin's `disabled` flag to `false`
-     *
-     * Plugin subclasses which need more complex processing may implement an overriding implementation.
-     */
-    enable: function() {
-        this.disabled = false;
-    },
-
-    /**
-     * The base implementation just sets the plugin's `disabled` flag to `true`
-     *
-     * Plugin subclasses which need more complex processing may implement an overriding implementation.
-     */
-    disable: function() {
-        this.disabled = true;
-    },
-
-    // Private.
-    // Inject a ptype property so that AbstractComponent.findPlugin(ptype) works.
-    onClassExtended: function(cls, data, hooks) {
-        var alias = data.alias;
-
-        // No ptype built into the class 
-        if (alias && !data.ptype) {
-            if (Ext.isArray(alias)) {
-                alias = alias[0];
-            }
-            cls.prototype.ptype = alias.split('plugin.')[1];
-        }
-    }
-});
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
-/**
- * @private
- * Private Container class used by the {@link Ext.grid.RowEditor} to hold its buttons.
- */
-Ext.define('Ext.grid.RowEditorButtons', {
-    extend: 'Ext.container.Container',
-    alias: 'widget.roweditorbuttons',
-
-    frame: true,
-    shrinkWrap: true,
-    position: 'bottom',
-
-    constructor: function(config) {
-        var me = this,
-            rowEditor = config.rowEditor,
-            cssPrefix = Ext.baseCSSPrefix,
-            plugin = rowEditor.editingPlugin;
-
-        config = Ext.apply({
-            baseCls: cssPrefix + 'grid-row-editor-buttons',
-            defaults: {
-                xtype: 'button',
-                ui: rowEditor.buttonUI,
-                scope: plugin,
-                flex: 1,
-                minWidth: Ext.panel.Panel.prototype.minButtonWidth
-            },
-            items: [{
-                cls: cssPrefix + 'row-editor-update-button',
-                itemId: 'update',
-                handler: plugin.completeEdit,
-                text: rowEditor.saveBtnText,
-                disabled: rowEditor.updateButtonDisabled
-            }, {
-                cls: cssPrefix + 'row-editor-cancel-button',
-                handler: plugin.cancelEdit,
-                text: rowEditor.cancelBtnText
-            }]
-        }, config);
-
-        me.callParent([config]);
-
-        me.addClsWithUI(me.position);
-    },
-
-    setButtonPosition: function(position) {
-        var me = this;
-
-        me.removeClsWithUI(me.position);
-        me.position = position;
-        me.addClsWithUI(position);
-    },
-
-    getFramingInfoCls: function(){
-        return this.baseCls + '-' + this.ui + '-' + this.position;
-    },
-
-    getFrameInfo: function() {
-        var frameInfo = this.callParent();
-
-        // Trick Renderable into rendering the top framing elements, even though they
-        // are not needed in the default "bottom" position.  This allows us to flip the
-        // buttons into "top" position without re-rendering.
-        frameInfo.top = true;
-
-        return frameInfo;
-    }
-});
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
-/**
  * Component layout for {@link Ext.view.BoundList}.
  * @private
  */
@@ -59206,453 +58453,6 @@ at http://www.sencha.com/contact.
 Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
- * Internal utility class that provides a unique cell context.
- * @private
- */
-Ext.define('Ext.grid.CellContext', {
-
-    /**
-     * @property {Boolean} isCellContext
-     * @readonly
-     * `true` in this class to identify an object as an instantiated CellContext, or subclass thereof.
-     */
-    isCellContext: true,
-    
-    constructor: function(view) {
-        this.view = view;
-    },
-    
-    // Selection row/record & column/columnHeader
-    setPosition: function(row, col) {
-        var me = this;
-
-        // We were passed {row: 1, column: 2, view: myView}
-        if (arguments.length === 1) {
-            if (row.view) {
-                me.view = row.view;
-            }
-            col = row.column;
-            row = row.row;
-        }
-
-        me.setRow(row);
-        me.setColumn(col);
-        return me;
-    },
-
-    setRow: function(row) {
-        var me = this;
-        if (row !== undefined) {
-            // Row index passed
-            if (typeof row === 'number') {
-                me.row = Math.max(Math.min(row, me.view.dataSource.getCount() - 1), 0);
-                me.record = me.view.dataSource.getAt(row);
-            }
-            // row is a Record
-            else if (row.isModel) {
-                me.record = row;
-                me.row = me.view.indexOf(row);
-            }
-            // row is a grid row
-            else if (row.tagName) {
-                me.record = me.view.getRecord(row);
-                me.row = me.view.indexOf(me.record);
-            }
-        }
-    },
-    
-    setColumn: function(col) {
-        var me = this,
-            columnManager = me.view.ownerCt.columnManager;
-        if (col !== undefined) {
-            // column index passed
-            if (typeof col === 'number') {
-                me.column = col;
-                me.columnHeader = columnManager.getHeaderAtIndex(col);
-            }
-            // column Header passed
-            else if (col.isHeader) {
-                me.columnHeader = col;
-                me.column = columnManager.getHeaderIndex(col);
-            }
-        }
-    }
-});
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
-/**
- * @private
- * A cache of View elements keyed using the index of the associated record in the store.
- * 
- * This implements the methods of {Ext.dom.CompositeElement} which are used by {@link Ext.view.AbstractView}
- * to privide a map of record nodes and methods to manipulate the nodes.
- */
-Ext.define('Ext.view.NodeCache', {
-    constructor: function(view) {
-        this.view = view;
-        this.clear();
-        this.el = new Ext.dom.AbstractElement.Fly();
-    },
-
-    /**
-    * Removes all elements from this NodeCache.
-    * @param {Boolean} [removeDom] True to also remove the elements from the document.
-    */
-    clear: function(removeDom) {
-        var me = this,
-            elements = this.elements,
-            i, el;
-
-        if (removeDom) {
-            for (i in elements) {
-                el = elements[i];
-                el.parentNode.removeChild(el);
-            }
-        }
-        me.elements = {};
-        me.count = me.startIndex = 0;
-        me.endIndex = -1;
-    },
-
-    /**
-    * Clears this NodeCache and adds the elements passed.
-    * @param {HTMLElement[]} els An array of DOM elements from which to fill this NodeCache.
-    * @return {Ext.view.NodeCache} this
-    */
-    fill: function(newElements, startIndex) {
-        var me = this,
-            elements = me.elements = {},
-            i,
-            len = newElements.length;
-
-        if (!startIndex) {
-            startIndex = 0;
-        }
-        for (i = 0; i < len; i++) {
-            elements[startIndex + i] = newElements[i];
-        }
-        me.startIndex = startIndex;
-        me.endIndex = startIndex + len - 1;
-        me.count = len;
-        return this;
-    },
-
-    insert: function(insertPoint, nodes) {
-        var me = this,
-            elements = me.elements,
-            i,
-            nodeCount = nodes.length;
-
-        // If not inserting into empty cache, validate, and possibly shuffle.
-        if (me.count) {
-            if (insertPoint > me.endIndex + 1 || insertPoint + nodes.length - 1 < me.startIndex) {
-                Ext.Error.raise('Discontiguous range would result from inserting ' + nodes.length + ' nodes at ' + insertPoint);
-            }
-
-            // Move following nodes forwards by <nodeCount> positions
-            if (insertPoint < me.count) {
-                for (i = me.endIndex + nodeCount; i >= insertPoint + nodeCount; i--) {
-                    elements[i] = elements[i - nodeCount];
-                    elements[i].setAttribute('data-recordIndex', i);
-                }
-            }
-            me.endIndex = me.endIndex + nodeCount;
-        }
-        // Empty cache. set up counters
-        else {
-            me.startIndex = insertPoint;
-            me.endIndex = insertPoint + nodeCount - 1;
-        }
-
-        // Insert new nodes into place
-        for (i = 0; i < nodeCount; i++, insertPoint++) {
-            elements[insertPoint] = nodes[i];
-            elements[insertPoint].setAttribute('data-recordIndex', insertPoint);
-        }
-        me.count += nodeCount;
-    },
-
-    item: function(index, asDom) {
-        var el = this.elements[index],
-            result = null;
-
-        if (el) {
-            result = asDom ? this.elements[index] : this.el.attach(this.elements[index]);
-        }
-        return result;
-    },
-
-    first: function(asDom) {
-        return this.item(this.startIndex, asDom);
-    },
-
-    last: function(asDom) {
-        return this.item(this.endIndex, asDom);
-    },
-
-    getCount : function() {
-        return this.count;
-    },
-
-    slice: function(start, end) {
-        var elements = this.elements,
-            result = [],
-            i;
-
-        if (arguments.length < 2) {
-            end = this.endIndex;
-        } else {
-            end = Math.min(this.endIndex, end - 1);
-        }
-        for (i = start||this.startIndex; i <= end; i++) {
-            result.push(elements[i]);
-        }
-        return result;
-    },
-
-    /**
-    * Replaces the specified element with the passed element.
-    * @param {String/HTMLElement/Ext.Element/Number} el The id of an element, the Element itself, the index of the
-    * element in this composite to replace.
-    * @param {String/Ext.Element} replacement The id of an element or the Element itself.
-    * @param {Boolean} [domReplace] True to remove and replace the element in the document too.
-    */
-    replaceElement: function(el, replacement, domReplace) {
-        var elements = this.elements,
-            index = (typeof el === 'number') ? el : this.indexOf(el);
-
-        if (index > -1) {
-            replacement = Ext.getDom(replacement);
-            if (domReplace) {
-                el = elements[index];
-                el.parentNode.insertBefore(replacement, el);
-                Ext.removeNode(el);
-                replacement.setAttribute('data-recordIndex', index);
-            }
-            this.elements[index] = replacement;
-        }
-        return this;
-    },
-
-    /**
-    * Find the index of the passed element within the composite collection.
-    * @param {String/HTMLElement/Ext.Element/Number} el The id of an element, or an Ext.dom.Element, or an HtmlElement
-    * to find within the composite collection.
-    * @return {Number} The index of the passed Ext.dom.Element in the composite collection, or -1 if not found.
-    */
-    indexOf: function(el) {
-        var elements = this.elements,
-            index;
-
-        el = Ext.getDom(el);
-        for (index = this.startIndex; index <= this.endIndex; index++) {
-            if (elements[index] === el) {
-                return index;
-            }
-        }
-        return -1;
-    },
-
-    removeRange: function(start, end, removeDom) {
-        var me = this,
-            elements = me.elements,
-            el,
-            i, removeCount, fromPos;
-
-        if (end === undefined) {
-            end = me.count;
-        } else {
-            end = Math.min(me.endIndex + 1, end + 1);
-        }
-        if (!start) {
-            start = 0;
-        }
-        removeCount = end - start;
-        for (i = start, fromPos = end; i < me.endIndex; i++, fromPos++) {
-            // Within removal range and we are removing from DOM
-            if (removeDom && i < end) {
-                Ext.removeNode(elements[i]);
-            }
-            // If the from position is occupied, shuffle that entry back into reference "i"
-            if (fromPos <= me.endIndex) {
-                el = elements[i] = elements[fromPos];
-                el.setAttribute('data-recordIndex', i);
-            }
-            // The from position has walked off the end, so delete reference "i"
-            else {
-                delete elements[i];
-            }
-        }
-        me.count -= removeCount;
-        me.endIndex -= removeCount;
-    },
-
-    /**
-    * Removes the specified element(s).
-    * @param {String/HTMLElement/Ext.Element/Number} el The id of an element, the Element itself, the index of the
-    * element in this composite or an array of any of those.
-    * @param {Boolean} [removeDom] True to also remove the element from the document
-    */
-    removeElement: function(keys, removeDom) {
-        var me = this,
-            inKeys,
-            key,
-            elements = me.elements,
-            el,
-            deleteCount,
-            keyIndex = 0, index,
-            fromIndex;
-
-        // Sort the keys into ascending order so that we can iterate through the elements
-        // collection, and delete items encountered in the keys array as we encounter them.
-        if (Ext.isArray(keys)) {
-            inKeys = keys;
-            keys = [];
-            deleteCount = inKeys.length;
-            for (keyIndex = 0; keyIndex < deleteCount; keyIndex++) {
-                key = inKeys[keyIndex];
-                if (typeof key !== 'number') {
-                    key = me.indexOf(key);
-                }
-                // Could be asked to remove data above the start, or below the end of rendered zone in a buffer rendered view
-                // So only collect keys which are within our range
-                if (key >= me.startIndex && key <= me.endIndex) {
-                    keys[keys.length] = key;
-                }
-            }
-            Ext.Array.sort(keys);
-            deleteCount = keys.length;
-        } else {
-            // Could be asked to remove data above the start, or below the end of rendered zone in a buffer rendered view
-            if (keys < me.startIndex || keys > me.endIndex) {
-                return;
-            }
-            deleteCount = 1;
-            keys = [keys];
-        }
-
-        // Iterate through elements starting at the element referenced by the first deletion key.
-        // We also start off and index zero in the keys to delete array.
-        for (index = fromIndex = keys[0], keyIndex = 0; index <= me.endIndex; index++, fromIndex++) {
-
-            // If the current index matches the next key in the delete keys array, this 
-            // entry is being deleted, so increment the fromIndex to skip it.
-            // Advance to next entry in keys array.
-            if (keyIndex < deleteCount && index === keys[keyIndex]) {
-                fromIndex++;
-                keyIndex++;
-                if (removeDom) {
-                    Ext.removeNode(elements[index]);
-                }
-            }
-
-            // Shuffle entries forward of the delete range back into contiguity.
-            if (fromIndex <= me.endIndex && fromIndex >= me.startIndex) {
-                el = elements[index] = elements[fromIndex];
-                el.setAttribute('data-recordIndex', index);
-            } else {
-                delete elements[index];
-            }
-        }
-        me.endIndex -= deleteCount;
-        me.count -= deleteCount;
-    },
-
-    /**
-     * Appends/prepends records depending on direction flag
-     * @param {Ext.data.Model[]} newRecords Items to append/prepend
-     * @param {Number} direction `-1' = scroll up, `0` = scroll down.
-     * @param {Number} removeCount The number of records to remove from the end. if scrolling
-     * down, rows are removed from the top and the new rows are added at the bottom.
-     */
-    scroll: function(newRecords, direction, removeCount) {
-        var me = this,
-            elements = me.elements,
-            recCount = newRecords.length,
-            i, el, removeEnd,
-            newNodes,
-            nodeContainer = me.view.getNodeContainer(),
-            frag = document.createDocumentFragment();
-
-        // Scrolling up (content moved down - new content needed at top, remove from bottom)
-        if (direction == -1) {
-            for (i = (me.endIndex - removeCount) + 1; i <= me.endIndex; i++) {
-                el = elements[i];
-                delete elements[i];
-                el.parentNode.removeChild(el);
-            }
-            me.endIndex -= removeCount;
-
-            // grab all nodes rendered, not just the data rows
-            newNodes = me.view.bufferRender(newRecords, me.startIndex -= recCount);
-            for (i = 0; i < recCount; i++) {
-                elements[me.startIndex + i] = newNodes[i];
-                frag.appendChild(newNodes[i]);
-            }
-            nodeContainer.insertBefore(frag, nodeContainer.firstChild);
-        }
-
-        // Scrolling down (content moved up - new content needed at bottom, remove from top)
-        else {
-            removeEnd = me.startIndex + removeCount;
-            for (i = me.startIndex; i < removeEnd; i++) {
-                el = elements[i];
-                delete elements[i];
-                el.parentNode.removeChild(el);
-            }
-            me.startIndex = i;
-
-            // grab all nodes rendered, not just the data rows
-            newNodes = me.view.bufferRender(newRecords, me.endIndex + 1);
-            for (i = 0; i < recCount; i++) {
-                elements[me.endIndex += 1] = newNodes[i];
-                frag.appendChild(newNodes[i]);
-            }
-            nodeContainer.appendChild(frag);
-        }
-        // Keep count consistent.
-        me.count = me.endIndex - me.startIndex + 1;
-    }
-});
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
-/**
  * Component layout for grid column headers which have a title element at the top followed by content.
  * @private
  */
@@ -60104,6 +58904,453 @@ Ext.define('Ext.grid.ColumnLayout', {
     }
 });
 
+/*
+This file is part of Ext JS 4.2
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+*/
+/**
+ * Internal utility class that provides a unique cell context.
+ * @private
+ */
+Ext.define('Ext.grid.CellContext', {
+
+    /**
+     * @property {Boolean} isCellContext
+     * @readonly
+     * `true` in this class to identify an object as an instantiated CellContext, or subclass thereof.
+     */
+    isCellContext: true,
+    
+    constructor: function(view) {
+        this.view = view;
+    },
+    
+    // Selection row/record & column/columnHeader
+    setPosition: function(row, col) {
+        var me = this;
+
+        // We were passed {row: 1, column: 2, view: myView}
+        if (arguments.length === 1) {
+            if (row.view) {
+                me.view = row.view;
+            }
+            col = row.column;
+            row = row.row;
+        }
+
+        me.setRow(row);
+        me.setColumn(col);
+        return me;
+    },
+
+    setRow: function(row) {
+        var me = this;
+        if (row !== undefined) {
+            // Row index passed
+            if (typeof row === 'number') {
+                me.row = Math.max(Math.min(row, me.view.dataSource.getCount() - 1), 0);
+                me.record = me.view.dataSource.getAt(row);
+            }
+            // row is a Record
+            else if (row.isModel) {
+                me.record = row;
+                me.row = me.view.indexOf(row);
+            }
+            // row is a grid row
+            else if (row.tagName) {
+                me.record = me.view.getRecord(row);
+                me.row = me.view.indexOf(me.record);
+            }
+        }
+    },
+    
+    setColumn: function(col) {
+        var me = this,
+            columnManager = me.view.ownerCt.columnManager;
+        if (col !== undefined) {
+            // column index passed
+            if (typeof col === 'number') {
+                me.column = col;
+                me.columnHeader = columnManager.getHeaderAtIndex(col);
+            }
+            // column Header passed
+            else if (col.isHeader) {
+                me.columnHeader = col;
+                me.column = columnManager.getHeaderIndex(col);
+            }
+        }
+    }
+});
+/*
+This file is part of Ext JS 4.2
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+*/
+/**
+ * @private
+ * A cache of View elements keyed using the index of the associated record in the store.
+ * 
+ * This implements the methods of {Ext.dom.CompositeElement} which are used by {@link Ext.view.AbstractView}
+ * to privide a map of record nodes and methods to manipulate the nodes.
+ */
+Ext.define('Ext.view.NodeCache', {
+    constructor: function(view) {
+        this.view = view;
+        this.clear();
+        this.el = new Ext.dom.AbstractElement.Fly();
+    },
+
+    /**
+    * Removes all elements from this NodeCache.
+    * @param {Boolean} [removeDom] True to also remove the elements from the document.
+    */
+    clear: function(removeDom) {
+        var me = this,
+            elements = this.elements,
+            i, el;
+
+        if (removeDom) {
+            for (i in elements) {
+                el = elements[i];
+                el.parentNode.removeChild(el);
+            }
+        }
+        me.elements = {};
+        me.count = me.startIndex = 0;
+        me.endIndex = -1;
+    },
+
+    /**
+    * Clears this NodeCache and adds the elements passed.
+    * @param {HTMLElement[]} els An array of DOM elements from which to fill this NodeCache.
+    * @return {Ext.view.NodeCache} this
+    */
+    fill: function(newElements, startIndex) {
+        var me = this,
+            elements = me.elements = {},
+            i,
+            len = newElements.length;
+
+        if (!startIndex) {
+            startIndex = 0;
+        }
+        for (i = 0; i < len; i++) {
+            elements[startIndex + i] = newElements[i];
+        }
+        me.startIndex = startIndex;
+        me.endIndex = startIndex + len - 1;
+        me.count = len;
+        return this;
+    },
+
+    insert: function(insertPoint, nodes) {
+        var me = this,
+            elements = me.elements,
+            i,
+            nodeCount = nodes.length;
+
+        // If not inserting into empty cache, validate, and possibly shuffle.
+        if (me.count) {
+            if (insertPoint > me.endIndex + 1 || insertPoint + nodes.length - 1 < me.startIndex) {
+                Ext.Error.raise('Discontiguous range would result from inserting ' + nodes.length + ' nodes at ' + insertPoint);
+            }
+
+            // Move following nodes forwards by <nodeCount> positions
+            if (insertPoint < me.count) {
+                for (i = me.endIndex + nodeCount; i >= insertPoint + nodeCount; i--) {
+                    elements[i] = elements[i - nodeCount];
+                    elements[i].setAttribute('data-recordIndex', i);
+                }
+            }
+            me.endIndex = me.endIndex + nodeCount;
+        }
+        // Empty cache. set up counters
+        else {
+            me.startIndex = insertPoint;
+            me.endIndex = insertPoint + nodeCount - 1;
+        }
+
+        // Insert new nodes into place
+        for (i = 0; i < nodeCount; i++, insertPoint++) {
+            elements[insertPoint] = nodes[i];
+            elements[insertPoint].setAttribute('data-recordIndex', insertPoint);
+        }
+        me.count += nodeCount;
+    },
+
+    item: function(index, asDom) {
+        var el = this.elements[index],
+            result = null;
+
+        if (el) {
+            result = asDom ? this.elements[index] : this.el.attach(this.elements[index]);
+        }
+        return result;
+    },
+
+    first: function(asDom) {
+        return this.item(this.startIndex, asDom);
+    },
+
+    last: function(asDom) {
+        return this.item(this.endIndex, asDom);
+    },
+
+    getCount : function() {
+        return this.count;
+    },
+
+    slice: function(start, end) {
+        var elements = this.elements,
+            result = [],
+            i;
+
+        if (arguments.length < 2) {
+            end = this.endIndex;
+        } else {
+            end = Math.min(this.endIndex, end - 1);
+        }
+        for (i = start||this.startIndex; i <= end; i++) {
+            result.push(elements[i]);
+        }
+        return result;
+    },
+
+    /**
+    * Replaces the specified element with the passed element.
+    * @param {String/HTMLElement/Ext.Element/Number} el The id of an element, the Element itself, the index of the
+    * element in this composite to replace.
+    * @param {String/Ext.Element} replacement The id of an element or the Element itself.
+    * @param {Boolean} [domReplace] True to remove and replace the element in the document too.
+    */
+    replaceElement: function(el, replacement, domReplace) {
+        var elements = this.elements,
+            index = (typeof el === 'number') ? el : this.indexOf(el);
+
+        if (index > -1) {
+            replacement = Ext.getDom(replacement);
+            if (domReplace) {
+                el = elements[index];
+                el.parentNode.insertBefore(replacement, el);
+                Ext.removeNode(el);
+                replacement.setAttribute('data-recordIndex', index);
+            }
+            this.elements[index] = replacement;
+        }
+        return this;
+    },
+
+    /**
+    * Find the index of the passed element within the composite collection.
+    * @param {String/HTMLElement/Ext.Element/Number} el The id of an element, or an Ext.dom.Element, or an HtmlElement
+    * to find within the composite collection.
+    * @return {Number} The index of the passed Ext.dom.Element in the composite collection, or -1 if not found.
+    */
+    indexOf: function(el) {
+        var elements = this.elements,
+            index;
+
+        el = Ext.getDom(el);
+        for (index = this.startIndex; index <= this.endIndex; index++) {
+            if (elements[index] === el) {
+                return index;
+            }
+        }
+        return -1;
+    },
+
+    removeRange: function(start, end, removeDom) {
+        var me = this,
+            elements = me.elements,
+            el,
+            i, removeCount, fromPos;
+
+        if (end === undefined) {
+            end = me.count;
+        } else {
+            end = Math.min(me.endIndex + 1, end + 1);
+        }
+        if (!start) {
+            start = 0;
+        }
+        removeCount = end - start;
+        for (i = start, fromPos = end; i < me.endIndex; i++, fromPos++) {
+            // Within removal range and we are removing from DOM
+            if (removeDom && i < end) {
+                Ext.removeNode(elements[i]);
+            }
+            // If the from position is occupied, shuffle that entry back into reference "i"
+            if (fromPos <= me.endIndex) {
+                el = elements[i] = elements[fromPos];
+                el.setAttribute('data-recordIndex', i);
+            }
+            // The from position has walked off the end, so delete reference "i"
+            else {
+                delete elements[i];
+            }
+        }
+        me.count -= removeCount;
+        me.endIndex -= removeCount;
+    },
+
+    /**
+    * Removes the specified element(s).
+    * @param {String/HTMLElement/Ext.Element/Number} el The id of an element, the Element itself, the index of the
+    * element in this composite or an array of any of those.
+    * @param {Boolean} [removeDom] True to also remove the element from the document
+    */
+    removeElement: function(keys, removeDom) {
+        var me = this,
+            inKeys,
+            key,
+            elements = me.elements,
+            el,
+            deleteCount,
+            keyIndex = 0, index,
+            fromIndex;
+
+        // Sort the keys into ascending order so that we can iterate through the elements
+        // collection, and delete items encountered in the keys array as we encounter them.
+        if (Ext.isArray(keys)) {
+            inKeys = keys;
+            keys = [];
+            deleteCount = inKeys.length;
+            for (keyIndex = 0; keyIndex < deleteCount; keyIndex++) {
+                key = inKeys[keyIndex];
+                if (typeof key !== 'number') {
+                    key = me.indexOf(key);
+                }
+                // Could be asked to remove data above the start, or below the end of rendered zone in a buffer rendered view
+                // So only collect keys which are within our range
+                if (key >= me.startIndex && key <= me.endIndex) {
+                    keys[keys.length] = key;
+                }
+            }
+            Ext.Array.sort(keys);
+            deleteCount = keys.length;
+        } else {
+            // Could be asked to remove data above the start, or below the end of rendered zone in a buffer rendered view
+            if (keys < me.startIndex || keys > me.endIndex) {
+                return;
+            }
+            deleteCount = 1;
+            keys = [keys];
+        }
+
+        // Iterate through elements starting at the element referenced by the first deletion key.
+        // We also start off and index zero in the keys to delete array.
+        for (index = fromIndex = keys[0], keyIndex = 0; index <= me.endIndex; index++, fromIndex++) {
+
+            // If the current index matches the next key in the delete keys array, this 
+            // entry is being deleted, so increment the fromIndex to skip it.
+            // Advance to next entry in keys array.
+            if (keyIndex < deleteCount && index === keys[keyIndex]) {
+                fromIndex++;
+                keyIndex++;
+                if (removeDom) {
+                    Ext.removeNode(elements[index]);
+                }
+            }
+
+            // Shuffle entries forward of the delete range back into contiguity.
+            if (fromIndex <= me.endIndex && fromIndex >= me.startIndex) {
+                el = elements[index] = elements[fromIndex];
+                el.setAttribute('data-recordIndex', index);
+            } else {
+                delete elements[index];
+            }
+        }
+        me.endIndex -= deleteCount;
+        me.count -= deleteCount;
+    },
+
+    /**
+     * Appends/prepends records depending on direction flag
+     * @param {Ext.data.Model[]} newRecords Items to append/prepend
+     * @param {Number} direction `-1' = scroll up, `0` = scroll down.
+     * @param {Number} removeCount The number of records to remove from the end. if scrolling
+     * down, rows are removed from the top and the new rows are added at the bottom.
+     */
+    scroll: function(newRecords, direction, removeCount) {
+        var me = this,
+            elements = me.elements,
+            recCount = newRecords.length,
+            i, el, removeEnd,
+            newNodes,
+            nodeContainer = me.view.getNodeContainer(),
+            frag = document.createDocumentFragment();
+
+        // Scrolling up (content moved down - new content needed at top, remove from bottom)
+        if (direction == -1) {
+            for (i = (me.endIndex - removeCount) + 1; i <= me.endIndex; i++) {
+                el = elements[i];
+                delete elements[i];
+                el.parentNode.removeChild(el);
+            }
+            me.endIndex -= removeCount;
+
+            // grab all nodes rendered, not just the data rows
+            newNodes = me.view.bufferRender(newRecords, me.startIndex -= recCount);
+            for (i = 0; i < recCount; i++) {
+                elements[me.startIndex + i] = newNodes[i];
+                frag.appendChild(newNodes[i]);
+            }
+            nodeContainer.insertBefore(frag, nodeContainer.firstChild);
+        }
+
+        // Scrolling down (content moved up - new content needed at bottom, remove from top)
+        else {
+            removeEnd = me.startIndex + removeCount;
+            for (i = me.startIndex; i < removeEnd; i++) {
+                el = elements[i];
+                delete elements[i];
+                el.parentNode.removeChild(el);
+            }
+            me.startIndex = i;
+
+            // grab all nodes rendered, not just the data rows
+            newNodes = me.view.bufferRender(newRecords, me.endIndex + 1);
+            for (i = 0; i < recCount; i++) {
+                elements[me.endIndex += 1] = newNodes[i];
+                frag.appendChild(newNodes[i]);
+            }
+            nodeContainer.appendChild(frag);
+        }
+        // Keep count consistent.
+        me.count = me.endIndex - me.startIndex + 1;
+    }
+});
 /*
 This file is part of Ext JS 4.2
 
@@ -60588,6 +59835,331 @@ Ext.define('Ext.layout.component.field.Field', {
         }
     }
 });
+/*
+This file is part of Ext JS 4.2
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+*/
+/**
+ * @singleton
+ * @alternateClassName Ext.form.VTypes
+ *
+ * This is a singleton object which contains a set of commonly used field validation functions
+ * and provides a mechanism for creating reusable custom field validations.
+ * The following field validation functions are provided out of the box:
+ *
+ * - {@link #alpha}
+ * - {@link #alphanum}
+ * - {@link #email}
+ * - {@link #url}
+ *
+ * VTypes can be applied to a {@link Ext.form.field.Text Text Field} using the `{@link Ext.form.field.Text#vtype vtype}` configuration:
+ *
+ *     Ext.create('Ext.form.field.Text', {
+ *         fieldLabel: 'Email Address',
+ *         name: 'email',
+ *         vtype: 'email' // applies email validation rules to this field
+ *     });
+ *
+ * To create custom VTypes:
+ *
+ *     // custom Vtype for vtype:'time'
+ *     var timeTest = /^([1-9]|1[0-9]):([0-5][0-9])(\s[a|p]m)$/i;
+ *     Ext.apply(Ext.form.field.VTypes, {
+ *         //  vtype validation function
+ *         time: function(val, field) {
+ *             return timeTest.test(val);
+ *         },
+ *         // vtype Text property: The error text to display when the validation function returns false
+ *         timeText: 'Not a valid time.  Must be in the format "12:34 PM".',
+ *         // vtype Mask property: The keystroke filter mask
+ *         timeMask: /[\d\s:amp]/i
+ *     });
+ *
+ * In the above example the `time` function is the validator that will run when field validation occurs,
+ * `timeText` is the error message, and `timeMask` limits what characters can be typed into the field.
+ * Note that the `Text` and `Mask` functions must begin with the same name as the validator function.
+ *
+ * Using a custom validator is the same as using one of the build-in validators - just use the name of the validator function
+ * as the `{@link Ext.form.field.Text#vtype vtype}` configuration on a {@link Ext.form.field.Text Text Field}:
+ *
+ *     Ext.create('Ext.form.field.Text', {
+ *         fieldLabel: 'Departure Time',
+ *         name: 'departureTime',
+ *         vtype: 'time' // applies custom time validation rules to this field
+ *     });
+ *
+ * Another example of a custom validator:
+ *
+ *     // custom Vtype for vtype:'IPAddress'
+ *     Ext.apply(Ext.form.field.VTypes, {
+ *         IPAddress:  function(v) {
+ *             return /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(v);
+ *         },
+ *         IPAddressText: 'Must be a numeric IP address',
+ *         IPAddressMask: /[\d\.]/i
+ *     });
+ *
+ * It's important to note that using {@link Ext#apply Ext.apply()} means that the custom validator function
+ * as well as `Text` and `Mask` fields are added as properties of the `Ext.form.field.VTypes` singleton.
+ */
+Ext.define('Ext.form.field.VTypes', (function(){
+    // closure these in so they are only created once.
+    var alpha = /^[a-zA-Z_]+$/,
+        alphanum = /^[a-zA-Z0-9_]+$/,
+
+        // http://en.wikipedia.org/wiki/Email_address#Local_part
+        // http://stackoverflow.com/a/2049510
+        // http://isemail.info/
+        // http://blog.stevenlevithan.com/archives/capturing-vs-non-capturing-groups
+        //
+        // 1. Can begin with a double-quote ONLY IF the local part also ends in a double-quote.
+        // 2. Can NOT BEGIN with a period.
+        // 3. Can NOT END with a period.
+        // 4. Can not have MORE THAN ONE period in a row.
+        //
+        // Let's break this down:
+        //
+        // ^(")?
+        // The local part may begin with double-quotes, but only if it also ends with it.
+        // See the back-reference.  Capturing.
+        //
+        // (?:[^\."])
+        // Here we've defined that the local part cannot begin with a period or a double-quote.  Non-capturing.
+        //
+        // (?:(?:[\.])?(?:[\w\-!#$%&'*+/=?^_`{|}~]))*
+        // After the first character is matched, the regex ensures that there is not more than one period
+        // in a row.  Then, this nested grouping allows for zero or more of the accepted characters.
+        // NOTE that this also ensures that any character not defined in the character class
+        // is invalid as an ending character for the local part (such as the period).
+        //
+        // \1@
+        // The local part of the address is a backreference to the first (and only) capturing group that allows
+        // for a double-quote to wrap the local part of an email address.
+        email = /^(")?(?:[^\."])(?:(?:[\.])?(?:[\w\-!#$%&'*+/=?^_`{|}~]))*\1@(\w[\-\w]*\.){1,5}([A-Za-z]){2,6}$/,
+        url = /(((^https?)|(^ftp)):\/\/((([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*)|(localhost|LOCALHOST))\/?)/i;
+
+    // All these messages and functions are configurable
+    return {
+        singleton: true,
+        alternateClassName: 'Ext.form.VTypes',
+
+        /**
+         * The function used to validate email addresses. Note that complete validation per the email RFC
+         * specifications is very complex and beyond the scope of this class, although this function can be
+         * overridden if a more comprehensive validation scheme is desired. See the validation section
+         * of the [Wikipedia article on email addresses][1] for additional information. This implementation is
+         * intended to validate the following types of emails:
+         *
+         * - `barney@example.de`
+         * - `barney.rubble@example.com`
+         * - `barney-rubble@example.coop`
+         * - `barney+rubble@example.com`
+         * - `barney'rubble@example.com`
+         * - `b.arne.y_r.ubbl.e@example.com`
+         * - `barney4rubble@example.com`
+         * - `barney4rubble!@example.com`
+         * - `_barney+rubble@example.com`
+         * - `"barney+rubble"@example.com`
+         *
+         * [1]: http://en.wikipedia.org/wiki/E-mail_address
+         *
+         * @param {String} value The email address
+         * @return {Boolean} true if the RegExp test passed, and false if not.
+         */
+        'email' : function(v){
+            return email.test(v);
+        },
+        //<locale>
+        /**
+         * @property {String} emailText
+         * The error text to display when the email validation function returns false.
+         * Defaults to: 'This field should be an e-mail address in the format "user@example.com"'
+         */
+        'emailText' : 'This field should be an e-mail address in the format "user@example.com"',
+        //</locale>
+        /**
+         * @property {RegExp} emailMask
+         * The keystroke filter mask to be applied on email input. See the {@link #email} method for information about
+         * more complex email validation. Defaults to: /[a-z0-9_\.\-@]/i
+         */
+        'emailMask' : /[\w.\-@'"!#$%&'*+/=?^_`{|}~]/i,
+
+        /**
+         * The function used to validate URLs
+         * @param {String} value The URL
+         * @return {Boolean} true if the RegExp test passed, and false if not.
+         */
+        'url' : function(v){
+            return url.test(v);
+        },
+        //<locale>
+        /**
+         * @property {String} urlText
+         * The error text to display when the url validation function returns false.
+         * Defaults to: 'This field should be a URL in the format "http:/'+'/www.example.com"'
+         */
+        'urlText' : 'This field should be a URL in the format "http:/'+'/www.example.com"',
+        //</locale>
+
+        /**
+         * The function used to validate alpha values
+         * @param {String} value The value
+         * @return {Boolean} true if the RegExp test passed, and false if not.
+         */
+        'alpha' : function(v){
+            return alpha.test(v);
+        },
+        //<locale>
+        /**
+         * @property {String} alphaText
+         * The error text to display when the alpha validation function returns false.
+         * Defaults to: 'This field should only contain letters and _'
+         */
+        'alphaText' : 'This field should only contain letters and _',
+        //</locale>
+        /**
+         * @property {RegExp} alphaMask
+         * The keystroke filter mask to be applied on alpha input. Defaults to: /[a-z_]/i
+         */
+        'alphaMask' : /[a-z_]/i,
+
+        /**
+         * The function used to validate alphanumeric values
+         * @param {String} value The value
+         * @return {Boolean} true if the RegExp test passed, and false if not.
+         */
+        'alphanum' : function(v){
+            return alphanum.test(v);
+        },
+        //<locale>
+        /**
+         * @property {String} alphanumText
+         * The error text to display when the alphanumeric validation function returns false.
+         * Defaults to: 'This field should only contain letters, numbers and _'
+         */
+        'alphanumText' : 'This field should only contain letters, numbers and _',
+        //</locale>
+        /**
+         * @property {RegExp} alphanumMask
+         * The keystroke filter mask to be applied on alphanumeric input. Defaults to: /[a-z0-9_]/i
+         */
+        'alphanumMask' : /[a-z0-9_]/i
+    };
+}()));
+
+/*
+This file is part of Ext JS 4.2
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+*/
+/**
+ * Layout class for {@link Ext.form.field.Text} fields. Handles sizing the input field.
+ * @private
+ */
+Ext.define('Ext.layout.component.field.Text', {
+    extend: 'Ext.layout.component.field.Field',
+    alias: 'layout.textfield',
+    requires: ['Ext.util.TextMetrics'],
+
+    type: 'textfield',
+    
+    canGrowWidth: true,
+
+    beginLayoutCycle: function(ownerContext) {
+        this.callParent(arguments);
+        
+        // Clear height, in case a previous layout cycle stretched it.
+        if (ownerContext.heightModel.shrinkWrap) {
+            ownerContext.inputContext.el.setStyle('height', '');
+        }
+    },
+
+    measureContentWidth: function (ownerContext) {
+        var me = this,
+            owner = me.owner,
+            width = me.callParent(arguments),
+            inputContext = ownerContext.inputContext,
+            inputEl, value, calcWidth, max, min;
+
+        if (owner.grow && me.canGrowWidth && !ownerContext.state.growHandled) {
+            inputEl = owner.inputEl;
+
+            // Find the width that contains the whole text value
+            value = Ext.util.Format.htmlEncode(inputEl.dom.value || (owner.hasFocus ? '' : owner.emptyText) || '');
+            value += owner.growAppend;
+            calcWidth = inputEl.getTextWidth(value) + inputContext.getFrameInfo().width;
+
+            max = owner.growMax;
+            min = Math.min(max, width);
+            max = Math.max(owner.growMin, max, min);
+
+            // Constrain
+            calcWidth = Ext.Number.constrain(calcWidth, owner.growMin, max);
+            inputContext.setWidth(calcWidth);
+            ownerContext.state.growHandled = true;
+            
+            // Now that we've set the inputContext, we need to recalculate the width
+            inputContext.domBlock(me, 'width');
+            width = NaN;
+        }
+        return width;
+    },
+    
+    publishInnerHeight: function(ownerContext, height) {
+        ownerContext.inputContext.setHeight(height - this.measureLabelErrorHeight(ownerContext));
+    },
+
+    beginLayoutFixed: function(ownerContext, width, suffix) {
+        var me = this,
+            ieInputWidthAdjustment = me.ieInputWidthAdjustment;
+
+        if (ieInputWidthAdjustment) {
+            me.adjustIEInputPadding(ownerContext);
+            if(suffix === 'px') {
+                width -= ieInputWidthAdjustment;
+            }
+        }
+
+        me.callParent(arguments);
+    },
+
+    adjustIEInputPadding: function(ownerContext) {
+        // adjust for IE 6/7 strict content-box model
+        this.owner.bodyEl.setStyle('padding-right', this.ieInputWidthAdjustment + 'px');
+    }
+});
+
 /*
 This file is part of Ext JS 4.2
 
@@ -61288,692 +60860,6 @@ Ext.define('Ext.util.CSS', function() {
         }
     };
 });
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
-/**
- * Plugin to add header resizing functionality to a HeaderContainer.
- * Always resizing header to the left of the splitter you are resizing.
- */
-Ext.define('Ext.grid.plugin.HeaderResizer', {
-    extend: 'Ext.AbstractPlugin',
-    requires: ['Ext.dd.DragTracker', 'Ext.util.Region'],
-    alias: 'plugin.gridheaderresizer',
-
-    disabled: false,
-
-    config: {
-        /**
-         * @cfg {Boolean} dynamic
-         * True to resize on the fly rather than using a proxy marker.
-         * @accessor
-         */
-        dynamic: false
-    },
-
-    colHeaderCls: Ext.baseCSSPrefix + 'column-header',
-
-    minColWidth: 40,
-    maxColWidth: 1000,
-    wResizeCursor: 'col-resize',
-    eResizeCursor: 'col-resize',
-    // not using w and e resize bc we are only ever resizing one
-    // column
-    //wResizeCursor: Ext.isWebKit ? 'w-resize' : 'col-resize',
-    //eResizeCursor: Ext.isWebKit ? 'e-resize' : 'col-resize',
-
-    init: function(headerCt) {
-        this.headerCt = headerCt;
-        headerCt.on('render', this.afterHeaderRender, this, {single: true});
-    },
-
-    /**
-     * @private
-     * AbstractComponent calls destroy on all its plugins at destroy time.
-     */
-    destroy: function() {
-        if (this.tracker) {
-            this.tracker.destroy();
-        }
-    },
-
-    afterHeaderRender: function() {
-        var headerCt = this.headerCt,
-            el = headerCt.el;
-
-        headerCt.mon(el, 'mousemove', this.onHeaderCtMouseMove, this);
-
-        this.tracker = new Ext.dd.DragTracker({
-            disabled: this.disabled,
-            onBeforeStart: Ext.Function.bind(this.onBeforeStart, this),
-            onStart: Ext.Function.bind(this.onStart, this),
-            onDrag: Ext.Function.bind(this.onDrag, this),
-            onEnd: Ext.Function.bind(this.onEnd, this),
-            tolerance: 3,
-            autoStart: 300,
-            el: el
-        });
-    },
-
-    // As we mouse over individual headers, change the cursor to indicate
-    // that resizing is available, and cache the resize target header for use
-    // if/when they mousedown.
-    onHeaderCtMouseMove: function(e, t) {
-        var me = this,
-            prevSiblings,
-            headerEl, overHeader, resizeHeader, resizeHeaderOwnerGrid, ownerGrid;
-
-        if (me.headerCt.dragging) {
-            if (me.activeHd) {
-                me.activeHd.el.dom.style.cursor = '';
-                delete me.activeHd;
-            }
-        } else {
-            headerEl = e.getTarget('.' + me.colHeaderCls, 3, true);
-
-            if (headerEl){
-                overHeader = Ext.getCmp(headerEl.id);
-
-                // On left edge, go back to the previous non-hidden header.
-                if (overHeader.isOnLeftEdge(e)) {
-                    resizeHeader = overHeader.previousNode('gridcolumn:not([hidden]):not([isGroupHeader])')
-                    // There may not *be* a previous non-hidden header.
-                    if (resizeHeader) {
-
-                        ownerGrid = me.headerCt.up('tablepanel');
-                        resizeHeaderOwnerGrid = resizeHeader.up('tablepanel');
-
-                        // Need to check that previousNode didn't go outside the current grid/tree
-                        // But in the case of a Grid which contains a locked and normal grid, allow previousNode to jump
-                        // from the first column of the normalGrid to the last column of the lockedGrid
-                        if (!((resizeHeaderOwnerGrid === ownerGrid) || ((ownerGrid.ownerCt.isXType('tablepanel')) && ownerGrid.ownerCt.view.lockedGrid === resizeHeaderOwnerGrid))) {
-                            resizeHeader = null;
-                        }
-                    }
-                }
-                // Else, if on the right edge, we're resizing the column we are over
-                else if (overHeader.isOnRightEdge(e)) {
-                    resizeHeader = overHeader;
-                }
-                // Between the edges: we are not resizing
-                else {
-                    resizeHeader = null;
-                }
-
-                // We *are* resizing
-                if (resizeHeader) {
-                    // If we're attempting to resize a group header, that cannot be resized,
-                    // so find its last visible leaf header; Group headers are sized
-                    // by the size of their child headers.
-                    if (resizeHeader.isGroupHeader) {
-                        prevSiblings = resizeHeader.getGridColumns();
-                        resizeHeader = prevSiblings[prevSiblings.length - 1];
-                    }
-
-                    // Check if the header is resizable. Continue checking the old "fixed" property, bug also
-                    // check whether the resizable property is set to false.
-                    if (resizeHeader && !(resizeHeader.fixed || (resizeHeader.resizable === false) || me.disabled)) {
-                        me.activeHd = resizeHeader;
-                        overHeader.el.dom.style.cursor = me.eResizeCursor;
-                        if (overHeader.triggerEl) {
-                            overHeader.triggerEl.dom.style.cursor = me.eResizeCursor;
-                        }
-                    }
-                // reset
-                } else {
-                    overHeader.el.dom.style.cursor = '';
-                    if (overHeader.triggerEl) {
-                        overHeader.triggerEl.dom.style.cursor = '';
-                    }
-                    me.activeHd = null;
-                }
-            }
-        }
-    },
-
-    // only start when there is an activeHd
-    onBeforeStart : function(e) {
-        // cache the activeHd because it will be cleared.
-        this.dragHd = this.activeHd;
-
-        if (!!this.dragHd && !this.headerCt.dragging) {
-            this.tracker.constrainTo = this.getConstrainRegion();
-            return true;
-        } else {
-            this.headerCt.dragging = false;
-            return false;
-        }
-    },
-
-    // get the region to constrain to, takes into account max and min col widths
-    getConstrainRegion: function() {
-        var me       = this,
-            dragHdEl = me.dragHd.el,
-            rightAdjust = 0,
-            nextHd,
-            lockedGrid;
-
-        // If forceFit, then right constraint is based upon not being able to force the next header
-        // beyond the minColWidth. If there is no next header, then the header may not be expanded.
-        if (me.headerCt.forceFit) {
-            nextHd = me.dragHd.nextNode('gridcolumn:not([hidden]):not([isGroupHeader])');
-            if (nextHd) {
-                if (!me.headerInSameGrid(nextHd)) {
-                    nextHd = null;
-                }
-                rightAdjust = nextHd.getWidth() - me.minColWidth;
-            }
-        }
-
-        // If resize header is in a locked grid, the maxWidth has to be 30px within the available locking grid's width
-        else if ((lockedGrid = me.dragHd.up('tablepanel')).isLocked) {
-            rightAdjust = me.dragHd.up('[scrollerOwner]').getWidth() - lockedGrid.getWidth() - 30;
-        }
-
-        // Else ue our default max width
-        else {
-            rightAdjust = me.maxColWidth - dragHdEl.getWidth();
-        }
-
-        return me.adjustConstrainRegion(
-            dragHdEl.getRegion(),
-            0,
-            rightAdjust,
-            0,
-            me.minColWidth
-        );
-    },
-
-    // initialize the left and right hand side markers around
-    // the header that we are resizing
-    onStart: function(e){
-        var me       = this,
-            dragHd   = me.dragHd,
-            width    = dragHd.el.getWidth(),
-            headerCt = dragHd.getOwnerHeaderCt(),
-            x, y, gridSection, markerOwner, lhsMarker, rhsMarker, markerHeight;
-
-        me.headerCt.dragging = true;
-        me.origWidth = width;
-
-        // setup marker proxies
-        if (!me.dynamic) {
-            gridSection  = markerOwner = headerCt.up('tablepanel');
-            if (gridSection.ownerLockable) {
-                markerOwner = gridSection.ownerLockable;
-            }
-            x            = me.getLeftMarkerX(markerOwner);
-            lhsMarker    = markerOwner.getLhsMarker();
-            rhsMarker    = markerOwner.getRhsMarker();
-            markerHeight = gridSection.body.getHeight() + headerCt.getHeight();
-            y            = headerCt.getOffsetsTo(markerOwner)[1];
-
-            lhsMarker.setLocalY(y);
-            rhsMarker.setLocalY(y);
-            lhsMarker.setHeight(markerHeight);
-            rhsMarker.setHeight(markerHeight);
-            me.setMarkerX(lhsMarker, x);
-            me.setMarkerX(rhsMarker, x + width);
-        }
-    },
-
-    // synchronize the rhsMarker with the mouse movement
-    onDrag: function(e){
-        var me = this,
-            markerOwner;
-            
-        if (me.dynamic) {
-            me.doResize();
-        } else {
-            markerOwner = this.headerCt.up('tablepanel');
-            if (markerOwner.ownerLockable) {
-                markerOwner = markerOwner.ownerLockable;
-            }
-            this.setMarkerX(this.getMovingMarker(markerOwner), this.calculateDragX(markerOwner));
-        }
-    },
-    
-    getMovingMarker: function(markerOwner){
-        return markerOwner.getRhsMarker();
-    },
-
-    onEnd: function(e) {
-        this.headerCt.dragging = false;
-        if (this.dragHd) {
-            if (!this.dynamic) {
-                var markerOwner = this.headerCt.up('tablepanel');
-
-                // hide markers
-                if (markerOwner.ownerLockable) {
-                    markerOwner = markerOwner.ownerLockable;
-                }
-                this.setMarkerX(markerOwner.getLhsMarker(), -9999);
-                this.setMarkerX(markerOwner.getRhsMarker(), -9999);
-            }
-            this.doResize();
-        }
-    },
-
-    doResize: function() {
-        var me = this,
-            dragHd = me.dragHd,
-            nextHd,
-            offset;
-            
-        if (dragHd) {
-            offset = me.tracker.getOffset('point');
-
-            // resize the dragHd
-            if (dragHd.flex) {
-                delete dragHd.flex;
-            }
-
-            Ext.suspendLayouts();
-
-            // Set the new column width.
-            me.adjustColumnWidth(offset[0]);
- 
-            // In the case of forceFit, change the following Header width.
-            // Constraining so that neither neighbour can be sized to below minWidth is handled in getConstrainRegion
-            if (me.headerCt.forceFit) {
-                nextHd = dragHd.nextNode('gridcolumn:not([hidden]):not([isGroupHeader])');
-                if (nextHd && !me.headerInSameGrid(nextHd)) {
-                    nextHd = null;
-                }
-                if (nextHd) {
-                    delete nextHd.flex;
-                    nextHd.setWidth(nextHd.getWidth() - offset[0]);
-                }
-            }
-
-            // Apply the two width changes by laying out the owning HeaderContainer
-            Ext.resumeLayouts(true);
-        }
-    },
-    
-    // nextNode can traverse out of this grid, possibly to others on the page, so limit it here
-    headerInSameGrid: function(header) {
-        var grid = this.dragHd.up('tablepanel');
-        
-        return !!header.up(grid);
-    },
-
-    disable: function() {
-        this.disabled = true;
-        if (this.tracker) {
-            this.tracker.disable();
-        }
-    },
-
-    enable: function() {
-        this.disabled = false;
-        if (this.tracker) {
-            this.tracker.enable();
-        }
-    },
-
-    calculateDragX: function(markerOwner) {
-        return this.tracker.getXY('point')[0] - markerOwner.getX() - markerOwner.el.getBorderWidth('l');
-    },
-
-    getLeftMarkerX: function(markerOwner) {
-        return this.dragHd.getX() - markerOwner.getX() - markerOwner.el.getBorderWidth('l') - 1;
-    },
-
-    setMarkerX: function(marker, x) {
-        marker.setLocalX(x);
-    },
-
-    adjustConstrainRegion: function(region, t, r, b, l) {
-        return region.adjust(t, r, b, l);
-    },
-
-    adjustColumnWidth: function(offsetX) {
-        this.dragHd.setWidth(this.origWidth + offsetX);
-    }
-});
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
-/**
- * @singleton
- * @alternateClassName Ext.form.VTypes
- *
- * This is a singleton object which contains a set of commonly used field validation functions
- * and provides a mechanism for creating reusable custom field validations.
- * The following field validation functions are provided out of the box:
- *
- * - {@link #alpha}
- * - {@link #alphanum}
- * - {@link #email}
- * - {@link #url}
- *
- * VTypes can be applied to a {@link Ext.form.field.Text Text Field} using the `{@link Ext.form.field.Text#vtype vtype}` configuration:
- *
- *     Ext.create('Ext.form.field.Text', {
- *         fieldLabel: 'Email Address',
- *         name: 'email',
- *         vtype: 'email' // applies email validation rules to this field
- *     });
- *
- * To create custom VTypes:
- *
- *     // custom Vtype for vtype:'time'
- *     var timeTest = /^([1-9]|1[0-9]):([0-5][0-9])(\s[a|p]m)$/i;
- *     Ext.apply(Ext.form.field.VTypes, {
- *         //  vtype validation function
- *         time: function(val, field) {
- *             return timeTest.test(val);
- *         },
- *         // vtype Text property: The error text to display when the validation function returns false
- *         timeText: 'Not a valid time.  Must be in the format "12:34 PM".',
- *         // vtype Mask property: The keystroke filter mask
- *         timeMask: /[\d\s:amp]/i
- *     });
- *
- * In the above example the `time` function is the validator that will run when field validation occurs,
- * `timeText` is the error message, and `timeMask` limits what characters can be typed into the field.
- * Note that the `Text` and `Mask` functions must begin with the same name as the validator function.
- *
- * Using a custom validator is the same as using one of the build-in validators - just use the name of the validator function
- * as the `{@link Ext.form.field.Text#vtype vtype}` configuration on a {@link Ext.form.field.Text Text Field}:
- *
- *     Ext.create('Ext.form.field.Text', {
- *         fieldLabel: 'Departure Time',
- *         name: 'departureTime',
- *         vtype: 'time' // applies custom time validation rules to this field
- *     });
- *
- * Another example of a custom validator:
- *
- *     // custom Vtype for vtype:'IPAddress'
- *     Ext.apply(Ext.form.field.VTypes, {
- *         IPAddress:  function(v) {
- *             return /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(v);
- *         },
- *         IPAddressText: 'Must be a numeric IP address',
- *         IPAddressMask: /[\d\.]/i
- *     });
- *
- * It's important to note that using {@link Ext#apply Ext.apply()} means that the custom validator function
- * as well as `Text` and `Mask` fields are added as properties of the `Ext.form.field.VTypes` singleton.
- */
-Ext.define('Ext.form.field.VTypes', (function(){
-    // closure these in so they are only created once.
-    var alpha = /^[a-zA-Z_]+$/,
-        alphanum = /^[a-zA-Z0-9_]+$/,
-
-        // http://en.wikipedia.org/wiki/Email_address#Local_part
-        // http://stackoverflow.com/a/2049510
-        // http://isemail.info/
-        // http://blog.stevenlevithan.com/archives/capturing-vs-non-capturing-groups
-        //
-        // 1. Can begin with a double-quote ONLY IF the local part also ends in a double-quote.
-        // 2. Can NOT BEGIN with a period.
-        // 3. Can NOT END with a period.
-        // 4. Can not have MORE THAN ONE period in a row.
-        //
-        // Let's break this down:
-        //
-        // ^(")?
-        // The local part may begin with double-quotes, but only if it also ends with it.
-        // See the back-reference.  Capturing.
-        //
-        // (?:[^\."])
-        // Here we've defined that the local part cannot begin with a period or a double-quote.  Non-capturing.
-        //
-        // (?:(?:[\.])?(?:[\w\-!#$%&'*+/=?^_`{|}~]))*
-        // After the first character is matched, the regex ensures that there is not more than one period
-        // in a row.  Then, this nested grouping allows for zero or more of the accepted characters.
-        // NOTE that this also ensures that any character not defined in the character class
-        // is invalid as an ending character for the local part (such as the period).
-        //
-        // \1@
-        // The local part of the address is a backreference to the first (and only) capturing group that allows
-        // for a double-quote to wrap the local part of an email address.
-        email = /^(")?(?:[^\."])(?:(?:[\.])?(?:[\w\-!#$%&'*+/=?^_`{|}~]))*\1@(\w[\-\w]*\.){1,5}([A-Za-z]){2,6}$/,
-        url = /(((^https?)|(^ftp)):\/\/((([\-\w]+\.)+\w{2,3}(\/[%\-\w]+(\.\w{2,})?)*(([\w\-\.\?\\\/+@&#;`~=%!]*)(\.\w{2,})?)*)|(localhost|LOCALHOST))\/?)/i;
-
-    // All these messages and functions are configurable
-    return {
-        singleton: true,
-        alternateClassName: 'Ext.form.VTypes',
-
-        /**
-         * The function used to validate email addresses. Note that complete validation per the email RFC
-         * specifications is very complex and beyond the scope of this class, although this function can be
-         * overridden if a more comprehensive validation scheme is desired. See the validation section
-         * of the [Wikipedia article on email addresses][1] for additional information. This implementation is
-         * intended to validate the following types of emails:
-         *
-         * - `barney@example.de`
-         * - `barney.rubble@example.com`
-         * - `barney-rubble@example.coop`
-         * - `barney+rubble@example.com`
-         * - `barney'rubble@example.com`
-         * - `b.arne.y_r.ubbl.e@example.com`
-         * - `barney4rubble@example.com`
-         * - `barney4rubble!@example.com`
-         * - `_barney+rubble@example.com`
-         * - `"barney+rubble"@example.com`
-         *
-         * [1]: http://en.wikipedia.org/wiki/E-mail_address
-         *
-         * @param {String} value The email address
-         * @return {Boolean} true if the RegExp test passed, and false if not.
-         */
-        'email' : function(v){
-            return email.test(v);
-        },
-        //<locale>
-        /**
-         * @property {String} emailText
-         * The error text to display when the email validation function returns false.
-         * Defaults to: 'This field should be an e-mail address in the format "user@example.com"'
-         */
-        'emailText' : 'This field should be an e-mail address in the format "user@example.com"',
-        //</locale>
-        /**
-         * @property {RegExp} emailMask
-         * The keystroke filter mask to be applied on email input. See the {@link #email} method for information about
-         * more complex email validation. Defaults to: /[a-z0-9_\.\-@]/i
-         */
-        'emailMask' : /[\w.\-@'"!#$%&'*+/=?^_`{|}~]/i,
-
-        /**
-         * The function used to validate URLs
-         * @param {String} value The URL
-         * @return {Boolean} true if the RegExp test passed, and false if not.
-         */
-        'url' : function(v){
-            return url.test(v);
-        },
-        //<locale>
-        /**
-         * @property {String} urlText
-         * The error text to display when the url validation function returns false.
-         * Defaults to: 'This field should be a URL in the format "http:/'+'/www.example.com"'
-         */
-        'urlText' : 'This field should be a URL in the format "http:/'+'/www.example.com"',
-        //</locale>
-
-        /**
-         * The function used to validate alpha values
-         * @param {String} value The value
-         * @return {Boolean} true if the RegExp test passed, and false if not.
-         */
-        'alpha' : function(v){
-            return alpha.test(v);
-        },
-        //<locale>
-        /**
-         * @property {String} alphaText
-         * The error text to display when the alpha validation function returns false.
-         * Defaults to: 'This field should only contain letters and _'
-         */
-        'alphaText' : 'This field should only contain letters and _',
-        //</locale>
-        /**
-         * @property {RegExp} alphaMask
-         * The keystroke filter mask to be applied on alpha input. Defaults to: /[a-z_]/i
-         */
-        'alphaMask' : /[a-z_]/i,
-
-        /**
-         * The function used to validate alphanumeric values
-         * @param {String} value The value
-         * @return {Boolean} true if the RegExp test passed, and false if not.
-         */
-        'alphanum' : function(v){
-            return alphanum.test(v);
-        },
-        //<locale>
-        /**
-         * @property {String} alphanumText
-         * The error text to display when the alphanumeric validation function returns false.
-         * Defaults to: 'This field should only contain letters, numbers and _'
-         */
-        'alphanumText' : 'This field should only contain letters, numbers and _',
-        //</locale>
-        /**
-         * @property {RegExp} alphanumMask
-         * The keystroke filter mask to be applied on alphanumeric input. Defaults to: /[a-z0-9_]/i
-         */
-        'alphanumMask' : /[a-z0-9_]/i
-    };
-}()));
-
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
-/**
- * Layout class for {@link Ext.form.field.Text} fields. Handles sizing the input field.
- * @private
- */
-Ext.define('Ext.layout.component.field.Text', {
-    extend: 'Ext.layout.component.field.Field',
-    alias: 'layout.textfield',
-    requires: ['Ext.util.TextMetrics'],
-
-    type: 'textfield',
-    
-    canGrowWidth: true,
-
-    beginLayoutCycle: function(ownerContext) {
-        this.callParent(arguments);
-        
-        // Clear height, in case a previous layout cycle stretched it.
-        if (ownerContext.heightModel.shrinkWrap) {
-            ownerContext.inputContext.el.setStyle('height', '');
-        }
-    },
-
-    measureContentWidth: function (ownerContext) {
-        var me = this,
-            owner = me.owner,
-            width = me.callParent(arguments),
-            inputContext = ownerContext.inputContext,
-            inputEl, value, calcWidth, max, min;
-
-        if (owner.grow && me.canGrowWidth && !ownerContext.state.growHandled) {
-            inputEl = owner.inputEl;
-
-            // Find the width that contains the whole text value
-            value = Ext.util.Format.htmlEncode(inputEl.dom.value || (owner.hasFocus ? '' : owner.emptyText) || '');
-            value += owner.growAppend;
-            calcWidth = inputEl.getTextWidth(value) + inputContext.getFrameInfo().width;
-
-            max = owner.growMax;
-            min = Math.min(max, width);
-            max = Math.max(owner.growMin, max, min);
-
-            // Constrain
-            calcWidth = Ext.Number.constrain(calcWidth, owner.growMin, max);
-            inputContext.setWidth(calcWidth);
-            ownerContext.state.growHandled = true;
-            
-            // Now that we've set the inputContext, we need to recalculate the width
-            inputContext.domBlock(me, 'width');
-            width = NaN;
-        }
-        return width;
-    },
-    
-    publishInnerHeight: function(ownerContext, height) {
-        ownerContext.inputContext.setHeight(height - this.measureLabelErrorHeight(ownerContext));
-    },
-
-    beginLayoutFixed: function(ownerContext, width, suffix) {
-        var me = this,
-            ieInputWidthAdjustment = me.ieInputWidthAdjustment;
-
-        if (ieInputWidthAdjustment) {
-            me.adjustIEInputPadding(ownerContext);
-            if(suffix === 'px') {
-                width -= ieInputWidthAdjustment;
-            }
-        }
-
-        me.callParent(arguments);
-    },
-
-    adjustIEInputPadding: function(ownerContext) {
-        // adjust for IE 6/7 strict content-box model
-        this.owner.bodyEl.setStyle('padding-right', this.ieInputWidthAdjustment + 'px');
-    }
-});
-
 /*
 This file is part of Ext JS 4.2
 
@@ -63155,6 +62041,155 @@ Ext.define('Ext.layout.container.Anchor', {
     }
 });
 
+/*
+This file is part of Ext JS 4.2
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+*/
+/**
+ * The AbstractPlugin class is the base class from which user-implemented plugins should inherit.
+ *
+ * This class defines the essential API of plugins as used by Components by defining the following methods:
+ *
+ *   - `init` : The plugin initialization method which the owning Component calls at Component initialization time.
+ *
+ *     The Component passes itself as the sole parameter.
+ *
+ *     Subclasses should set up bidirectional links between the plugin and its client Component here.
+ *
+ *   - `destroy` : The plugin cleanup method which the owning Component calls at Component destruction time.
+ *
+ *     Use this method to break links between the plugin and the Component and to free any allocated resources.
+ *
+ *   - `enable` : The base implementation just sets the plugin's `disabled` flag to `false`
+ *
+ *   - `disable` : The base implementation just sets the plugin's `disabled` flag to `true`
+ */
+Ext.define('Ext.AbstractPlugin', {
+    disabled: false,
+
+    /**
+     * @property {Boolean} isPlugin
+     * `true` in this class to identify an object as an instantiated Plugin, or subclass thereof.
+     */
+    isPlugin: true,
+
+    /**
+     * Instantiates the plugin.
+     * @param {Object} [config] Configuration object.
+     */
+    constructor: function(config) {
+        this.pluginConfig = config;
+        Ext.apply(this, config);
+    },
+
+    /**
+     * Creates clone of the plugin.
+     * @param {Object} [overrideCfg] Additional config for the derived plugin.
+     */
+    clonePlugin: function(overrideCfg) {
+        return new this.self(Ext.apply({}, overrideCfg, this.pluginConfig));
+    },
+
+    /**
+     * Sets the component to which this plugin is attached.
+     * @param {Ext.Component} cmp Owner component.
+     */
+    setCmp: function(cmp) {
+        this.cmp = cmp;
+    },
+
+    /**
+     * Returns the component to which this plugin is attached.
+     * @return {Ext.Component} Owner component.
+     */
+    getCmp: function() {
+        return this.cmp;
+    },
+
+    /**
+     * @cfg {String} pluginId
+     * A name for the plugin that can be set at creation time to then retrieve the plugin
+     * through {@link Ext.AbstractComponent#getPlugin getPlugin} method.  For example:
+     *
+     *     var grid = Ext.create('Ext.grid.Panel', {
+     *         plugins: [{
+     *             ptype: 'cellediting',
+     *             clicksToEdit: 2,
+     *             pluginId: 'cellplugin'
+     *         }]
+     *     });
+     *
+     *     // later on:
+     *     var plugin = grid.getPlugin('cellplugin');
+     */
+
+    /**
+     * @method
+     * The init method is invoked after initComponent method has been run for the client Component.
+     *
+     * The supplied implementation is empty. Subclasses should perform plugin initialization, and set up bidirectional
+     * links between the plugin and its client Component in their own implementation of this method.
+     * @param {Ext.Component} client The client Component which owns this plugin.
+     */
+    init: Ext.emptyFn,
+
+    /**
+     * @method
+     * The destroy method is invoked by the owning Component at the time the Component is being destroyed.
+     *
+     * The supplied implementation is empty. Subclasses should perform plugin cleanup in their own implementation of
+     * this method.
+     */
+    destroy: Ext.emptyFn,
+
+    /**
+     * The base implementation just sets the plugin's `disabled` flag to `false`
+     *
+     * Plugin subclasses which need more complex processing may implement an overriding implementation.
+     */
+    enable: function() {
+        this.disabled = false;
+    },
+
+    /**
+     * The base implementation just sets the plugin's `disabled` flag to `true`
+     *
+     * Plugin subclasses which need more complex processing may implement an overriding implementation.
+     */
+    disable: function() {
+        this.disabled = true;
+    },
+
+    // Private.
+    // Inject a ptype property so that AbstractComponent.findPlugin(ptype) works.
+    onClassExtended: function(cls, data, hooks) {
+        var alias = data.alias;
+
+        // No ptype built into the class 
+        if (alias && !data.ptype) {
+            if (Ext.isArray(alias)) {
+                alias = alias[0];
+            }
+            cls.prototype.ptype = alias.split('plugin.')[1];
+        }
+    }
+});
 /*
 This file is part of Ext JS 4.2
 
@@ -65648,6 +64683,155 @@ at http://www.sencha.com/contact.
 Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
+ * Layout class for {@link Ext.form.field.TextArea} fields. Handles sizing the textarea field.
+ * @private
+ */
+Ext.define('Ext.layout.component.field.TextArea', {
+    extend: 'Ext.layout.component.field.Text',
+    alias: 'layout.textareafield',
+
+    type: 'textareafield',
+    
+    canGrowWidth: false,
+    
+    naturalSizingProp: 'cols',
+    
+    beginLayout: function(ownerContext){
+        this.callParent(arguments);
+        ownerContext.target.inputEl.setStyle('height', '');
+    },
+
+    measureContentHeight: function (ownerContext) {
+        var me = this,
+            owner = me.owner,
+            height = me.callParent(arguments),
+            inputContext, inputEl, value, max, curWidth, calcHeight;
+
+        if (owner.grow && !ownerContext.state.growHandled) {
+            inputContext = ownerContext.inputContext;
+            inputEl = owner.inputEl;
+            curWidth = inputEl.getWidth(true); //subtract border/padding to get the available width for the text
+
+            // Get and normalize the field value for measurement
+            value = Ext.util.Format.htmlEncode(inputEl.dom.value) || '&#160;';
+            value += owner.growAppend;
+            
+            // Translate newlines to <br> tags
+            value = value.replace(/\n/g, '<br/>');
+
+            // Find the height that contains the whole text value
+            calcHeight = Ext.util.TextMetrics.measure(inputEl, value, curWidth).height +
+                         inputContext.getBorderInfo().height + inputContext.getPaddingInfo().height;
+
+            // Constrain
+            calcHeight = Ext.Number.constrain(calcHeight, owner.growMin, owner.growMax);
+            inputContext.setHeight(calcHeight);
+            ownerContext.state.growHandled = true;
+            
+            // Now that we've set the inputContext, we need to recalculate the width
+            inputContext.domBlock(me, 'height');
+            height = NaN;
+        }
+        return height;
+    }
+});
+
+/*
+This file is part of Ext JS 4.2
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+*/
+/**
+ * @private
+ */
+Ext.define('Ext.layout.component.ProgressBar', {
+
+    /* Begin Definitions */
+
+    alias: ['layout.progressbar'],
+
+    extend: 'Ext.layout.component.Auto',
+
+    /* End Definitions */
+
+    type: 'progressbar',
+
+    beginLayout: function (ownerContext) {
+        var me = this,
+            i, textEls;
+
+        me.callParent(arguments);
+
+        if (!ownerContext.textEls) {
+            textEls = me.owner.textEl; // an Ext.Element or CompositeList (raw DOM el's)
+
+            if (textEls.isComposite) {
+                ownerContext.textEls = [];
+                textEls = textEls.elements;
+                for (i = textEls.length; i--; ) {
+                    ownerContext.textEls[i] = ownerContext.getEl(Ext.get(textEls[i]));
+                }
+            } else {
+                ownerContext.textEls = [ ownerContext.getEl('textEl') ];
+            }
+        }
+    },
+
+    calculate: function(ownerContext) {
+        var me = this,
+            i, textEls, width;
+
+        me.callParent(arguments);
+
+        if (Ext.isNumber(width = ownerContext.getProp('width'))) {
+            width -= ownerContext.getBorderInfo().width;
+            textEls = ownerContext.textEls;
+
+            for (i = textEls.length; i--; ) {
+                textEls[i].setWidth(width);
+            }
+        } else {
+            me.done = false;
+        }
+    }
+});
+
+/*
+This file is part of Ext JS 4.2
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+*/
+/**
  * This class provides a container DD instance that allows dragging of multiple child source nodes.
  *
  * This class does not move the drag target nodes, but a proxy element which may contain any DOM structure you wish. The
@@ -65780,155 +64964,6 @@ Ext.define('Ext.dd.DragZone', {
         this.callParent();
         if (this.containerScroll) {
             Ext.dd.ScrollManager.unregister(this.scrollEl || this.el);
-        }
-    }
-});
-
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
-/**
- * Layout class for {@link Ext.form.field.TextArea} fields. Handles sizing the textarea field.
- * @private
- */
-Ext.define('Ext.layout.component.field.TextArea', {
-    extend: 'Ext.layout.component.field.Text',
-    alias: 'layout.textareafield',
-
-    type: 'textareafield',
-    
-    canGrowWidth: false,
-    
-    naturalSizingProp: 'cols',
-    
-    beginLayout: function(ownerContext){
-        this.callParent(arguments);
-        ownerContext.target.inputEl.setStyle('height', '');
-    },
-
-    measureContentHeight: function (ownerContext) {
-        var me = this,
-            owner = me.owner,
-            height = me.callParent(arguments),
-            inputContext, inputEl, value, max, curWidth, calcHeight;
-
-        if (owner.grow && !ownerContext.state.growHandled) {
-            inputContext = ownerContext.inputContext;
-            inputEl = owner.inputEl;
-            curWidth = inputEl.getWidth(true); //subtract border/padding to get the available width for the text
-
-            // Get and normalize the field value for measurement
-            value = Ext.util.Format.htmlEncode(inputEl.dom.value) || '&#160;';
-            value += owner.growAppend;
-            
-            // Translate newlines to <br> tags
-            value = value.replace(/\n/g, '<br/>');
-
-            // Find the height that contains the whole text value
-            calcHeight = Ext.util.TextMetrics.measure(inputEl, value, curWidth).height +
-                         inputContext.getBorderInfo().height + inputContext.getPaddingInfo().height;
-
-            // Constrain
-            calcHeight = Ext.Number.constrain(calcHeight, owner.growMin, owner.growMax);
-            inputContext.setHeight(calcHeight);
-            ownerContext.state.growHandled = true;
-            
-            // Now that we've set the inputContext, we need to recalculate the width
-            inputContext.domBlock(me, 'height');
-            height = NaN;
-        }
-        return height;
-    }
-});
-
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
-/**
- * @private
- */
-Ext.define('Ext.layout.component.ProgressBar', {
-
-    /* Begin Definitions */
-
-    alias: ['layout.progressbar'],
-
-    extend: 'Ext.layout.component.Auto',
-
-    /* End Definitions */
-
-    type: 'progressbar',
-
-    beginLayout: function (ownerContext) {
-        var me = this,
-            i, textEls;
-
-        me.callParent(arguments);
-
-        if (!ownerContext.textEls) {
-            textEls = me.owner.textEl; // an Ext.Element or CompositeList (raw DOM el's)
-
-            if (textEls.isComposite) {
-                ownerContext.textEls = [];
-                textEls = textEls.elements;
-                for (i = textEls.length; i--; ) {
-                    ownerContext.textEls[i] = ownerContext.getEl(Ext.get(textEls[i]));
-                }
-            } else {
-                ownerContext.textEls = [ ownerContext.getEl('textEl') ];
-            }
-        }
-    },
-
-    calculate: function(ownerContext) {
-        var me = this,
-            i, textEls, width;
-
-        me.callParent(arguments);
-
-        if (Ext.isNumber(width = ownerContext.getProp('width'))) {
-            width -= ownerContext.getBorderInfo().width;
-            textEls = ownerContext.textEls;
-
-            for (i = textEls.length; i--; ) {
-                textEls[i].setWidth(width);
-            }
-        } else {
-            me.done = false;
         }
     }
 });
@@ -66500,79 +65535,6 @@ Ext.define('Ext.dd.ScrollManager', {
     }
 });
 
-Ext.define('JCertifBO.controller.LoginController', {
-	extend : 'Ext.app.Controller',
-	views : ['Login'],
-	model : 'User',
-  requires : [
-      'Ext.util.Cookies'
-  ],
-	init : function() {
-		this.control({
-			'login button[action=login]' : {
-				click : this.connect
-			},
-			'login button[action=reset]' : {
-				click : this.reset
-			},
-			'appheader button[action=logout]' : {
-				click : this.logout
-			}
-		});
-	},
-	
-	onLaunch: function(){
-	    //check if usre is already authenticated
-      var email = Ext.util.Cookies.get('user');
-      if(email != undefined){
-        Ext.create('JCertifBO.view.Home');
-      }else{
-        Ext.create('JCertifBO.view.Login');
-      }
-      
-  },
-  
-	connect : function(btn) {
-		var win = btn.up('window'), form = win.down('form').getForm(), emailData = win.down('form').down('#email').getValue();
-    	
-		if (form.isValid()) {
-			Ext.Ajax.request({
-				url : BACKEND_URL + '/admin',
-				loadMask: true,
-				jsonData : Ext.JSON.encode(form.getValues()),
-				success : function(response) {				  
-				  var accessToken = Ext.decode(response.responseText).access_token;		
-          Ext.util.Cookies.set('user',emailData);
-          Ext.util.Cookies.set('access_token',accessToken);
-          Ext.util.Cookies.set('provider', 'userpass');
-          win.close();
-          Ext.create('JCertifBO.view.Home');
-				},
-				failure : function(response) {
-					Ext.MessageBox.show({
-						title : 'Login Failed',
-						msg : response.responseText,
-						buttons : Ext.MessageBox.OK,
-						icon : Ext.MessageBox.ERROR
-					});
-				}
-			});
-    }
-	},
-	
-	reset : function(btn) {
-		btn.up('window').down('form').getForm().reset();
-	},
-	
-	logout : function(btn) {
-		Ext.util.Cookies.clear('user');
-    Ext.util.Cookies.clear('provider');
-    Ext.util.Cookies.clear('access_token');
-    Ext.state.Manager.clear();
-    window.location.reload();
-	}
-	
-});
 /*
 This file is part of Ext JS 4.2
 
@@ -76257,11 +75219,12 @@ Ext.define('JCertifBO.store.AdminOptions', {
         {name: 'Sponsors', createUrl: '/sponsor/new', loadUrl: '/sponsor/list', updateUrl: '/sponsor/update', removeUrl: '/sponsor/remove', model: 'JCertifBO.model.Sponsor', grid: 'sponsorgrid'},
         {name: 'Sites', createUrl: '/site/new', loadUrl: '/site/list', updateUrl: '/site/update', removeUrl: '/site/remove', model: 'JCertifBO.model.Site', grid: 'sitegrid'},
         {name: 'Salles', createUrl: '/room/new', loadUrl: '/room/list', updateUrl: '/room/update', removeUrl: '/room/remove', model: 'JCertifBO.model.Room', grid: 'roomgrid'},
-        {name: 'Sessions', createUrl: '/session/new', loadUrl: '/session/list', updateUrl: '/session/update', removeUrl: '/session/remove', model: 'JCertifBO.model.Session', grid: 'sessiongrid'},
-        {name: 'Pr&eacute;sentateurs', createUrl: '/speaker/register', loadUrl: '/speaker/list', updateUrl: '/speaker/update', removeUrl: '/speaker/remove', model: 'JCertifBO.model.Speaker', grid: 'speakergrid'},
+        {name: 'Sessions', createUrl: '/session/new', loadUrl: '/admin/session/list', updateUrl: '/session/update', removeUrl: '/session/remove', model: 'JCertifBO.model.Session', grid: 'sessiongrid'},
+        {name: 'Pr&eacute;sentateurs', createUrl: '/speaker/register', loadUrl: '/admin/speaker/list', updateUrl: '/speaker/update', removeUrl: '/speaker/remove', model: 'JCertifBO.model.Speaker', grid: 'speakergrid'},
         {name: 'Participants', createUrl: '/participant/register', loadUrl: '/participant/list', updateUrl: '/participant/update', removeUrl: '/participant/remove', model: 'JCertifBO.model.Participant', grid: 'participantgrid'}
     ]
 });
+
 Ext.define('JCertifBO.store.Countries', {
 	extend : 'Ext.data.Store',
 	fields: ['cid', 'country'],
@@ -77442,6 +76405,367 @@ Ext.define('Ext.form.action.Submit', {
     }
 });
 
+/*
+This file is part of Ext JS 4.2
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+*/
+/**
+ * Plugin to add header resizing functionality to a HeaderContainer.
+ * Always resizing header to the left of the splitter you are resizing.
+ */
+Ext.define('Ext.grid.plugin.HeaderResizer', {
+    extend: 'Ext.AbstractPlugin',
+    requires: ['Ext.dd.DragTracker', 'Ext.util.Region'],
+    alias: 'plugin.gridheaderresizer',
+
+    disabled: false,
+
+    config: {
+        /**
+         * @cfg {Boolean} dynamic
+         * True to resize on the fly rather than using a proxy marker.
+         * @accessor
+         */
+        dynamic: false
+    },
+
+    colHeaderCls: Ext.baseCSSPrefix + 'column-header',
+
+    minColWidth: 40,
+    maxColWidth: 1000,
+    wResizeCursor: 'col-resize',
+    eResizeCursor: 'col-resize',
+    // not using w and e resize bc we are only ever resizing one
+    // column
+    //wResizeCursor: Ext.isWebKit ? 'w-resize' : 'col-resize',
+    //eResizeCursor: Ext.isWebKit ? 'e-resize' : 'col-resize',
+
+    init: function(headerCt) {
+        this.headerCt = headerCt;
+        headerCt.on('render', this.afterHeaderRender, this, {single: true});
+    },
+
+    /**
+     * @private
+     * AbstractComponent calls destroy on all its plugins at destroy time.
+     */
+    destroy: function() {
+        if (this.tracker) {
+            this.tracker.destroy();
+        }
+    },
+
+    afterHeaderRender: function() {
+        var headerCt = this.headerCt,
+            el = headerCt.el;
+
+        headerCt.mon(el, 'mousemove', this.onHeaderCtMouseMove, this);
+
+        this.tracker = new Ext.dd.DragTracker({
+            disabled: this.disabled,
+            onBeforeStart: Ext.Function.bind(this.onBeforeStart, this),
+            onStart: Ext.Function.bind(this.onStart, this),
+            onDrag: Ext.Function.bind(this.onDrag, this),
+            onEnd: Ext.Function.bind(this.onEnd, this),
+            tolerance: 3,
+            autoStart: 300,
+            el: el
+        });
+    },
+
+    // As we mouse over individual headers, change the cursor to indicate
+    // that resizing is available, and cache the resize target header for use
+    // if/when they mousedown.
+    onHeaderCtMouseMove: function(e, t) {
+        var me = this,
+            prevSiblings,
+            headerEl, overHeader, resizeHeader, resizeHeaderOwnerGrid, ownerGrid;
+
+        if (me.headerCt.dragging) {
+            if (me.activeHd) {
+                me.activeHd.el.dom.style.cursor = '';
+                delete me.activeHd;
+            }
+        } else {
+            headerEl = e.getTarget('.' + me.colHeaderCls, 3, true);
+
+            if (headerEl){
+                overHeader = Ext.getCmp(headerEl.id);
+
+                // On left edge, go back to the previous non-hidden header.
+                if (overHeader.isOnLeftEdge(e)) {
+                    resizeHeader = overHeader.previousNode('gridcolumn:not([hidden]):not([isGroupHeader])')
+                    // There may not *be* a previous non-hidden header.
+                    if (resizeHeader) {
+
+                        ownerGrid = me.headerCt.up('tablepanel');
+                        resizeHeaderOwnerGrid = resizeHeader.up('tablepanel');
+
+                        // Need to check that previousNode didn't go outside the current grid/tree
+                        // But in the case of a Grid which contains a locked and normal grid, allow previousNode to jump
+                        // from the first column of the normalGrid to the last column of the lockedGrid
+                        if (!((resizeHeaderOwnerGrid === ownerGrid) || ((ownerGrid.ownerCt.isXType('tablepanel')) && ownerGrid.ownerCt.view.lockedGrid === resizeHeaderOwnerGrid))) {
+                            resizeHeader = null;
+                        }
+                    }
+                }
+                // Else, if on the right edge, we're resizing the column we are over
+                else if (overHeader.isOnRightEdge(e)) {
+                    resizeHeader = overHeader;
+                }
+                // Between the edges: we are not resizing
+                else {
+                    resizeHeader = null;
+                }
+
+                // We *are* resizing
+                if (resizeHeader) {
+                    // If we're attempting to resize a group header, that cannot be resized,
+                    // so find its last visible leaf header; Group headers are sized
+                    // by the size of their child headers.
+                    if (resizeHeader.isGroupHeader) {
+                        prevSiblings = resizeHeader.getGridColumns();
+                        resizeHeader = prevSiblings[prevSiblings.length - 1];
+                    }
+
+                    // Check if the header is resizable. Continue checking the old "fixed" property, bug also
+                    // check whether the resizable property is set to false.
+                    if (resizeHeader && !(resizeHeader.fixed || (resizeHeader.resizable === false) || me.disabled)) {
+                        me.activeHd = resizeHeader;
+                        overHeader.el.dom.style.cursor = me.eResizeCursor;
+                        if (overHeader.triggerEl) {
+                            overHeader.triggerEl.dom.style.cursor = me.eResizeCursor;
+                        }
+                    }
+                // reset
+                } else {
+                    overHeader.el.dom.style.cursor = '';
+                    if (overHeader.triggerEl) {
+                        overHeader.triggerEl.dom.style.cursor = '';
+                    }
+                    me.activeHd = null;
+                }
+            }
+        }
+    },
+
+    // only start when there is an activeHd
+    onBeforeStart : function(e) {
+        // cache the activeHd because it will be cleared.
+        this.dragHd = this.activeHd;
+
+        if (!!this.dragHd && !this.headerCt.dragging) {
+            this.tracker.constrainTo = this.getConstrainRegion();
+            return true;
+        } else {
+            this.headerCt.dragging = false;
+            return false;
+        }
+    },
+
+    // get the region to constrain to, takes into account max and min col widths
+    getConstrainRegion: function() {
+        var me       = this,
+            dragHdEl = me.dragHd.el,
+            rightAdjust = 0,
+            nextHd,
+            lockedGrid;
+
+        // If forceFit, then right constraint is based upon not being able to force the next header
+        // beyond the minColWidth. If there is no next header, then the header may not be expanded.
+        if (me.headerCt.forceFit) {
+            nextHd = me.dragHd.nextNode('gridcolumn:not([hidden]):not([isGroupHeader])');
+            if (nextHd) {
+                if (!me.headerInSameGrid(nextHd)) {
+                    nextHd = null;
+                }
+                rightAdjust = nextHd.getWidth() - me.minColWidth;
+            }
+        }
+
+        // If resize header is in a locked grid, the maxWidth has to be 30px within the available locking grid's width
+        else if ((lockedGrid = me.dragHd.up('tablepanel')).isLocked) {
+            rightAdjust = me.dragHd.up('[scrollerOwner]').getWidth() - lockedGrid.getWidth() - 30;
+        }
+
+        // Else ue our default max width
+        else {
+            rightAdjust = me.maxColWidth - dragHdEl.getWidth();
+        }
+
+        return me.adjustConstrainRegion(
+            dragHdEl.getRegion(),
+            0,
+            rightAdjust,
+            0,
+            me.minColWidth
+        );
+    },
+
+    // initialize the left and right hand side markers around
+    // the header that we are resizing
+    onStart: function(e){
+        var me       = this,
+            dragHd   = me.dragHd,
+            width    = dragHd.el.getWidth(),
+            headerCt = dragHd.getOwnerHeaderCt(),
+            x, y, gridSection, markerOwner, lhsMarker, rhsMarker, markerHeight;
+
+        me.headerCt.dragging = true;
+        me.origWidth = width;
+
+        // setup marker proxies
+        if (!me.dynamic) {
+            gridSection  = markerOwner = headerCt.up('tablepanel');
+            if (gridSection.ownerLockable) {
+                markerOwner = gridSection.ownerLockable;
+            }
+            x            = me.getLeftMarkerX(markerOwner);
+            lhsMarker    = markerOwner.getLhsMarker();
+            rhsMarker    = markerOwner.getRhsMarker();
+            markerHeight = gridSection.body.getHeight() + headerCt.getHeight();
+            y            = headerCt.getOffsetsTo(markerOwner)[1];
+
+            lhsMarker.setLocalY(y);
+            rhsMarker.setLocalY(y);
+            lhsMarker.setHeight(markerHeight);
+            rhsMarker.setHeight(markerHeight);
+            me.setMarkerX(lhsMarker, x);
+            me.setMarkerX(rhsMarker, x + width);
+        }
+    },
+
+    // synchronize the rhsMarker with the mouse movement
+    onDrag: function(e){
+        var me = this,
+            markerOwner;
+            
+        if (me.dynamic) {
+            me.doResize();
+        } else {
+            markerOwner = this.headerCt.up('tablepanel');
+            if (markerOwner.ownerLockable) {
+                markerOwner = markerOwner.ownerLockable;
+            }
+            this.setMarkerX(this.getMovingMarker(markerOwner), this.calculateDragX(markerOwner));
+        }
+    },
+    
+    getMovingMarker: function(markerOwner){
+        return markerOwner.getRhsMarker();
+    },
+
+    onEnd: function(e) {
+        this.headerCt.dragging = false;
+        if (this.dragHd) {
+            if (!this.dynamic) {
+                var markerOwner = this.headerCt.up('tablepanel');
+
+                // hide markers
+                if (markerOwner.ownerLockable) {
+                    markerOwner = markerOwner.ownerLockable;
+                }
+                this.setMarkerX(markerOwner.getLhsMarker(), -9999);
+                this.setMarkerX(markerOwner.getRhsMarker(), -9999);
+            }
+            this.doResize();
+        }
+    },
+
+    doResize: function() {
+        var me = this,
+            dragHd = me.dragHd,
+            nextHd,
+            offset;
+            
+        if (dragHd) {
+            offset = me.tracker.getOffset('point');
+
+            // resize the dragHd
+            if (dragHd.flex) {
+                delete dragHd.flex;
+            }
+
+            Ext.suspendLayouts();
+
+            // Set the new column width.
+            me.adjustColumnWidth(offset[0]);
+ 
+            // In the case of forceFit, change the following Header width.
+            // Constraining so that neither neighbour can be sized to below minWidth is handled in getConstrainRegion
+            if (me.headerCt.forceFit) {
+                nextHd = dragHd.nextNode('gridcolumn:not([hidden]):not([isGroupHeader])');
+                if (nextHd && !me.headerInSameGrid(nextHd)) {
+                    nextHd = null;
+                }
+                if (nextHd) {
+                    delete nextHd.flex;
+                    nextHd.setWidth(nextHd.getWidth() - offset[0]);
+                }
+            }
+
+            // Apply the two width changes by laying out the owning HeaderContainer
+            Ext.resumeLayouts(true);
+        }
+    },
+    
+    // nextNode can traverse out of this grid, possibly to others on the page, so limit it here
+    headerInSameGrid: function(header) {
+        var grid = this.dragHd.up('tablepanel');
+        
+        return !!header.up(grid);
+    },
+
+    disable: function() {
+        this.disabled = true;
+        if (this.tracker) {
+            this.tracker.disable();
+        }
+    },
+
+    enable: function() {
+        this.disabled = false;
+        if (this.tracker) {
+            this.tracker.enable();
+        }
+    },
+
+    calculateDragX: function(markerOwner) {
+        return this.tracker.getXY('point')[0] - markerOwner.getX() - markerOwner.el.getBorderWidth('l');
+    },
+
+    getLeftMarkerX: function(markerOwner) {
+        return this.dragHd.getX() - markerOwner.getX() - markerOwner.el.getBorderWidth('l') - 1;
+    },
+
+    setMarkerX: function(marker, x) {
+        marker.setLocalX(x);
+    },
+
+    adjustConstrainRegion: function(region, t, r, b, l) {
+        return region.adjust(t, r, b, l);
+    },
+
+    adjustColumnWidth: function(offsetX) {
+        this.dragHd.setWidth(this.origWidth + offsetX);
+    }
+});
 /*
 This file is part of Ext JS 4.2
 
@@ -79627,6 +78951,401 @@ Ext.define('Ext.form.field.Trigger', {
      */
 });
 
+/*
+This file is part of Ext JS 4.2
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+*/
+/**
+ * @docauthor Jason Johnston <jason@sencha.com>
+ *
+ * A file upload field which has custom styling and allows control over the button text and other
+ * features of {@link Ext.form.field.Text text fields} like {@link Ext.form.field.Text#emptyText empty text}.
+ * It uses a hidden file input element behind the scenes to allow user selection of a file and to
+ * perform the actual upload during {@link Ext.form.Basic#submit form submit}.
+ *
+ * Because there is no secure cross-browser way to programmatically set the value of a file input,
+ * the standard Field `setValue` method is not implemented. The `{@link #getValue}` method will return
+ * a value that is browser-dependent; some have just the file name, some have a full path, some use
+ * a fake path.
+ *
+ * **IMPORTANT:** File uploads are not performed using normal 'Ajax' techniques; see the description for
+ * {@link Ext.form.Basic#hasUpload} for details.
+ *
+ * # Example Usage
+ *
+ *     @example
+ *     Ext.create('Ext.form.Panel', {
+ *         title: 'Upload a Photo',
+ *         width: 400,
+ *         bodyPadding: 10,
+ *         frame: true,
+ *         renderTo: Ext.getBody(),
+ *         items: [{
+ *             xtype: 'filefield',
+ *             name: 'photo',
+ *             fieldLabel: 'Photo',
+ *             labelWidth: 50,
+ *             msgTarget: 'side',
+ *             allowBlank: false,
+ *             anchor: '100%',
+ *             buttonText: 'Select Photo...'
+ *         }],
+ *
+ *         buttons: [{
+ *             text: 'Upload',
+ *             handler: function() {
+ *                 var form = this.up('form').getForm();
+ *                 if(form.isValid()){
+ *                     form.submit({
+ *                         url: 'photo-upload.php',
+ *                         waitMsg: 'Uploading your photo...',
+ *                         success: function(fp, o) {
+ *                             Ext.Msg.alert('Success', 'Your photo "' + o.result.file + '" has been uploaded.');
+ *                         }
+ *                     });
+ *                 }
+ *             }
+ *         }]
+ *     });
+ */
+Ext.define('Ext.form.field.File', {
+    extend: 'Ext.form.field.Trigger',
+    alias: ['widget.filefield', 'widget.fileuploadfield'],
+    alternateClassName: ['Ext.form.FileUploadField', 'Ext.ux.form.FileUploadField', 'Ext.form.File'],
+    requires: [
+        'Ext.form.field.FileButton'
+    ],
+
+    //<locale>
+    /**
+     * @cfg {String} buttonText
+     * The button text to display on the upload button. Note that if you supply a value for
+     * {@link #buttonConfig}, the buttonConfig.text value will be used instead if available.
+     */
+    buttonText: 'Browse...',
+    //</locale>
+
+    /**
+     * @cfg {Boolean} buttonOnly
+     * True to display the file upload field as a button with no visible text field. If true, all
+     * inherited Text members will still be available.
+     */
+    buttonOnly: false,
+
+    /**
+     * @cfg {Number} buttonMargin
+     * The number of pixels of space reserved between the button and the text field. Note that this only
+     * applies if {@link #buttonOnly} = false.
+     */
+    buttonMargin: 3,
+    
+    /**
+     * @cfg {Boolean} clearOnSubmit
+     * True to clear the selected file value when the form this field belongs to
+     * is submitted to the server.
+     */
+    clearOnSubmit: true,
+
+    /**
+     * @cfg {Object} buttonConfig
+     * A standard {@link Ext.button.Button} config object.
+     */
+
+    /**
+     * @event change
+     * Fires when the underlying file input field's value has changed from the user selecting a new file from the system
+     * file selection dialog.
+     * @param {Ext.ux.form.FileUploadField} this
+     * @param {String} value The file value returned by the underlying file input field
+     */
+
+    /**
+     * @property {Ext.Element} fileInputEl
+     * A reference to the invisible file input element created for this upload field. Only populated after this
+     * component is rendered.
+     */
+
+    /**
+     * @property {Ext.button.Button} button
+     * A reference to the trigger Button component created for this upload field. Only populated after this component is
+     * rendered.
+     */
+
+
+    // private
+    extraFieldBodyCls: Ext.baseCSSPrefix + 'form-file-wrap',
+
+    /**
+     * @cfg {Boolean} readOnly
+     * Unlike with other form fields, the readOnly config defaults to true in File field.
+     */
+    readOnly: true,
+
+    /**
+     * Do not show hand pointer over text field since file choose dialog is only shown when clicking in the button
+     * @private
+     */
+    triggerNoEditCls: '',
+
+    // private
+    componentLayout: 'triggerfield',
+
+    // private. Extract the file element, button outer element, and button active element.
+    childEls: ['browseButtonWrap'],
+
+    // private
+    onRender: function() {
+        var me = this,
+            id = me.id,
+            inputEl;
+
+        me.callParent(arguments);
+
+        inputEl = me.inputEl;
+        inputEl.dom.name = ''; //name goes on the fileInput, not the text input
+
+        // render the button here. This isn't ideal, however it will be 
+        // rendered before layouts are resumed, also we modify the DOM
+        // below anyway
+        me.button = new Ext.form.field.FileButton(Ext.apply({
+            renderTo: id + '-browseButtonWrap',
+            ownerCt: me,
+            ownerLayout: me.componentLayout,
+            id: id + '-button',
+            ui: me.ui,
+            disabled: me.disabled,
+            text: me.buttonText,
+            style: me.buttonOnly ? '' : me.getButtonMarginProp() + me.buttonMargin + 'px',
+            inputName: me.getName(),
+            listeners: {
+                scope: me,
+                change: me.onFileChange
+            }
+        }, me.buttonConfig));
+        me.fileInputEl = me.button.fileInputEl;
+
+        if (me.buttonOnly) {
+            me.inputCell.setDisplayed(false);
+        }
+
+        // Ensure the trigger cell is sized correctly upon render
+        me.browseButtonWrap.dom.style.width = (me.browseButtonWrap.dom.lastChild.offsetWidth + me.button.getEl().getMargin('lr')) + 'px';
+        if (Ext.isIE) {
+            me.button.getEl().repaint();
+        }
+    },
+
+    /**
+     * Gets the markup to be inserted into the subTplMarkup.
+     */
+    getTriggerMarkup: function() {
+        return '<td id="' + this.id + '-browseButtonWrap"></td>';
+    },
+
+    /**
+     * @private Event handler fired when the user selects a file.
+     */
+    onFileChange: function(button, e, value) {
+        this.lastValue = null; // force change event to get fired even if the user selects a file with the same name
+        Ext.form.field.File.superclass.setValue.call(this, value);
+    },
+
+    /**
+     * Overridden to do nothing
+     * @method
+     */
+    setValue: Ext.emptyFn,
+
+    reset : function(){
+        var me = this,
+            clear = me.clearOnSubmit;
+        if (me.rendered) {
+            me.button.reset(clear);
+            me.fileInputEl = me.button.fileInputEl;
+            if (clear) {
+                me.inputEl.dom.value = '';
+            }
+        }
+        me.callParent();
+    },
+    
+    onShow: function(){
+        this.callParent();
+        // If we started out hidden, the button may have a messed up layout
+        // since we don't act like a container
+        this.button.updateLayout();    
+    },
+
+    onDisable: function(){
+        this.callParent();
+        this.button.disable();
+    },
+
+    onEnable: function(){
+        this.callParent();
+        this.button.enable();
+    },
+
+    isFileUpload: function() {
+        return true;
+    },
+
+    extractFileInput: function() {
+        var fileInput = this.button.fileInputEl.dom;
+        this.reset();
+        return fileInput;
+    },
+    
+    restoreInput: function(el) {
+        var button = this.button;
+        button.restoreInput(el);
+        this.fileInputEl = button.fileInputEl;
+    },
+
+    onDestroy: function(){
+        Ext.destroyMembers(this, 'button');
+        delete this.fileInputEl;
+        this.callParent();
+    },
+
+    getButtonMarginProp: function() {
+        return 'margin-left:';
+    }
+});
+Ext.define("JCertifBO.view.session.Import", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.sessionimport',
+  	title : "Choix du fichier &agrave; importer",
+  	width : 410,
+  	height : 150,
+  	border : 0,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  	
+  	requires: [
+        'Ext.form.field.File'
+    ],
+    
+  	initComponent : function() {
+
+      this.items = [ {
+  			xtype : 'form',
+  			border : 0,
+  			items : [ {
+  				xtype : 'fileuploadfield',
+  				id: 'sessions-file-upload',
+    			emptyText: 'Choississez un fichier',
+          fieldLabel: 'fichier',
+          name: 'file-path',
+          allowBlank: false,
+          buttonText: '',
+          buttonConfig: {
+              iconCls: 'upload-icon'
+          },
+          listeners: {
+              'change': function (filefield, value) {
+                  value = value.replace('C:\\fakepath\\', '');
+              }
+          }
+  			} ]
+  		} ];
+
+  		this.buttons = [  {
+  		  text : 'Cancel',
+  			action : 'cancel'
+  		},{
+  		  text : 'Upload',
+  			action : 'import'
+  		}];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.speaker.Import", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.speakerimport',
+  	title : "Choix du fichier &agrave; importer",
+  	width : 410,
+  	height : 150,
+  	border : 0,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  	
+  	requires: [
+        'Ext.form.field.File'
+    ],
+    
+  	initComponent : function() {
+
+      this.items = [ {
+  			xtype : 'form',
+  			border : 0,
+  			items : [ {
+  				xtype : 'fileuploadfield',
+  				id: 'speakers-file-upload',
+    			emptyText: 'Choississez un fichier',
+          fieldLabel: 'fichier',
+          name: 'file-path',
+          allowBlank: false,
+          buttonText: '',
+          buttonConfig: {
+              iconCls: 'upload-icon'
+          },
+          listeners: {
+              'change': function (filefield, value) {
+                  value = value.replace('C:\\fakepath\\', '');
+              }
+          }
+  			} ]
+  		} ];
+
+  		this.buttons = [  {
+  		  text : 'Cancel',
+  			action : 'cancel'
+  		},{
+  		  text : 'Upload',
+  			action : 'import'
+  		}];
+  
+  		this.callParent(arguments);
+  	}
+});
 /*
 This file is part of Ext JS 4.2
 
@@ -85496,6 +85215,311 @@ Ext.define("JCertifBO.view.referentiel.Grid", {
         this.callParent(arguments);
     }
 });
+Ext.define("JCertifBO.view.room.Grid", {
+    extend: 'Ext.grid.Panel',
+    alias: 'widget.roomgrid',
+    
+    cls: 'admin-options-grid',
+
+    requires: ['Ext.toolbar.Toolbar'],
+    
+    border: false,
+    
+    store : 'Sites',
+    
+    initComponent: function() {
+        
+        Ext.apply(this, {
+            store: this.store,
+
+            columns: [{
+                text: 'Id',
+                dataIndex: 'id',
+                flex: 1,
+                hidden: true
+            }, {
+                text: 'Name',
+                dataIndex: 'name',
+                flex: 1
+            }, {
+                text: 'Site',
+                dataIndex: 'site',
+                flex: 1
+            }, {
+                text: 'Seats',
+                dataIndex: 'seats',
+                flex: 1
+            }, {
+                text: 'Description',
+                dataIndex: 'description',
+                flex: 1
+            }, {
+                text: 'Photo',
+                dataIndex: 'photo',
+                flex: 1
+            }, {
+                text: 'version',
+                dataIndex: 'version',
+                hidden: true,
+                width: 200
+            }, {
+                text: 'delete',
+                dataIndex: 'delete',
+                hidden: true,
+                width: 200
+            }],
+            
+            dockedItems: [{
+                xtype: 'toolbar',
+                items: [{
+                    iconCls: 'admin-options-add',
+                    text: 'Add',
+                    action: 'add'
+                },{
+                    iconCls: 'admin-options-remove',
+                    text: 'Remove',
+                    itemId: 'removeRoom',
+                    action: 'remove',
+                    disabled: true
+                },{
+                    iconCls: 'admin-options-refresh',
+                    text: 'Refresh',
+                    action: 'refresh'
+                }]
+            }],
+
+            listeners: {
+                'selectionchange': function(selectionModel, records) {
+                  this.down('#removeRoom').setDisabled(!records.length);
+                }
+            }
+        });
+
+        this.callParent(arguments);
+    }
+});
+Ext.define("JCertifBO.view.speaker.Grid", {
+    extend: 'Ext.grid.Panel',
+    alias: 'widget.speakergrid',
+    
+    cls: 'admin-options-grid',
+
+    requires: ['Ext.toolbar.Toolbar', 'Ext.ux.exporter.Exporter'],
+    
+    border: false,
+    
+    initComponent: function() {
+        
+        Ext.apply(this, {
+            store: this.store,
+
+            columns: [{
+                text: 'Email',
+                dataIndex: 'email',
+                flex: 1
+            }, {
+                text: 'Password',
+                dataIndex: 'password',
+                flex: 1,
+                hidden: true
+            }, {
+                text: 'Title',
+                dataIndex: 'title',
+                flex: 1
+            }, {
+                text: 'Lastname',
+                dataIndex: 'lastname',
+                flex: 1
+            }, {
+                text: 'Firstname',
+                dataIndex: 'firstname',
+                flex: 1
+            }, {
+                text: 'Website',
+                dataIndex: 'website',
+                flex: 1
+            }, {
+                text: 'Country',
+                dataIndex: 'country',
+                flex: 1
+            }, {
+                text: 'City',
+                dataIndex: 'city',
+                flex: 1
+            }, {
+                text: 'Phone',
+                dataIndex: 'phone',
+                flex: 1
+            }, {
+                text: 'Photo',
+                dataIndex: 'photo',
+                flex: 1
+            }, {
+                text: 'Biography',
+                dataIndex: 'biography',
+                flex: 1
+            }, {
+                text: 'Company',
+                dataIndex: 'company',
+                flex: 1
+            }, {
+                text: 'version',
+                dataIndex: 'version',
+                hidden: true,
+                width: 200
+            }, {
+                text: 'delete',
+                dataIndex: 'delete',
+                hidden: true,
+                width: 200
+            }],
+            
+            dockedItems: [{
+                xtype: 'toolbar',
+                items: [{
+                    iconCls: 'admin-options-add',
+                    text: 'Add',
+                    action: 'add'
+                },{
+                    iconCls: 'admin-options-remove',
+                    text: 'Remove',
+                    itemId: 'removeSpeaker',
+                    action: 'remove',
+                    disabled: true
+                },{
+                    iconCls: 'admin-options-refresh',
+                    text: 'Refresh',
+                    action: 'refresh'
+                },{
+                    iconCls: 'admin-options-download',
+                    text: 'Export',         
+                    action: 'export'                                 
+                },{
+                    iconCls: 'admin-options-upload',
+                    text: 'Import',
+                    action: 'import'
+                }]
+            }],
+
+            listeners: {
+                'selectionchange': function(selectionModel, records) {
+                  this.down('#removeSpeaker').setDisabled(!records.length);
+                }
+            }
+        });
+
+        this.callParent(arguments);
+    }
+});
+Ext.define("JCertifBO.view.participant.Grid", {
+    extend: 'Ext.grid.Panel',
+    alias: 'widget.participantgrid',
+    
+    cls: 'admin-options-grid',
+
+    requires: ['Ext.toolbar.Toolbar'],
+    
+    border: false,
+    
+    initComponent: function() {
+
+        Ext.apply(this, {
+            store: this.store,
+
+            columns: [{
+                text: 'Email',
+                dataIndex: 'email',
+                flex: 1
+            }, {
+                text: 'Password',
+                dataIndex: 'password',
+                flex: 1,
+                hidden: true
+            }, {
+                text: 'Title',
+                dataIndex: 'title',
+                flex: 1
+            }, {
+                text: 'Lastname',
+                dataIndex: 'lastname',
+                flex: 1
+            }, {
+                text: 'Firstname',
+                dataIndex: 'firstname',
+                flex: 1
+            }, {
+                text: 'Website',
+                dataIndex: 'website',
+                flex: 1
+            }, {
+                text: 'Country',
+                dataIndex: 'country',
+                flex: 1
+            }, {
+                text: 'City',
+                dataIndex: 'city',
+                flex: 1
+            }, {
+                text: 'Phone',
+                dataIndex: 'phone',
+                flex: 1
+            }, {
+                text: 'Photo',
+                dataIndex: 'photo',
+                flex: 1
+            }, {
+                text: 'Biography',
+                dataIndex: 'biography',
+                flex: 1
+            }, {
+                text: 'Company',
+                dataIndex: 'company',
+                flex: 1
+            }, {
+                text: 'Sessions',
+                dataIndex: 'sessions',
+                flex: 1
+            }, {
+                text: 'version',
+                dataIndex: 'version',
+                hidden: true,
+                width: 200
+            }, {
+                text: 'delete',
+                dataIndex: 'delete',
+                hidden: true,
+                width: 200
+            }],
+            
+            dockedItems: [{
+                xtype: 'toolbar',
+                items: [{
+                    iconCls: 'admin-options-add',
+                    text: 'Add',
+                    action: 'add'
+                },{
+                    iconCls: 'admin-options-remove',
+                    text: 'Remove',
+                    itemId: 'removeSpeaker',
+                    action: 'remove',
+                    disabled: true
+                },{
+                    iconCls: 'admin-options-refresh',
+                    text: 'Refresh',
+                    action: 'refresh'
+                }]
+            }],
+
+            listeners: {
+                'selectionchange': function(selectionModel, records) {
+                  this.down('#removeSpeaker').setDisabled(!records.length);
+                }
+            }
+        });
+
+        this.callParent(arguments);
+    }
+});
 /*
 This file is part of Ext JS 4.2
 
@@ -88960,99 +88984,208 @@ Ext.define('Ext.form.field.ComboBox', {
     }
 });
 
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
-/**
- * @private
- */
-Ext.define('Ext.grid.header.DragZone', {
-    extend: 'Ext.dd.DragZone',
-    colHeaderSelector: '.' + Ext.baseCSSPrefix + 'column-header',
-    colInnerSelector: '.' + Ext.baseCSSPrefix + 'column-header-inner',
-    maxProxyWidth: 120,
-
-    constructor: function(headerCt) {
-        this.headerCt = headerCt;
-        this.ddGroup =  this.getDDGroup();
-        this.callParent([headerCt.el]);
-        this.proxy.el.addCls(Ext.baseCSSPrefix + 'grid-col-dd');
-    },
+Ext.define("JCertifBO.view.sponsor.Grid", {
+    extend: 'Ext.grid.Panel',
+    alias: 'widget.sponsorgrid',
     
-    getDDGroup: function() {
-        return 'header-dd-zone-' + this.headerCt.up('[scrollerOwner]').id;
-    },
+    cls: 'admin-options-grid',
 
-    getDragData: function(e) {
-        if (e.getTarget(this.colInnerSelector)) {
-            var header = e.getTarget(this.colHeaderSelector),
-                headerCmp,
-                ddel;
+    requires: [
+        'Ext.toolbar.Toolbar',
+        'Ext.form.field.ComboBox',
+        'JCertifBO.store.Countries',
+        'JCertifBO.store.Cities',
+    ],
+    
+    border: false,
+    
+    initComponent: function() {
+        
+        Ext.apply(this, {
+            store: this.store,
 
-            if (header) {
-                headerCmp = Ext.getCmp(header.id);
-                if (!this.headerCt.dragging && headerCmp.draggable && !(headerCmp.isOnLeftEdge(e) || headerCmp.isOnRightEdge(e))) {
-                    ddel = document.createElement('div');
-                    ddel.innerHTML = Ext.getCmp(header.id).text;
-                    return {
-                        ddel: ddel,
-                        header: headerCmp
-                    };
+            columns: [{
+                text: 'Email',
+                dataIndex: 'email',
+                flex: 1
+            }, {
+                text: 'Name',
+                dataIndex: 'name',
+                flex: 1
+            }, {
+                text: 'Logo',
+                dataIndex: 'logo',
+                flex: 1
+            }, {
+                text: 'Level',
+                dataIndex: 'level',
+                flex: 1
+            }, {
+                text: 'Website',
+                dataIndex: 'website',
+                flex: 1
+            }, {
+                text: 'Country',
+                dataIndex: 'country',
+                flex: 1
+            }, {
+                text: 'City',
+                dataIndex: 'city',
+                flex: 1
+            }, {
+                text: 'Phone',
+                dataIndex: 'phone',
+                flex: 1
+            }, {
+                text: 'About',
+                dataIndex: 'about',
+                flex: 1
+            }, {
+                text: 'version',
+                dataIndex: 'version',
+                hidden: true,
+                width: 200
+            }, {
+                text: 'delete',
+                dataIndex: 'delete',
+                hidden: true,
+                width: 200
+            }],
+            
+            dockedItems: [{
+                xtype: 'toolbar',
+                items: [{
+                    iconCls: 'admin-options-add',
+                    text: 'Add',
+                    action: 'add'
+                },{
+                    iconCls: 'admin-options-remove',
+                    text: 'Remove',
+                    itemId: 'removeSponsor',
+                    action: 'remove',
+                    disabled: true
+                },{
+                    iconCls: 'admin-options-refresh',
+                    text: 'Refresh',
+                    action: 'refresh'
+                }]
+            }],
+
+            listeners: {
+                'selectionchange': function(selectionModel, records) {
+                  this.down('#removeSponsor').setDisabled(!records.length);
                 }
             }
-        }
-        return false;
-    },
+        });
 
-    onBeforeDrag: function() {
-        return !(this.headerCt.dragging || this.disabled);
-    },
-
-    onInitDrag: function() {
-        this.headerCt.dragging = true;
         this.callParent(arguments);
-    },
-
-    onDragDrop: function() {
-        this.headerCt.dragging = false;
-        this.callParent(arguments);
-    },
-
-    afterRepair: function() {
-        this.callParent();
-        this.headerCt.dragging = false;
-    },
-
-    getRepairXY: function() {
-        return this.dragData.header.el.getXY();
-    },
-    
-    disable: function() {
-        this.disabled = true;
-    },
-    
-    enable: function() {
-        this.disabled = false;
     }
 });
+Ext.define("JCertifBO.view.site.Grid", {
+    extend: 'Ext.grid.Panel',
+    alias: 'widget.sitegrid',
+    
+    cls: 'admin-options-grid',
 
+    requires: [
+        'Ext.toolbar.Toolbar',
+        'Ext.form.field.ComboBox',
+        'JCertifBO.store.Countries',
+        'JCertifBO.store.Cities',
+    ],
+    
+    border: false,
+    
+    initComponent: function() {
+
+        Ext.apply(this, {
+
+            columns: [{
+                text: 'Id',
+                dataIndex: 'id',
+                flex: 1,
+                hidden: true
+            }, {
+                text: 'Name',
+                dataIndex: 'name',
+                flex: 1
+            }, {
+                text: 'Street',
+                dataIndex: 'street',
+                flex: 1
+            }, {
+                text: 'Country',
+                dataIndex: 'country',
+                flex: 1
+            }, {
+                text: 'City',
+                dataIndex: 'city',
+                flex: 1
+            }, {
+                text: 'Contact',
+                dataIndex: 'contact',
+                flex: 1
+            }, {
+                text: 'Website',
+                dataIndex: 'website',
+                flex: 1
+            }, {
+                text: 'Description',
+                dataIndex: 'description',
+                flex: 1
+            }, {
+                text: 'Photo',
+                dataIndex: 'photo',
+                flex: 1
+            }, {
+                text: 'Latitude',
+                dataIndex: 'latitude',
+                flex: 1
+            }, {
+                text: 'Longitude',
+                dataIndex: 'longitude',
+                flex: 1
+            }, {
+                text: 'version',
+                dataIndex: 'version',
+                hidden: true,
+                width: 200
+            }, {
+                text: 'delete',
+                dataIndex: 'delete',
+                hidden: true,
+                width: 200
+            }],
+            
+            dockedItems: [{
+                xtype: 'toolbar',
+                items: [{
+                    iconCls: 'admin-options-add',
+                    text: 'Add',
+                    action: 'add'
+                },{
+                    iconCls: 'admin-options-remove',
+                    text: 'Remove',
+                    itemId: 'removeSite',
+                    action: 'remove',
+                    disabled: true
+                },{
+                    iconCls: 'admin-options-refresh',
+                    text: 'Refresh',
+                    action: 'refresh'
+                }]
+            }],
+            
+            listeners: {
+                'selectionchange': function(selectionModel, records) {
+                  this.down('#removeSite').setDisabled(!records.length);
+                }
+            }
+        });
+
+        this.callParent(arguments);
+    }
+});
 /*
 This file is part of Ext JS 4.2
 
@@ -92338,6 +92471,1190 @@ Ext.define('Ext.form.Panel', {
     }
 });
 
+Ext.define("JCertifBO.view.sponsor.Form", {
+    extend: 'Ext.form.Panel',
+    alias : 'widget.sponsorform',
+    
+    items : [ {
+			xtype : 'textfield',
+			vtype: 'email',
+			fieldLabel : 'Email',
+			name : 'email',
+			itemId : 'email',
+			emptyText : 'email',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Name',
+			name : 'name',
+			itemId : 'name',
+			emptyText : 'name',
+			allowblank : false,
+		},{
+			xtype : 'combo',
+			fieldLabel : 'Level',
+			store: this.store,
+			displayField: 'label',
+      valueField: 'label',
+			name : 'level',
+			itemId : 'level',
+			emptyText : 'level',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Website',
+			name : 'website',
+			itemId : 'website',
+			emptyText : 'website',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			vtype : 'url',
+			fieldLabel : 'Logo',
+			name : 'logo',
+			itemId : 'logo',
+			emptyText : 'logo',
+			allowblank : false,
+      listeners:{
+        change: function(textfield, value) {
+          var preview = Ext.getCmp('logo-preview');
+          preview.setSrc(value); 
+        }
+      }
+		},{
+			xtype : 'imagecomponent',
+			id: 'logo-preview',
+			cls: 'preview-img',
+			src: Ext.BLANK_IMAGE_URL
+      
+		},{
+			xtype : 'combo',
+			fieldLabel : 'Country',
+			store: this.store,
+			queryMode: 'local',
+			triggerAction: 'all',
+			displayField: 'country',
+      valueField: 'cid',
+			name : 'country',
+			itemId : 'country',
+			emptyText : 'country',
+			allowblank : false,
+			listeners:{
+        select:function(combo, value) {
+          var comboCity = Ext.getCmp('add-combo-city'); 
+          comboCity.enable();       
+          comboCity.clearValue();
+          comboCity.store.clearFilter(true);
+          comboCity.store.filter('cid',  combo.getValue());
+        }
+      }
+		},{
+			xtype : 'combo',
+			fieldLabel : 'City',
+			id:'add-combo-city',
+			store: this.store,
+			queryMode: 'local',
+			triggerAction: 'all',
+			disabled: true,
+			displayField: 'city',
+      valueField: 'city',
+      lastQuery: '',
+			name : 'city',
+			itemId : 'city',
+			emptyText : 'city',
+			allowblank : false
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Phone',
+			name : 'phone',
+			itemId : 'phone',
+			emptyText : 'phone'
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'About',
+			name : 'about',
+			itemId : 'about',
+			emptyText : 'about'
+		},{
+			xtype : 'textfield',
+			name : 'provider',
+			itemId : 'provider',
+			hidden: true
+		},{
+			xtype : 'textfield',
+			name : 'user',
+			itemId : 'user',
+			hidden: true
+		},{
+			xtype : 'textfield',
+			name : 'access_token',
+			itemId : 'access_token',
+			hidden: true
+		}]
+});
+Ext.define("JCertifBO.view.sponsor.Add", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.sponsoradd',
+  	title : "Ajout d'un nouveau sponsor",
+  	width : 400,
+  	height : 400,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  	
+  	requires: [
+  	   'JCertifBO.view.sponsor.Form'
+    ],
+  	
+  	initComponent : function() {
+
+  		this.items = [ {
+  			xtype : 'sponsorform',
+  			border : 0
+  		} ];
+  		
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Add',
+  			action : 'add'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.sponsor.Edit", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.sponsoredit',
+  	title : "Mise &agrave; jour d'un sponsor",
+  	width : 400,
+  	height : 400,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  	
+  	requires: [
+  	   'JCertifBO.view.sponsor.Form'
+    ],
+  	
+  	initComponent : function() {
+
+  		this.items = [ {
+  			xtype : 'sponsorform',
+  			border : 0
+  		} ];
+  		
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Save',
+  			action : 'save'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.site.Form", {
+    extend: 'Ext.form.Panel',
+    alias : 'widget.siteform',
+    
+    items : [ {
+			xtype : 'textfield',
+			fieldLabel : 'Name',
+			name : 'name',
+			itemId : 'name',
+			emptyText : 'name',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Street',
+			name : 'street',
+			itemId : 'street',
+			emptyText : 'street',
+			allowblank : false,
+		},{
+			xtype : 'combo',
+			fieldLabel : 'Country',
+			store: this.store,
+			queryMode: 'local',
+			triggerAction: 'all',
+			displayField: 'country',
+      valueField: 'cid',
+			name : 'country',
+			itemId : 'country',
+			emptyText : 'country',
+			allowblank : false,
+			listeners:{
+        select:function(combo, value) {
+          var comboCity = Ext.getCmp('add-combo-city'); 
+          comboCity.enable();       
+          comboCity.clearValue();
+          comboCity.store.clearFilter(true);
+          comboCity.store.filter('cid',  combo.getValue());
+        }
+      }
+		},{
+			xtype : 'combo',
+			fieldLabel : 'City',
+			id:'add-combo-city',
+			store: this.store,
+			queryMode: 'local',
+			triggerAction: 'all',
+			disabled: true,
+			displayField: 'city',
+      valueField: 'city',
+      lastQuery: '',
+			name : 'city',
+			itemId : 'city',
+			emptyText : 'city',
+			allowblank : false
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Contact',
+			name : 'contact',
+			itemId : 'contact',
+			emptyText : 'contact',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Website',
+			name : 'website',
+			itemId : 'website',
+			emptyText : 'website'
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Description',
+			name : 'description',
+			itemId : 'description',
+			emptyText : 'description',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			vtype : 'url',
+			fieldLabel : 'Photo',
+			name : 'photo',
+			itemId : 'photo',
+			emptyText : 'photo',
+			listeners:{
+        change: function(textfield, value) {
+          var preview = Ext.getCmp('photo-preview');
+          preview.setSrc(value); 
+        }
+      }
+		},{
+			xtype : 'imagecomponent',
+			id: 'photo-preview',
+			cls: 'preview-img',
+			src: Ext.BLANK_IMAGE_URL
+      
+		},{
+			xtype : 'numberfield',
+			fieldLabel : 'Latitude',
+			name : 'latitude',
+			itemId : 'latitude',
+			emptyText : 'latitude'
+		},{
+			xtype : 'numberfield',
+			fieldLabel : 'Longitude',
+			name : 'longitude',
+			itemId : 'longitude',
+			emptyText : 'longitude'
+		},{
+			xtype : 'textfield',
+			name : 'provider',
+			itemId : 'provider',
+			hidden: true
+		},{
+			xtype : 'textfield',
+			name : 'user',
+			itemId : 'user',
+			hidden: true
+		},{
+			xtype : 'textfield',
+			name : 'access_token',
+			itemId : 'access_token',
+			hidden: true
+		}]
+});
+Ext.define("JCertifBO.view.site.Add", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.siteadd',
+  	title : "Ajout d'un nouveau site",
+  	width : 400,
+  	height : 450,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  
+    requires: [
+  	   'JCertifBO.view.site.Form'
+    ],
+    
+  	initComponent : function() {
+        
+  		this.items = [ {
+  			xtype : 'siteform',
+  			border : 0
+  		} ];
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Add',
+  			action : 'add'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.site.Edit", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.siteedit',
+  	title : "Mise &agrave; jour d'un site",
+  	width : 400,
+  	height : 450,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  
+    requires: [
+  	   'JCertifBO.view.site.Form'
+    ],
+    
+  	initComponent : function() {
+        
+  		this.items = [ {
+  			xtype : 'siteform',
+  			border : 0
+  		} ];
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Save',
+  			action : 'save'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.room.Form", {
+    extend: 'Ext.form.Panel',
+    alias : 'widget.roomform',
+    
+    items : [ {
+			xtype : 'textfield',
+			fieldLabel : 'Name',
+			name : 'name',
+			itemId : 'name',
+			emptyText : 'name',
+			allowblank : false,
+		},{
+			xtype : 'combo',
+			fieldLabel : 'Site',
+			store : this.store,
+			displayField: 'name',
+      valueField: 'id',
+			name : 'site',
+			itemId : 'site',
+			emptyText : 'site',
+			allowblank : false,
+		},{
+			xtype : 'numberfield',
+			fieldLabel : 'Seats',
+			name : 'seats',
+			itemId : 'seats',
+			emptyText : 'seats',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Description',
+			name : 'description',
+			itemId : 'description',
+			emptyText : 'description',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			vtype : 'url',
+			fieldLabel : 'Photo',
+			name : 'photo',
+			itemId : 'photo',
+			emptyText : 'photo',
+			listeners:{
+        change: function(textfield, value) {
+          var preview = Ext.getCmp('photo-preview');
+          preview.setSrc(value); 
+        }
+      }
+		},{
+			xtype : 'imagecomponent',
+			id: 'photo-preview',
+			cls: 'preview-img',
+			src: Ext.BLANK_IMAGE_URL    
+		},{
+			xtype : 'textfield',
+			name : 'provider',
+			itemId : 'provider',
+			hidden: true
+		},{
+			xtype : 'textfield',
+			name : 'user',
+			itemId : 'user',
+			hidden: true
+		},{
+			xtype : 'textfield',
+			name : 'access_token',
+			itemId : 'access_token',
+			hidden: true
+		}]
+});
+Ext.define("JCertifBO.view.room.Add", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.roomadd',
+  	title : "Ajout d'une nouvelle salle",
+  	width : 400,
+  	height : 300,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  	
+  	requires: [
+  	   'JCertifBO.view.room.Form'
+    ],
+  	
+  	initComponent : function() {
+  
+  		this.items = [ {
+  			xtype : 'roomform',
+  			border : 0
+  		} ];
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Add',
+  			action : 'add'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.room.Edit", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.roomedit',
+  	title : "Mise &agrave; jour d'une salle",
+  	width : 400,
+  	height : 300,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  	
+  	requires: [
+  	   'JCertifBO.view.room.Form'
+    ],
+  	
+  	initComponent : function() {
+  
+  		this.items = [ {
+  			xtype : 'roomform',
+  			border : 0
+  		} ];
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Save',
+  			action : 'save'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.session.Form", {
+    extend: 'Ext.form.Panel',
+    alias : 'widget.sessionform',
+    
+    items : [ {
+  		xtype : 'textfield',
+  		fieldLabel : 'Title',
+  		name : 'title',
+  		itemId : 'title',
+  		emptyText : 'title',
+  		allowblank : false,
+  	},{
+  		xtype : 'textfield',
+  		fieldLabel : 'Summary',
+  		name : 'summary',
+  		itemId : 'summary',
+  		emptyText : 'summary',
+  		allowblank : false,
+  	},{
+  		xtype : 'textfield',
+  		fieldLabel : 'Description',
+  		name : 'description',
+  		itemId : 'description',
+  		emptyText : 'description',
+  		allowblank : false,
+  	},{
+  		xtype : 'combo',
+  		fieldLabel : 'Status',
+  		store: this.store,
+  		displayField: 'label',
+      valueField: 'label',
+  		name : 'status',
+  		itemId : 'status',
+  		emptyText : 'status',
+  		allowblank : false,
+  	},{
+  		xtype : 'textfield',
+  		fieldLabel : 'Keyword',
+  		name : 'keyword',
+  		itemId : 'keyword',
+  		emptyText : 'keyword',
+  		allowblank : false,
+  	},{
+  		xtype : 'combo',
+  		fieldLabel : 'Category',
+  		store: this.store,
+  		displayField: 'label',
+      valueField: 'label',
+  		name : 'category',
+  		itemId : 'category',
+  		emptyText : 'category',
+  		allowblank : false,
+  	},{
+  		xtype : 'datefield',
+  		fieldLabel : 'Start',
+  		name : 'start',
+  		format: 'd/m/Y H:i',
+  		itemId : 'start',
+  		emptyText : 'start'
+  	},{
+  		xtype : 'datefield',
+  		fieldLabel : 'End',
+  		name : 'end',
+  		format: 'd/m/Y H:i',
+  		itemId : 'end',
+  		emptyText : 'end'
+  	},{
+  		xtype : 'combo',
+  		fieldLabel : 'Speakers',
+  		store: this.store,
+  		tpl: '<tpl for="."><div class="x-boundlist-item">{firstname} {lastname}</div></tpl>',
+      valueField: 'email',
+      multiSelect: true,
+  		name : 'speakers',
+  		itemId : 'speakers',
+  		emptyText : 'speakers'
+  	},{
+  		xtype : 'combo',
+  		fieldLabel : 'Room',
+  		store: this.store,
+  		displayField: 'name',
+      valueField: 'id',
+  		name : 'room',
+  		itemId : 'room',
+  		emptyText : 'room'
+  	},{
+  		xtype : 'textfield',
+  		name : 'provider',
+  		itemId : 'provider',
+  		hidden: true
+  	},{
+  		xtype : 'textfield',
+  		name : 'user',
+  		itemId : 'user',
+  		hidden: true
+  	},{
+  		xtype : 'textfield',
+  		name : 'access_token',
+  		itemId : 'access_token',
+  		hidden: true
+  	}]
+});
+Ext.define("JCertifBO.view.session.Add", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.sessionadd',
+  	title : "Ajout d'une nouvelle session",
+  	width : 400,
+  	height : 450,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  	
+  	requires: [
+  	   'JCertifBO.view.session.Form'
+    ],
+    
+  	initComponent : function() {
+        
+  		this.items = [ {
+  			xtype : 'sessionform',
+  			border : 0
+  		} ];
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Add',
+  			action : 'add'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.session.Edit", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.sessionedit',
+  	title : "Mise &agrave; jour d'une session",
+  	width : 400,
+  	height : 450,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  	
+  	requires: [
+  	   'JCertifBO.view.session.Form'
+    ],
+    
+  	initComponent : function() {
+        
+  		this.items = [ {
+  			xtype : 'sessionform',
+  			border : 0
+  		} ];
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Save',
+  			action : 'save'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.speaker.Form", {
+    extend: 'Ext.form.Panel',
+    alias : 'widget.speakerform',
+    
+    items : [ {
+			xtype : 'textfield',
+			vtype : 'email',
+			fieldLabel : 'Email',
+			name : 'email',
+			itemId : 'email',
+			emptyText : 'email',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Password',
+			name : 'password',
+			itemId : 'password',
+			emptyText : 'password',
+			minLength: 8,
+			allowblank : false,
+		},{
+			xtype : 'combo',
+			fieldLabel : 'Title',
+			store: this.store,
+			displayField: 'label',
+      valueField: 'label',
+			name : 'title',
+			itemId : 'title',
+			emptyText : 'title'
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Lastname',
+			name : 'lastname',
+			itemId : 'lastname',
+			emptyText : 'lastname',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Firstname',
+			name : 'firstname',
+			itemId : 'firstname',
+			emptyText : 'firstname',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Website',
+			name : 'website',
+			itemId : 'website',
+			emptyText : 'website'
+		},{
+			xtype : 'combo',
+			fieldLabel : 'Country',
+			store: this.store,
+			queryMode: 'local',
+			triggerAction: 'all',
+			displayField: 'country',
+      valueField: 'cid',
+			name : 'country',
+			itemId : 'country',
+			emptyText : 'country',
+			allowblank : false,
+			listeners:{
+        select:function(combo, value) {
+          var comboCity = Ext.getCmp('add-combo-city'); 
+          comboCity.enable();       
+          comboCity.clearValue();
+          comboCity.store.clearFilter(true);
+          comboCity.store.filter('cid',  combo.getValue());
+        }
+      }
+		},{
+			xtype : 'combo',
+			fieldLabel : 'City',
+			id:'add-combo-city',
+			store: this.store,
+			queryMode: 'local',
+			triggerAction: 'all',
+			disabled: true,
+			displayField: 'city',
+      valueField: 'city',
+      lastQuery: '',
+			name : 'city',
+			itemId : 'city',
+			emptyText : 'city',
+			allowblank : false
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Company',
+			name : 'company',
+			itemId : 'company',
+			emptyText : 'company'
+		},{
+			xtype : 'textfield',
+			vtype : 'url',
+			fieldLabel : 'Phone',
+			name : 'phone',
+			itemId : 'phone',
+			emptyText : 'phone'
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Photo',
+			name : 'photo',
+			itemId : 'photo',
+			emptyText : 'photo',
+			listeners:{
+        change: function(textfield, value) {
+          var preview = Ext.getCmp('photo-preview');
+          preview.setSrc(value); 
+        }
+      }
+		},{
+			xtype : 'imagecomponent',
+			id: 'photo-preview',
+			cls: 'preview-img',
+			src: Ext.BLANK_IMAGE_URL    
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Biography',
+			name : 'biography',
+			itemId : 'biography',
+			emptyText : 'biography'
+		},{
+			xtype : 'textfield',
+			name : 'provider',
+			itemId : 'provider',
+			hidden: true
+		},{
+			xtype : 'textfield',
+			name : 'user',
+			itemId : 'user',
+			hidden: true
+		},{
+			xtype : 'textfield',
+			name : 'access_token',
+			itemId : 'access_token',
+			hidden: true
+		}]
+});
+Ext.define("JCertifBO.view.speaker.Add", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.speakeradd',
+  	title : "Ajout d'un nouveau pr&eacute;sentateur",
+  	width : 400,
+  	height : 500,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  	
+  	requires: [
+  	   'JCertifBO.view.speaker.Form'
+    ],
+    
+  	initComponent : function() {
+        
+  		this.items = [ {
+  			xtype : 'speakerform',
+  			border : 0
+  		} ];
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Add',
+  			action : 'add'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.speaker.Edit", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.speakeredit',
+  	title : "Mise &agrave; jour d'un pr&eacute;sentateur",
+  	width : 400,
+  	height : 500,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  	
+  	requires: [
+  	   'JCertifBO.view.speaker.Form'
+    ],
+    
+  	initComponent : function() {
+        
+  		this.items = [ {
+  			xtype : 'speakerform',
+  			border : 0
+  		} ];
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Save',
+  			action : 'save'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.participant.Form", {
+    extend: 'Ext.form.Panel',
+    alias : 'widget.participantform',
+    
+    items : [ {
+			xtype : 'textfield',
+			vtype : 'email',
+			fieldLabel : 'Email',
+			name : 'email',
+			itemId : 'email',
+			emptyText : 'email',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Password',
+			name : 'password',
+			itemId : 'password',
+			emptyText : 'password',
+			minLength: 8,
+			allowblank : false,
+		},{
+			xtype : 'combo',
+			fieldLabel : 'Title',
+			store: this.store,
+			displayField: 'label',
+      valueField: 'label',
+			name : 'title',
+			itemId : 'title',
+			emptyText : 'title'
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Lastname',
+			name : 'lastname',
+			itemId : 'lastname',
+			emptyText : 'lastname',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Firstname',
+			name : 'firstname',
+			itemId : 'firstname',
+			emptyText : 'firstname',
+			allowblank : false,
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Website',
+			name : 'website',
+			itemId : 'website',
+			emptyText : 'website'
+		},{
+			xtype : 'combo',
+			fieldLabel : 'Country',
+			store: this.store,
+			queryMode: 'local',
+			triggerAction: 'all',
+			displayField: 'country',
+      valueField: 'cid',
+			name : 'country',
+			itemId : 'country',
+			emptyText : 'country',
+			allowblank : false,
+			listeners:{
+        select:function(combo, value) {
+          var comboCity = Ext.getCmp('add-combo-city'); 
+          comboCity.enable();       
+          comboCity.clearValue();
+          comboCity.store.clearFilter(true);
+          comboCity.store.filter('cid',  combo.getValue());
+        }
+      }
+		},{
+			xtype : 'combo',
+			fieldLabel : 'City',
+			id:'add-combo-city',
+			store: this.store,
+			queryMode: 'local',
+			triggerAction: 'all',
+			disabled: true,
+			displayField: 'city',
+      valueField: 'city',
+      lastQuery: '',
+			name : 'city',
+			itemId : 'city',
+			emptyText : 'city',
+			allowblank : false
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Company',
+			name : 'company',
+			itemId : 'company',
+			emptyText : 'company'
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Phone',
+			name : 'phone',
+			itemId : 'phone',
+			emptyText : 'phone'
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Photo',
+			vtype : 'url',
+			name : 'photo',
+			itemId : 'photo',
+			emptyText : 'photo',
+			listeners:{
+        change: function(textfield, value) {
+          var preview = Ext.getCmp('photo-preview');
+          preview.setSrc(value); 
+        }
+      }
+		},{
+			xtype : 'imagecomponent',
+			id: 'photo-preview',
+			cls: 'preview-img',
+			src: Ext.BLANK_IMAGE_URL     
+		},{
+			xtype : 'textfield',
+			fieldLabel : 'Biography',
+			name : 'biography',
+			itemId : 'biography',
+			emptyText : 'biography'
+		},{
+			xtype : 'combo',
+			fieldLabel : 'Sessions',
+			store: this.store,
+			displayField: 'title',
+      valueField: 'id',
+      multiSelect: true,
+			name : 'sessions',
+			itemId : 'sessions',
+			emptyText : 'sessions'
+		},{
+			xtype : 'textfield',
+			name : 'provider',
+			itemId : 'provider',
+			hidden: true
+		},{
+			xtype : 'textfield',
+			name : 'user',
+			itemId : 'user',
+			hidden: true
+		},{
+			xtype : 'textfield',
+			name : 'access_token',
+			itemId : 'access_token',
+			hidden: true
+		}]
+    
+});
+Ext.define("JCertifBO.view.participant.Add", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.participantadd',
+  	title : "Ajout d'un nouveau participant",
+  	width : 400,
+  	height : 500,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  
+    requires: [
+  	   'JCertifBO.view.participant.Form'
+    ],
+    
+  	initComponent : function() {
+        
+  		this.items = [ {
+  			xtype : 'participantform',
+  			border : 0
+  		} ];
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Add',
+  			action : 'add'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.participant.Edit", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.participantedit',
+  	title : "Mise &agrave; jour d'un participant",
+  	width : 400,
+  	height : 500,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  
+    requires: [
+  	   'JCertifBO.view.participant.Form'
+    ],
+    
+  	initComponent : function() {
+        
+  		this.items = [ {
+  			xtype : 'participantform',
+  			border : 0
+  		} ];
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Save',
+  			action : 'save'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
 /*
 This file is part of Ext JS 4.2
 
@@ -92358,1039 +93675,79 @@ at http://www.sencha.com/contact.
 
 Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
-// Currently has the following issues:
-// - Does not handle postEditValue
-// - Fields without editors need to sync with their values in Store
-// - starting to edit another record while already editing and dirty should probably prevent it
-// - aggregating validation messages
-// - tabIndex is not managed bc we leave elements in dom, and simply move via positioning
-// - layout issues when changing sizes/width while hidden (layout bug)
-
 /**
- * Internal utility class used to provide row editing functionality. For developers, they should use
- * the RowEditing plugin to use this functionality with a grid.
- *
  * @private
  */
-Ext.define('Ext.grid.RowEditor', {
-    extend: 'Ext.form.Panel',
-    alias: 'widget.roweditor',
-    requires: [
-        'Ext.tip.ToolTip',
-        'Ext.util.HashMap',
-        'Ext.util.KeyNav',
-        'Ext.grid.RowEditorButtons'
-    ],
+Ext.define('Ext.grid.header.DragZone', {
+    extend: 'Ext.dd.DragZone',
+    colHeaderSelector: '.' + Ext.baseCSSPrefix + 'column-header',
+    colInnerSelector: '.' + Ext.baseCSSPrefix + 'column-header-inner',
+    maxProxyWidth: 120,
 
-    //<locale>
-    saveBtnText  : 'Update',
-    //</locale>
-    //<locale>
-    cancelBtnText: 'Cancel',
-    //</locale>
-    //<locale>
-    errorsText: 'Errors',
-    //</locale>
-    //<locale>
-    dirtyText: 'You need to commit or cancel your changes',
-    //</locale>
-
-    lastScrollLeft: 0,
-    lastScrollTop: 0,
-
-    border: false,
-
-    buttonUI: 'default',
-
-    // Change the hideMode to offsets so that we get accurate measurements when
-    // the roweditor is hidden for laying out things like a TriggerField.
-    hideMode: 'offsets',
-
-    initComponent: function() {
-        var me = this,
-            grid = me.editingPlugin.grid,
-            Container = Ext.container.Container;
-
-        me.cls = Ext.baseCSSPrefix + 'grid-editor ' + Ext.baseCSSPrefix + 'grid-row-editor';
-
-        me.layout = {
-            type: 'hbox',
-            align: 'middle'
-        };
-
-        me.lockable = grid.lockable;
-
-        // Create field containing structure for when editing a lockable grid.
-        if (me.lockable) {
-            me.items = [
-                // Locked columns container shrinkwraps the fields
-                me.lockedColumnContainer = new Container({
-                    id: grid.id + '-locked-editor-cells',
-                    layout: {
-                        type: 'hbox',
-                        align: 'middle'
-                    },
-                    // Locked grid has a border, we must be exactly the same width
-                    margin: '0 1 0 0'
-                }),
-
-                // Normal columns container flexes the remaining RowEditor width
-                me.normalColumnContainer = new Container({
-                    flex: 1,
-                    id: grid.id + '-normal-editor-cells',
-                    layout: {
-                        type: 'hbox',
-                        align: 'middle'
-                    }
-                })
-            ];
-        } else {
-            me.lockedColumnContainer = me.normalColumnContainer = me;
-        }
-
-        me.callParent(arguments);
-
-        if (me.fields) {
-            me.addFieldsForColumn(me.fields, true);
-            me.insertColumnEditor(me.fields);
-            delete me.fields;
-        }
-
-        me.mon(me.hierarchyEventSource, {
-            scope: me,
-            show: me.repositionIfVisible
-        });
-        me.getForm().trackResetOnLoad = true;
+    constructor: function(headerCt) {
+        this.headerCt = headerCt;
+        this.ddGroup =  this.getDDGroup();
+        this.callParent([headerCt.el]);
+        this.proxy.el.addCls(Ext.baseCSSPrefix + 'grid-col-dd');
+    },
+    
+    getDDGroup: function() {
+        return 'header-dd-zone-' + this.headerCt.up('[scrollerOwner]').id;
     },
 
-    //
-    // Grid listener added when this is rendered.
-    // Keep our containing element sized correctly
-    //
-    onGridResize: function() {
-        var me = this,
-            clientWidth = me.getClientWidth(),
-            grid = me.editingPlugin.grid,
-            gridBody = grid.body,
-            btns = me.getFloatingButtons();
-
-        me.setLocalX(gridBody.getOffsetsTo(grid)[0] + gridBody.getBorderWidth('l') - grid.el.getBorderWidth('l'));
-        
-        me.setWidth(clientWidth);
-        btns.setLocalX((clientWidth - btns.getWidth()) / 2);
-    },
-
-    onFieldRender: function(field){
-        var me = this,
-            column = field.column;
-
-        if (column.isVisible()) {
-            me.syncFieldWidth(column);
-        } else if (!column.rendered) {
-            // column is pending a layout, so we can't set the width until it does
-            me.view.headerCt.on({
-                afterlayout: Ext.Function.bind(me.syncFieldWidth, me, [column]),
-                single: true
-            });
-        }
-    },
-
-    syncFieldWidth: function(column) {
-        var field = column.getEditor(),
-            width;
-        field._marginWidth = (field._marginWidth || field.el.getMargin('lr'));
-        width = column.getWidth() - field._marginWidth;
-        field.setWidth(width);
-        if (field.xtype === 'displayfield') {
-            // displayfield must have the width set on the inputEl for ellipsis to work
-            field.inputWidth = width;
-        }
-    },
-
-    onFieldChange: function() {
-        var me = this,
-            form = me.getForm(),
-            valid = form.isValid();
-        if (me.errorSummary && me.isVisible()) {
-            me[valid ? 'hideToolTip' : 'showToolTip']();
-        }
-        me.updateButton(valid);
-        me.isValid = valid;
-    },
-
-    updateButton: function(valid){
-        var buttons = this.floatingButtons; 
-        if (buttons) {
-            buttons.child('#update').setDisabled(!valid);
-        } else {
-            // set flag so we can disabled when created if needed
-            this.updateButtonDisabled = !valid;
-        }
-    },
-
-    afterRender: function() {
-        var me = this,
-            plugin = me.editingPlugin,
-            grid = plugin.grid,
-            view = grid.lockable ? grid.normalGrid.view : grid.view,
-            field;
-
-        me.callParent(arguments);
-
-        // The scrollingViewEl is the TableView which scrolls
-        me.scrollingView = view;
-        me.scrollingViewEl = view.el;
-        view.mon(me.scrollingViewEl, 'scroll', me.onViewScroll, me);
-
-        // Prevent from bubbling click events to the grid view
-        me.mon(me.el, {
-            click: Ext.emptyFn,
-            stopPropagation: true
-        });
-
-        // Ensure that the editor width always matches the total header width
-        me.mon(grid, {
-            resize: me.onGridResize,
-            scope: me
-        });
-
-        me.el.swallowEvent([
-            'keypress',
-            'keydown'
-        ]);
-
-        me.fieldScroller = me.normalColumnContainer.layout.innerCt;
-        me.fieldScroller.dom.style.overflow = 'hidden';
-        me.fieldScroller.on({
-            scroll: me.onFieldContainerScroll,
-            scope: me
-        });
-
-        me.keyNav = new Ext.util.KeyNav(me.el, {
-            enter: plugin.completeEdit,
-            esc: plugin.onEscKey,
-            scope: plugin
-        });
-
-        me.mon(plugin.view, {
-            beforerefresh: me.onBeforeViewRefresh,
-            refresh: me.onViewRefresh,
-            itemremove: me.onViewItemRemove,
-            scope: me
-        });
-
-        // Prevent trying to reposition while we set everything up
-        me.preventReposition = true;
-        Ext.Array.each(me.query('[isFormField]'), function(field) {
-            if (field.column.isVisible()) {
-                me.onColumnShow(field.column);
-            }
-        }, me);
-        delete me.preventReposition;    
-    },
-
-    onBeforeViewRefresh: function(view) {
-        var me = this,
-            viewDom = view.el.dom;
-
-        if (me.el.dom.parentNode === viewDom) {
-            viewDom.removeChild(me.el.dom);
-        }
-    },
-
-    onViewRefresh: function(view) {
-        var me = this,
-            context = me.context,
-            row;
-
-        // Recover our row node after a view refresh
-        if (context && (row = view.getNode(context.record, true))) {
-            context.row = row;
-            me.reposition();
-            if (me.tooltip && me.tooltip.isVisible()) {
-                me.tooltip.setTarget(context.row);
-            }
-        } else {
-            me.editingPlugin.cancelEdit();
-        }
-    },
-
-    onViewItemRemove: function(record, index) {
-        var context = this.context;
-        if (context && record === context.record) {
-            // if the record being edited was removed, cancel editing
-            this.editingPlugin.cancelEdit();
-        }
-    },
-
-    onViewScroll: function() {
-        var me = this,
-            viewEl = me.editingPlugin.view.el,
-            scrollingViewEl = me.scrollingViewEl,
-            scrollTop  = scrollingViewEl.dom.scrollTop,
-            scrollLeft = scrollingViewEl.getScrollLeft(),
-            scrollLeftChanged = scrollLeft !== me.lastScrollLeft,
-            scrollTopChanged = scrollTop !== me.lastScrollTop,
-            row;
-
-        me.lastScrollTop  = scrollTop;
-        me.lastScrollLeft = scrollLeft;
-        if (me.isVisible()) {
-            row = Ext.getDom(me.context.row.id);
-
-            // Only reposition if the row is in the DOM (buffered rendering may mean the context row is not there)
-            if (row && viewEl.contains(row)) {
-                if (scrollTopChanged) {
-
-                    // The row element in the context may be stale due to buffered rendering removing out-of-view rows, then re-inserting newly rendered ones
-                    me.context.row = row;
-                    me.reposition(null, true);
-                    if ((me.tooltip && me.tooltip.isVisible()) || me.hiddenTip) {
-                        me.repositionTip();
-                    }
-
-                    me.syncEditorClip();
-                }
-            }
-            // If row is NOT in the DOM, ensure the editor is out of sight
-            else {
-                me.setLocalY(-400);
-            }
-        }
-
-        // Keep fields' left/right scroll position synced with view's left/right scroll
-        if (me.rendered && scrollLeftChanged) {
-            me.syncFieldsHorizontalScroll();
-        }
-    },
-
-    // Synchronize the horizontal scroll position of the fields with the state of the grid view
-    syncFieldsHorizontalScroll: function() {
-        // Set overflow style here because it is an embedded element and the "style" Component config does not target it.
-        this.fieldScroller.setScrollLeft(this.lastScrollLeft);
-    },
-
-    // Synchronize the horizontal scroll position of the grid view with the fields.
-    onFieldContainerScroll: function() {
-        this.scrollingViewEl.setScrollLeft(this.fieldScroller.getScrollLeft());
-    },
-
-    onColumnResize: function(column, width) {
-        var me = this;
-
-        if (me.rendered) {
-            // Need to ensure our lockable/normal horizontal scrollrange is set
-            me.onGridResize();
-            me.onViewScroll();
-            if (!column.isGroupHeader) {
-                me.syncFieldWidth(column);
-                me.repositionIfVisible();
-            }
-        }
-    },
-
-    onColumnHide: function(column) {
-        if (!column.isGroupHeader) {
-            column.getEditor().hide();
-            this.repositionIfVisible();
-        }
-    },
-
-    onColumnShow: function(column) {
-        var me = this;
-
-        if (me.rendered && !column.isGroupHeader) {
-            column.getEditor().show();
-            me.syncFieldWidth(column);
-            if (!me.preventReposition) {
-                this.repositionIfVisible();
-            }
-        }
-    },
-
-    onColumnMove: function(column, fromIdx, toIdx) {
-        var me = this,
-            i, incr = 1, len, field, fieldIdx,
-            fieldContainer = column.isLocked() ? me.lockedColumnContainer : me.normalColumnContainer;
-
-        // If moving a group, move each leaf header
-        if (column.isGroupHeader) {
-            Ext.suspendLayouts();
-            column = column.getGridColumns();
-
-            if (toIdx > fromIdx) {
-                toIdx--;
-                incr = 0;
-            }
-
-            this.addFieldsForColumn(column);
-            for (i = 0, len = column.length; i < len; i++, fromIdx += incr, toIdx += incr) {
-                field = column[i].getEditor();
-                fieldIdx = fieldContainer.items.indexOf(field);
-
-                // If the field is not in the container (moved from the main headerCt, INTO a group header)
-                // then insert it into the correct place
-                if (fieldIdx === -1) {
-                    fieldContainer.insert(toIdx, field);
-                }
-
-                // If the field has not already been processed by an onColumnAdd (move from a group header INTO the main headerCt), then move it
-                else if (fieldIdx != toIdx) {
-                    fieldContainer.move(fromIdx, toIdx);
-                }
-            }
-            Ext.resumeLayouts(true);
-        } else {
-            if (toIdx > fromIdx) {
-                toIdx--;
-            }
-            this.addFieldsForColumn(column);
-            field = column.getEditor();
-            fieldIdx = fieldContainer.items.indexOf(field);
-            if (fieldIdx === -1) {
-                fieldContainer.insert(toIdx, field);
-            }
-            else if (fieldIdx != toIdx) {
-                fieldContainer.move(fromIdx, toIdx);
-            }
-        }
-    },
-
-    onColumnAdd: function(column) {
-
-        // If a column header added, process its leaves
-        if (column.isGroupHeader) {
-            column = column.getGridColumns();
-        }
-        //this.preventReposition = true;
-        this.addFieldsForColumn(column);
-        this.insertColumnEditor(column);
-        this.preventReposition = false;
-    },
-
-    insertColumnEditor: function(column) {
-        var me = this,
-            fieldContainer,
-            len, i;
-
-        if (Ext.isArray(column)) {
-            for (i = 0, len = column.length; i < len; i++) {
-                me.insertColumnEditor(column[i]);
-            }
-            return;
-        }
-
-        if (!column.getEditor) {
-            return;
-        }
-
-        fieldContainer = column.isLocked() ? me.lockedColumnContainer : me.normalColumnContainer;
-        
-        // Insert the column's field into the editor panel.
-        fieldContainer.insert(column.getVisibleIndex(), column.getEditor());
-    },
-
-    onColumnRemove: function(ct, column) {
-        column = column.isGroupHeader ? column.getGridColumns() : column;
-        this.removeColumnEditor(column);
-    },
-
-    removeColumnEditor: function(column) {
-        var me = this,
-            field,
-            len, i;
-
-        if (Ext.isArray(column)) {
-            for (i = 0, len = column.length; i < len; i++) {
-                me.removeColumnEditor(column[i]);
-            }
-            return;
-        }
-
-        if (column.hasEditor()) {
-            field = column.getEditor();
-            if (field && field.ownerCt) {
-                field.ownerCt.remove(field, false);
-            }
-        }
-    },
-
-    onColumnReplace: function(map, fieldId, column, oldColumn) {
-        this.onColumnRemove(oldColumn.ownerCt, oldColumn);
-    },
-
-    getFloatingButtons: function() {
-        var me = this,
-            btns = me.floatingButtons;
-
-        if (!btns) {
-            me.floatingButtons = btns = new Ext.grid.RowEditorButtons({
-                rowEditor: me
-            });
-        }
-        return btns;
-    },
-
-    repositionIfVisible: function(c) {
-        var me = this,
-            view = me.view;
-
-        // If we're showing ourselves, jump out
-        // If the component we're showing doesn't contain the view
-        if (c && (c == me || !c.el.isAncestor(view.el))) {
-            return;
-        }
-
-        if (me.isVisible() && view.isVisible(true)) {
-            me.reposition();
-        }
-    },
-
-    getRefOwner: function() {
-        return this.editingPlugin.grid;
-    },
-
-    // Lie to the CQ system about our nesting structure.
-    // Pretend all the fields are always immediate children.
-    // Include the two buttons.
-    getRefItems: function() {
-        var me = this,
-            result;
-
-        if (me.lockable) {
-            result = me.lockedColumnContainer.getRefItems();
-            result.push.apply(result, me.normalColumnContainer.getRefItems());
-        } else {
-            result = me.callParent();
-        }
-        result.push.apply(result, me.getFloatingButtons().getRefItems());
-        return result;
-    },
-
-    reposition: function(animateConfig, fromScrollHandler) {
-        var me = this,
-            context = me.context,
-            row = context && Ext.get(context.row),
-            yOffset = 0,
-            rowTop,
-            localY,
-            deltaY,
-            afterPosition;
-
-        // Position this editor if the context row is rendered (buffered rendering may mean that it's not in the DOM at all)
-        if (row && Ext.isElement(row.dom)) {
-
-            deltaY = me.syncButtonPosition(me.getScrollDelta());
-
-            if (!me.editingPlugin.grid.rowLines) { 
-                // When the grid does not have rowLines we add a bottom border to the previous
-                // row when the row is focused, but subtract the border width from the 
-                // top padding to keep the row from changing size.  This adjusts the top offset
-                // of the cell edtor to account for the added border.
-                yOffset = -parseInt(row.first().getStyle('border-bottom-width'));
-            }
-            rowTop = me.calculateLocalRowTop(row);
-            localY = me.calculateEditorTop(rowTop) + yOffset;
-
-            // If not being called from scroll handler...
-            // If the editor's top will end up above the fold
-            // or the bottom will end up below the fold,
-            // organize an afterPosition handler which will bring it into view and focus the correct input field
-            if (!fromScrollHandler) {
-                afterPosition = function() {
-                    if (deltaY) {
-                        me.scrollingViewEl.scrollBy(0, deltaY, true);
-                    }
-                    me.focusContextCell();
-                }
-            }
-
-            me.syncEditorClip();
-
-            // Get the y position of the row relative to its top-most static parent.
-            // offsetTop will be relative to the table, and is incorrect
-            // when mixed with certain grid features (e.g., grouping).
-            if (animateConfig) {
-                me.animate(Ext.applyIf({
-                    to: {
-                        top: localY
-                    },
-                    duration: animateConfig.duration || 125,
-                    callback: afterPosition
-                }, animateConfig));
-            } else {
-                me.setLocalY(localY);
-                if (afterPosition) {
-                    afterPosition();
+    getDragData: function(e) {
+        if (e.getTarget(this.colInnerSelector)) {
+            var header = e.getTarget(this.colHeaderSelector),
+                headerCmp,
+                ddel;
+
+            if (header) {
+                headerCmp = Ext.getCmp(header.id);
+                if (!this.headerCt.dragging && headerCmp.draggable && !(headerCmp.isOnLeftEdge(e) || headerCmp.isOnRightEdge(e))) {
+                    ddel = document.createElement('div');
+                    ddel.innerHTML = Ext.getCmp(header.id).text;
+                    return {
+                        ddel: ddel,
+                        header: headerCmp
+                    };
                 }
             }
         }
+        return false;
     },
 
-    /**
-     * @private
-     * Returns the scroll delta required to scroll the context row into view in order to make
-     * the whole of this editor visible.
-     * @return {Number} the scroll delta. Zero if scrolling is not required.
-     */
-    getScrollDelta: function() {
-        var me = this,
-            scrollingViewDom = me.scrollingViewEl.dom,
-            context = me.context,
-            body = me.body,
-            deltaY = 0;
-
-        if (context) {
-            deltaY = Ext.fly(context.row).getOffsetsTo(scrollingViewDom)[1] - body.getBorderPadding().beforeY;
-            if (deltaY > 0) {
-                deltaY = Math.max(deltaY + me.getHeight() + me.floatingButtons.getHeight() -
-                    scrollingViewDom.clientHeight - body.getBorderWidth('b'), 0);
-            }
-        }
-        return deltaY;
+    onBeforeDrag: function() {
+        return !(this.headerCt.dragging || this.disabled);
     },
 
-    //
-    // Calculates the top pixel position of the passed row within the view's scroll space.
-    // So in a large, scrolled grid, this could be several thousand pixels.
-    //
-    calculateLocalRowTop: function(row) {
-        var grid = this.editingPlugin.grid;
-        return Ext.fly(row).getOffsetsTo(grid)[1] - grid.el.getBorderWidth('t') + this.lastScrollTop;
+    onInitDrag: function() {
+        this.headerCt.dragging = true;
+        this.callParent(arguments);
     },
 
-    // Given the top pixel position of a row in the scroll space,
-    // calculate the editor top position in the view's encapsulating element.
-    // This will only ever be in the visible range of the view's element.
-    calculateEditorTop: function(rowTop) {
-        return rowTop - this.body.getBorderPadding().beforeY - this.lastScrollTop;
+    onDragDrop: function() {
+        this.headerCt.dragging = false;
+        this.callParent(arguments);
     },
 
-    getClientWidth: function() {
-        var me = this,
-            grid = me.editingPlugin.grid,
-            result;
-
-        if (me.lockable) {
-            result =
-               grid.lockedGrid.getWidth() +
-               grid.normalGrid.view.el.dom.clientWidth - 1;
-        }
-        else {
-            result = grid.view.el.dom.clientWidth;
-        }
-        return result;
+    afterRepair: function() {
+        this.callParent();
+        this.headerCt.dragging = false;
     },
 
-    getEditor: function(fieldInfo) {
-        var me = this;
-
-        if (Ext.isNumber(fieldInfo)) {
-            // Query only form fields. This just future-proofs us in case we add
-            // other components to RowEditor later on.  Don't want to mess with
-            // indices.
-            return me.query('[isFormField]')[fieldInfo];
-        } else if (fieldInfo.isHeader && !fieldInfo.isGroupHeader) {
-            return fieldInfo.getEditor();
-        }
+    getRepairXY: function() {
+        return this.dragData.header.el.getXY();
     },
-
-    addFieldsForColumn: function(column, initial) {
-        var me = this,
-            i,
-            length, field;
-
-        if (Ext.isArray(column)) {
-            for (i = 0, length = column.length; i < length; i++) {
-                me.addFieldsForColumn(column[i], initial);
-            }
-            return;
-        }
-
-        if (column.getEditor) {
-
-            // Get a default display field if necessary
-            field = column.getEditor(null, {
-                xtype: 'displayfield',
-                // Override Field's implementation so that the default display fields will not return values. This is done because
-                // the display field will pick up column renderers from the grid.
-                getModelData: function() {
-                    return null;
-                }
-            });
-            if (column.align === 'right') {
-                field.fieldStyle = 'text-align:right';
-            }
-
-            if (column.xtype === 'actioncolumn') {
-                field.fieldCls += ' ' + Ext.baseCSSPrefix + 'form-action-col-field'
-            }
-
-            if (me.isVisible() && me.context) {
-                if (field.is('displayfield')) {
-                    me.renderColumnData(field, me.context.record, column);
-                } else {
-                    field.suspendEvents();
-                    field.setValue(me.context.record.get(column.dataIndex));
-                    field.resumeEvents();
-                }
-            }
-            if (column.hidden) {
-                me.onColumnHide(column);
-            } else if (column.rendered && !initial) {
-                // Setting after initial render
-                me.onColumnShow(column);
-            }
-        }
+    
+    disable: function() {
+        this.disabled = true;
     },
-
-    loadRecord: function(record) {
-        var me     = this,
-            form   = me.getForm(),
-            fields = form.getFields(),
-            items  = fields.items,
-            length = items.length,
-            i, displayFields,
-            isValid;
-
-        // temporarily suspend events on form fields before loading record to prevent the fields' change events from firing
-        for (i = 0; i < length; i++) {
-            items[i].suspendEvents();
-        }
-
-        form.loadRecord(record);
-
-        for (i = 0; i < length; i++) {
-            items[i].resumeEvents();
-        }
-
-        isValid = form.isValid();
-        if (me.errorSummary) {
-            if (isValid) {
-                me.hideToolTip();
-            } else {
-                me.showToolTip();
-            }
-        }
-
-        me.updateButton(isValid);
-
-        // render display fields so they honor the column renderer/template
-        displayFields = me.query('>displayfield');
-        length = displayFields.length;
-
-        for (i = 0; i < length; i++) {
-            me.renderColumnData(displayFields[i], record);
-        }
-    },
-
-    renderColumnData: function(field, record, activeColumn) {
-        var me = this,
-            grid = me.editingPlugin.grid,
-            headerCt = grid.headerCt,
-            view = me.scrollingView,
-            store = view.dataSource,
-            column = activeColumn || field.column,
-            value = record.get(column.dataIndex),
-            renderer = column.editRenderer || column.renderer,
-            metaData,
-            rowIdx,
-            colIdx;
-
-        // honor our column's renderer (TemplateHeader sets renderer for us!)
-        if (renderer) {
-            metaData = { tdCls: '', style: '' };
-            rowIdx = store.indexOf(record);
-            colIdx = headerCt.getHeaderIndex(column);
-
-            value = renderer.call(
-                column.scope || headerCt.ownerCt,
-                value,
-                metaData,
-                record,
-                rowIdx,
-                colIdx,
-                store,
-                view
-            );
-        }
-
-        field.setRawValue(value);
-        field.resetOriginalValue();
-    },
-
-    beforeEdit: function() {
-        var me = this,
-            scrollDelta;
-
-        if (me.isVisible() && me.errorSummary && !me.autoCancel && me.isDirty()) {
-
-            // Scroll the visible RowEditor that is in error state back into view
-            scrollDelta = me.getScrollDelta();
-            if (scrollDelta) {
-                me.scrollingViewEl.scrollBy(0, scrollDelta, true)
-            }
-            me.showToolTip();
-            return false;
-        }
-    },
-
-    /**
-     * Start editing the specified grid at the specified position.
-     * @param {Ext.data.Model} record The Store data record which backs the row to be edited.
-     * @param {Ext.data.Model} columnHeader The Column object defining the column to be edited.
-     */
-    startEdit: function(record, columnHeader) {
-        var me = this,
-            editingPlugin = me.editingPlugin,
-            grid = editingPlugin.grid,
-            context = me.context = editingPlugin.context;
-
-        if (!me.rendered) {
-            me.width = me.getClientWidth();
-            me.render(grid.el, grid.el.dom.firstChild);
-            me.getFloatingButtons().render(me.el);
-            // On first show we need to ensure that we have the scroll positions cached
-            me.onViewScroll();
-        } else {
-            me.syncFieldsHorizontalScroll();
-        }
-
-        if (me.isVisible()) {
-            me.reposition(true);
-        } else {
-            me.show();
-        }
-
-        // Make sure the container el is correctly sized.
-        me.onGridResize();
-
-        // make sure our row is selected before editing
-        context.grid.getSelectionModel().select(record);
-
-        // Reload the record data
-        me.loadRecord(record);
-    },
-
-    // determines the amount by which the row editor will overflow, and flips the buttons
-    // to the top of the editor if the required scroll amount is greater than the available
-    // scroll space. Returns the scrollDelta required to scroll the editor into view after
-    // adjusting the button position.
-    syncButtonPosition: function(scrollDelta) {
-        var me = this,
-            floatingButtons = me.getFloatingButtons(),
-            scrollingViewElDom = me.scrollingViewEl.dom,
-            overflow = this.getScrollDelta() - (scrollingViewElDom.scrollHeight -
-                scrollingViewElDom.scrollTop - scrollingViewElDom.clientHeight);
-
-        if (overflow > 0) {
-            if (!me._buttonsOnTop) {
-                floatingButtons.setButtonPosition('top');
-                me._buttonsOnTop = true;
-            }
-            scrollDelta = 0;
-        } else if (me._buttonsOnTop) {
-            floatingButtons.setButtonPosition('bottom');
-            me._buttonsOnTop = false;
-        }
-
-        return scrollDelta;
-    },
-
-    // since the editor is rendered to the grid el, it must be clipped when scrolled
-    // outside of the grid view area so that it does not overlap the scrollbar or docked items
-    syncEditorClip: function() {
-        var me = this,
-            overflow = me.getScrollDelta(),
-            btnHeight;
-
-        if (overflow) {
-            // The editor is overflowing outside of the view area, either above or below
-            me.isOverflowing = true;
-            btnHeight = me.floatingButtons.getHeight();
-
-            if (overflow > 0) {
-                // editor is overflowing the bottom of the view
-                me.clipBottom(Math.max(me.getHeight() - overflow + btnHeight, -btnHeight));
-            } else if (overflow < 0) {
-                // editor is overflowing the top of the view
-                overflow = Math.abs(overflow);
-                me.clipTop(Math.max(overflow, 0));
-            }
-        } else if (me.isOverflowing) {
-            me.clearClip();
-            me.isOverflowing = false;
-        }
-    },
-
-    // Focus the cell on start edit based upon the current context
-    focusContextCell: function() {
-        var field = this.getEditor(this.context.column);
-        if (field && field.focus) {
-            field.focus();
-        }
-    },
-
-    cancelEdit: function() {
-        var me     = this,
-            form   = me.getForm(),
-            fields = form.getFields(),
-            items  = fields.items,
-            length = items.length,
-            i;
-
-        me.hide();
-        form.clearInvalid();
-
-        // temporarily suspend events on form fields before reseting the form to prevent the fields' change events from firing
-        for (i = 0; i < length; i++) {
-            items[i].suspendEvents();
-        }
-
-        form.reset();
-
-        for (i = 0; i < length; i++) {
-            items[i].resumeEvents();
-        }
-    },
-
-    completeEdit: function() {
-        var me = this,
-            form = me.getForm();
-
-        if (!form.isValid()) {
-            return false;
-        }
-
-        form.updateRecord(me.context.record);
-        me.hide();
-        return true;
-    },
-
-    onShow: function() {
-        var me = this;
-
-        me.callParent(arguments);
-        me.reposition();
-    },
-
-    onHide: function() {
-        var me = this;
-
-        me.callParent(arguments);
-        if (me.tooltip) {
-            me.hideToolTip();
-        }
-        if (me.context) {
-            me.context.view.focusRow(me.context.record);
-            me.context = null;
-        }
-    },
-
-    isDirty: function() {
-        var me = this,
-            form = me.getForm();
-        return form.isDirty();
-    },
-
-    getToolTip: function() {
-        return this.tooltip || (this.tooltip = new Ext.tip.ToolTip({
-            cls: Ext.baseCSSPrefix + 'grid-row-editor-errors',
-            title: this.errorsText,
-            autoHide: false,
-            closable: true,
-            closeAction: 'disable',
-            anchor: 'left',
-            anchorToTarget: false
-        }));
-    },
-
-    hideToolTip: function() {
-        var me = this,
-            tip = me.getToolTip();
-        if (tip.rendered) {
-            tip.disable();
-        }
-        me.hiddenTip = false;
-    },
-
-    showToolTip: function() {
-        var me = this,
-            tip = me.getToolTip();
-
-        tip.showAt([0, 0]);
-        tip.update(me.getErrors());
-        me.repositionTip();
-        tip.enable();
-    },
-
-    repositionTip: function() {
-        var me = this,
-            tip = me.getToolTip(),
-            context = me.context,
-            row = Ext.get(context.row),
-            viewEl = me.scrollingViewEl,
-            viewHeight = viewEl.dom.clientHeight,
-            viewTop = me.lastScrollTop,
-            viewBottom = viewTop + viewHeight,
-            rowHeight = row.getHeight(),
-            rowTop = row.getOffsetsTo(me.context.view.body)[1],
-            rowBottom = rowTop + rowHeight;
-
-        if (rowBottom > viewTop && rowTop < viewBottom) {
-            tip.showAt(tip.getAlignToXY(viewEl, 'tl-tr', [15, row.getOffsetsTo(viewEl)[1]]));
-            me.hiddenTip = false;
-        } else {
-            tip.hide();
-            me.hiddenTip = true;
-        }
-    },
-
-    getErrors: function() {
-        var me        = this,
-            errors    = [],
-            fields    = me.query('>[isFormField]'),
-            length    = fields.length,
-            i;
-
-        for (i = 0; i < length; i++) {
-            errors = errors.concat(
-                Ext.Array.map(fields[i].getErrors(), me.createErrorListItem)
-            );
-        }
-
-        // Only complain about unsaved changes if all the fields are valid
-        if (!errors.length && !me.autoCancel && me.isDirty()) {
-            errors[0] = me.createErrorListItem(me.dirtyText);
-        }
-
-        return '<ul class="' + Ext.plainListCls + '">' + errors.join('') + '</ul>';
-    },
-
-    createErrorListItem: function(e) {
-        return '<li class="' + Ext.baseCSSPrefix + 'grid-row-editor-errors-item">' + e + '</li>';
-    },
-
-    beforeDestroy: function(){
-        Ext.destroy(this.floatingButtons, this.tooltip);
-        this.callParent();    
-    },
-
-    clipBottom: function(value) {
-        this.el.setStyle('clip', 'rect(-1000px auto ' + value + 'px auto)');
-    },
-
-    clipTop: function(value) {
-        this.el.setStyle('clip', 'rect(' + value + 'px auto 1000px auto)');
-    },
-
-    clearClip: function(el) {
-        this.el.setStyle(
-            'clip',
-            Ext.isIE8m || Ext.isIEQuirks ? 'rect(-1000px auto 1000px auto)' : 'auto'
-        );
+    
+    enable: function() {
+        this.disabled = false;
     }
 });
+
 /*
 This file is part of Ext JS 4.2
 
@@ -96395,1394 +96752,76 @@ at http://www.sencha.com/contact.
 Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
- * This class provides an abstract grid editing plugin on selected {@link Ext.grid.column.Column columns}.
- * The editable columns are specified by providing an {@link Ext.grid.column.Column#editor editor}
- * in the {@link Ext.grid.column.Column column configuration}.
- *
- * **Note:** This class should not be used directly. See {@link Ext.grid.plugin.CellEditing} and
- * {@link Ext.grid.plugin.RowEditing}.
- */
-Ext.define('Ext.grid.plugin.Editing', {
-    alias: 'editing.editing',
-    extend: 'Ext.AbstractPlugin',
-
-    requires: [
-        'Ext.grid.column.Column',
-        'Ext.util.KeyNav'
-    ],
-
-    mixins: {
-        observable: 'Ext.util.Observable'
-    },
-
-    /**
-     * @cfg {Number} clicksToEdit
-     * The number of clicks on a grid required to display the editor.
-     * The only accepted values are **1** and **2**.
-     */
-    clicksToEdit: 2,
-
-    /**
-     * @cfg {String} triggerEvent
-     * The event which triggers editing. Supercedes the {@link #clicksToEdit} configuration. Maybe one of:
-     *
-     *  * cellclick
-     *  * celldblclick
-     *  * cellfocus
-     *  * rowfocus
-     */
-    triggerEvent: undefined,
-
-    relayedEvents: [
-        'beforeedit',
-        'edit',
-        'validateedit',
-        'canceledit'
-    ],
-
-    // @private
-    defaultFieldXType: 'textfield',
-
-    // cell, row, form
-    editStyle: '',
-
-    constructor: function(config) {
-        var me = this;
-
-        me.addEvents(
-            /**
-             * @event beforeedit
-             * Fires before editing is triggered. Return false from event handler to stop the editing.
-             *
-             * @param {Ext.grid.plugin.Editing} editor
-             * @param {Object} context The editing context with the following properties:
-             *  @param {Ext.grid.Panel}         context.grid The owning grid Panel.
-             *  @param {Ext.data.Model}         context.record The record being edited.
-             *  @param {String}                 context.field The name of the field being edited.
-             *  @param {Mixed}                  context.value The field's current value.
-             *  @param {HTMLElement}            context.row The grid row element.
-             *  @param {Ext.grid.column.Column} context.column The Column being edited.
-             *  @param {Number}                 context.rowIdx The index of the row being edited.
-             *  @param {Number}                 context.colIdx The index of the column being edited.
-             *  @param {Boolean}                context.cancel Set this to `true` to cancel the edit or return false from your handler.
-             *  @param {Mixed}                  context.originalValue Alias for value (only when using {@link Ext.grid.plugin.CellEditing CellEditing}).
-             */
-            'beforeedit',
-
-            /**
-             * @event edit
-             * Fires after a editing. Usage example:
-             *
-             *     grid.on('edit', function(editor, e) {
-             *         // commit the changes right after editing finished
-             *         e.record.commit();
-             *     });
-             *
-             * @param {Ext.grid.plugin.Editing} editor
-             * @param {Object} context The editing context with the following properties:
-             *  @param {Ext.grid.Panel}         context.grid The owning grid Panel.
-             *  @param {Ext.data.Model}         context.record The record being edited.
-             *  @param {String}                 context.field The name of the field being edited.
-             *  @param {Mixed}                  context.value The field's current value.
-             *  @param {HTMLElement}            context.row The grid row element.
-             *  @param {Ext.grid.column.Column} context.column The Column being edited.
-             *  @param {Number}                 context.rowIdx The index of the row being edited.
-             *  @param {Number}                 context.colIdx The index of the column being edited.
-             */
-            'edit',
-
-            /**
-             * @event validateedit
-             * Fires after editing, but before the value is set in the record. Return false from event handler to
-             * cancel the change.
-             *
-             * Usage example showing how to remove the red triangle (dirty record indicator) from some records (not all). By
-             * observing the grid's validateedit event, it can be cancelled if the edit occurs on a targeted row (for example)
-             * and then setting the field's new value in the Record directly:
-             *
-             *     grid.on('validateedit', function(editor, e) {
-             *       var myTargetRow = 6;
-             *
-             *       if (e.rowIdx == myTargetRow) {
-             *         e.cancel = true;
-             *         e.record.data[e.field] = e.value;
-             *       }
-             *     });
-             *
-             * @param {Ext.grid.plugin.Editing} editor
-             * @param {Object} context The editing context with the following properties:
-             *  @param {Ext.grid.Panel}         context.grid The owning grid Panel.
-             *  @param {Ext.data.Model}         context.record The record being edited.
-             *  @param {String}                 context.field The name of the field being edited.
-             *  @param {Mixed}                  context.value The field's current value.
-             *  @param {HTMLElement}            context.row The grid row element.
-             *  @param {Ext.grid.column.Column} context.column The Column being edited.
-             *  @param {Number}                 context.rowIdx The index of the row being edited.
-             *  @param {Number}                 context.colIdx The index of the column being edited.
-             */
-            'validateedit',
-            /**
-             * @event canceledit
-             * Fires when the user started editing but then cancelled the edit.
-             * @param {Ext.grid.plugin.Editing} editor
-             * @param {Object} context The editing context with the following properties:
-             *  @param {Ext.grid.Panel}         context.grid The owning grid Panel.
-             *  @param {Ext.data.Model}         context.record The record being edited.
-             *  @param {String}                 context.field The name of the field being edited.
-             *  @param {Mixed}                  context.value The field's current value.
-             *  @param {HTMLElement}            context.row The grid row element.
-             *  @param {Ext.grid.column.Column} context.column The Column being edited.
-             *  @param {Number}                 context.rowIdx The index of the row being edited.
-             *  @param {Number}                 context.colIdx The index of the column being edited.
-             */
-            'canceledit'
-
-        );
-        me.callParent(arguments);
-        me.mixins.observable.constructor.call(me);
-        // TODO: Deprecated, remove in 5.0
-        me.on("edit", function(editor, e) {
-            me.fireEvent("afteredit", editor, e);
-        });
-    },
-
-    // @private
-    init: function(grid) {
-        var me = this;
-
-        me.grid = grid;
-        me.view = grid.view;
-        me.initEvents();
-
-        // Set up fields at render and reconfigure time
-        me.mon(grid, {
-            reconfigure: me.onReconfigure,
-            scope: me,
-            beforerender: {
-                fn: me.onReconfigure,
-                single: true,
-                scope: me
-            }
-        });
-
-        grid.relayEvents(me, me.relayedEvents);
-
-        // If the editable grid is owned by a lockable, relay up another level.
-        if (me.grid.ownerLockable) {
-            me.grid.ownerLockable.relayEvents(me, me.relayedEvents);
-        }
-        // Marks the grid as editable, so that the SelectionModel
-        // can make appropriate decisions during navigation
-        grid.isEditable = true;
-        grid.editingPlugin = grid.view.editingPlugin = me;
-    },
-
-    /**
-     * Fires after the grid is reconfigured
-     * @private
-     */
-    onReconfigure: function() {
-        var grid = this.grid;
-
-        // In a Lockable assembly, the owner's view aggregates all grid columns across both sides.
-        // We grab all columns here.
-        grid = grid.ownerLockable ? grid.ownerLockable : grid;
-        this.initFieldAccessors(grid.getView().getGridColumns());
-    },
-
-    /**
-     * @private
-     * AbstractComponent calls destroy on all its plugins at destroy time.
-     */
-    destroy: function() {
-        var me = this,
-            grid = me.grid;
-
-        Ext.destroy(me.keyNav);
-        // Clear all listeners from all our events, clear all managed listeners we added to other Observables
-        me.clearListeners();
-
-        if (grid) {
-            me.removeFieldAccessors(grid.columnManager.getColumns());
-            grid.editingPlugin = grid.view.editingPlugin = me.grid = me.view = me.editor = me.keyNav = null;
-        }
-    },
-
-    // @private
-    getEditStyle: function() {
-        return this.editStyle;
-    },
-
-    // @private
-    initFieldAccessors: function(columns) {
-        // If we have been passed a group header, process its leaf headers
-        if (columns.isGroupHeader) {
-            columns = columns.getGridColumns();
-        }
-
-        // Ensure we are processing an array
-        else if (!Ext.isArray(columns)) {
-            columns = [columns];
-        }
-
-        var me   = this,
-            c,
-            cLen = columns.length,
-            column;
-
-        for (c = 0; c < cLen; c++) {
-            column = columns[c];
-
-            if (!column.getEditor) {
-                column.getEditor = function(record, defaultField) {
-                    return me.getColumnField(this, defaultField);
-                };
-            }
-            if (!column.hasEditor) {
-                column.hasEditor = function() {
-                    return me.hasColumnField(this);
-                };
-            }
-            if (!column.setEditor) {
-                column.setEditor = function(field) {
-                    me.setColumnField(this, field);
-                };
-            }
-        }
-    },
-
-    // @private
-    removeFieldAccessors: function(columns) {
-        // If we have been passed a group header, process its leaf headers
-        if (columns.isGroupHeader) {
-            columns = columns.getGridColumns();
-        }
-
-        // Ensure we are processing an array
-        else if (!Ext.isArray(columns)) {
-            columns = [columns];
-        }
-
-        var c,
-            cLen = columns.length,
-            column;
-
-        for (c = 0; c < cLen; c++) {
-            column = columns[c];
-
-            column.getEditor = column.hasEditor = column.setEditor = null;
-        }
-    },
-
-    // @private
-    // remaps to the public API of Ext.grid.column.Column.getEditor
-    getColumnField: function(columnHeader, defaultField) {
-        var field = columnHeader.field;
-        if (!(field && field.isFormField)) {
-            field = columnHeader.field = this.createColumnField(columnHeader, defaultField);
-        }
-        return field;
-    },
-
-    // @private
-    // remaps to the public API of Ext.grid.column.Column.hasEditor
-    hasColumnField: function(columnHeader) {
-        return !!columnHeader.field;
-    },
-
-    // @private
-    // remaps to the public API of Ext.grid.column.Column.setEditor
-    setColumnField: function(columnHeader, field) {
-        columnHeader.field = field;
-        columnHeader.field = this.createColumnField(columnHeader);
-    },
-
-    createColumnField:  function(columnHeader, defaultField) {
-        var field = columnHeader.field;
-
-        if (!field && columnHeader.editor) {
-            field = columnHeader.editor;
-            columnHeader.editor = null;
-        }
-
-        if (!field && defaultField) {
-            field = defaultField;
-        }
-
-        if (field) {
-            if (field.isFormField) {
-                field.column = columnHeader;
-            } else {
-                if (Ext.isString(field)) {
-                    field = {
-                        name: columnHeader.dataIndex,
-                        xtype: field,
-                        column: columnHeader
-                    };
-                } else {
-                    field = Ext.apply({
-                        name: columnHeader.dataIndex,
-                        column: columnHeader
-                    }, field);
-                }
-                field = Ext.ComponentManager.create(field, this.defaultFieldXType);
-            }
-            columnHeader.field = field;
-        }
-        return field;
-    },
-
-    // @private
-    initEvents: function() {
-        var me = this;
-        me.initEditTriggers();
-        me.initCancelTriggers();
-    },
-
-    // @abstract
-    initCancelTriggers: Ext.emptyFn,
-
-    // @private
-    initEditTriggers: function() {
-        var me = this,
-            view = me.view;
-
-        // Listen for the edit trigger event.
-        if (me.triggerEvent == 'cellfocus') {
-            me.mon(view, 'cellfocus', me.onCellFocus, me);
-        } else if (me.triggerEvent == 'rowfocus') {
-            me.mon(view, 'rowfocus', me.onRowFocus, me);
-        } else {
-
-            // Prevent the View from processing when the SelectionModel focuses.
-            // This is because the SelectionModel processes the mousedown event, and
-            // focusing causes a scroll which means that the subsequent mouseup might
-            // take place at a different document XY position, and will therefore
-            // not trigger a click.
-            // This Editor must call the View's focusCell method directly when we recieve a request to edit
-            if (view.getSelectionModel().isCellModel) {
-                view.onCellFocus = Ext.Function.bind(me.beforeViewCellFocus, me);
-            }
-
-            // Listen for whichever click event we are configured to use
-            me.mon(view, me.triggerEvent || ('cell' + (me.clicksToEdit === 1 ? 'click' : 'dblclick')), me.onCellClick, me);
-        }
-
-        // add/remove header event listeners need to be added immediately because
-        // columns can be added/removed before render
-        me.initAddRemoveHeaderEvents()
-        // wait until render to initialize keynav events since they are attached to an element
-        view.on('render', me.initKeyNavHeaderEvents, me, {single: true});
-    },
-
-    // Override of View's method so that we can pre-empt the View's processing if the view is being triggered by a mousedown
-    beforeViewCellFocus: function(position) {
-        // Pass call on to view if the navigation is from the keyboard, or we are not going to edit this cell.
-        if (this.view.selModel.keyNavigation || !this.editing || !this.isCellEditable || !this.isCellEditable(position.row, position.columnHeader)) {
-            this.view.focusCell.apply(this.view, arguments);
-        }
-    },
-
-    // @private Used if we are triggered by the rowfocus event
-    onRowFocus: function(record, row, rowIdx) {
-        this.startEdit(row, 0);
-    },
-
-    // @private Used if we are triggered by the cellfocus event
-    onCellFocus: function(record, cell, position) {
-        this.startEdit(position.row, position.column);
-    },
-
-    // @private Used if we are triggered by a cellclick event
-    onCellClick: function(view, cell, colIdx, record, row, rowIdx, e) {
-        // cancel editing if the element that was clicked was a tree expander
-        if(!view.expanderSelector || !e.getTarget(view.expanderSelector)) {
-            this.startEdit(record, view.ownerCt.columnManager.getHeaderAtIndex(colIdx));
-        }
-    },
-
-    initAddRemoveHeaderEvents: function(){
-        var me = this;
-        me.mon(me.grid.headerCt, {
-            scope: me,
-            add: me.onColumnAdd,
-            remove: me.onColumnRemove,
-            columnmove: me.onColumnMove
-        });
-    },
-
-    initKeyNavHeaderEvents: function() {
-        var me = this;
-
-        me.keyNav = Ext.create('Ext.util.KeyNav', me.view.el, {
-            enter: me.onEnterKey,
-            esc: me.onEscKey,
-            scope: me
-        });
-    },
-
-    // @private
-    onColumnAdd: function(ct, column) {
-        this.initFieldAccessors(column);
-    },
-
-    // @private
-    onColumnRemove: function(ct, column) {
-        this.removeFieldAccessors(column);
-    },
-
-    // @private
-    // Inject field accessors on move because if the move FROM the main headerCt and INTO a grouped header,
-    // the accessors will have been deleted but not added. They are added conditionally.
-    onColumnMove: function(headerCt, column, fromIdx, toIdx) {
-        this.initFieldAccessors(column);
-    },
-
-    // @private
-    onEnterKey: function(e) {
-        var me = this,
-            grid = me.grid,
-            selModel = grid.getSelectionModel(),
-            record,
-            pos,
-            columnHeader;
-
-        // Calculate editing start position from SelectionModel if there is a selection
-        // Note that the condition below tests the result of an assignment to the "pos" variable.
-        if (selModel.getCurrentPosition && (pos = selModel.getCurrentPosition())) {
-            record = pos.record;
-            columnHeader = pos.columnHeader;
-        }
-        // RowSelectionModel
-        else {
-            record = selModel.getLastSelected();
-            columnHeader = grid.columnManager.getHeaderAtIndex(0);
-        }
-
-        // If there was a selection to provide a starting context...
-        if (record && columnHeader) {
-            me.startEdit(record, columnHeader);
-        }
-    },
-
-    // @private
-    onEscKey: function(e) {
-        return this.cancelEdit();
-    },
-
-    /**
-     * @private
-     * @template
-     * Template method called before editing begins.
-     * @param {Object} context The current editing context
-     * @return {Boolean} Return false to cancel the editing process
-     */
-    beforeEdit: Ext.emptyFn,
-
-    /**
-     * Starts editing the specified record, using the specified Column definition to define which field is being edited.
-     * @param {Ext.data.Model/Number} record The Store data record which backs the row to be edited, or index of the record in Store.
-     * @param {Ext.grid.column.Column/Number} columnHeader The Column object defining the column to be edited, or index of the column.
-     */
-    startEdit: function(record, columnHeader) {
-        var me = this,
-            context,
-            layoutView = me.grid.lockable ? me.grid : me.view;
-
-        // The view must have had a layout to show the editor correctly, defer until that time.
-        // In case a grid's startup code invokes editing immediately.
-        if (!layoutView.componentLayoutCounter) {
-            layoutView.on({
-                boxready: Ext.Function.bind(me.startEdit, me, [record, columnHeader]),
-                single: true
-            });
-            return false;
-        }
-
-        // If grid collapsed, or view not truly visible, don't even calculate a context - we cannot edit
-        if (me.grid.collapsed || !me.grid.view.isVisible(true)) {
-            return false;
-        }
-
-        context = me.getEditingContext(record, columnHeader);
-        if (context == null) {
-            return false;
-        }
-        if (!me.preventBeforeCheck) {
-            if (me.beforeEdit(context) === false || me.fireEvent('beforeedit', me, context) === false || context.cancel) {
-                return false;
-            }
-        }
-
-        /**
-         * @property {Boolean} editing
-         * Set to `true` while the editing plugin is active and an Editor is visible.
-         */
-        me.editing = true;
-        return context;
-    },
-
-    // TODO: Have this use a new class Ext.grid.CellContext for use here, and in CellSelectionModel
-    /**
-     * @private
-     * Collects all information necessary for any subclasses to perform their editing functions.
-     * @param record
-     * @param columnHeader
-     * @returns {Object/undefined} The editing context based upon the passed record and column
-     */
-    getEditingContext: function(record, columnHeader) {
-        var me = this,
-            grid = me.grid,
-            view = me.view,
-            gridRow = view.getNode(record, true),
-            rowIdx, colIdx;
-
-        // An intervening listener may have deleted the Record
-        if (!gridRow) {
-            return;
-        }
-
-        // Coerce the column index to the closest visible column
-        columnHeader = grid.columnManager.getVisibleHeaderClosestToIndex(Ext.isNumber(columnHeader) ? columnHeader : columnHeader.getVisibleIndex());
-
-        // No corresponding column. Possible if all columns have been moved to the other side of a lockable grid pair
-        if (!columnHeader) {
-            return;
-        }
-
-        colIdx = columnHeader.getVisibleIndex();
-
-        if (Ext.isNumber(record)) {
-            // look up record if numeric row index was passed
-            rowIdx = record;
-            record = view.getRecord(gridRow);
-        } else {
-            rowIdx = view.indexOf(gridRow);
-        }
-
-        // The record may be removed from the store but the view
-        // not yet updated, so check it exists
-        if (!record) {
-            return;
-        }
-
-        return {
-            grid   : grid,
-            view   : view,
-            store  : view.dataSource,
-            record : record,
-            field  : columnHeader.dataIndex,
-            value  : record.get(columnHeader.dataIndex),
-            row    : gridRow,
-            column : columnHeader,
-            rowIdx : rowIdx,
-            colIdx : colIdx
-        };
-    },
-
-    /**
-     * Cancels any active edit that is in progress.
-     */
-    cancelEdit: function() {
-        var me = this;
-
-        me.editing = false;
-        me.fireEvent('canceledit', me, me.context);
-    },
-
-    /**
-     * Completes the edit if there is an active edit in progress.
-     */
-    completeEdit: function() {
-        var me = this;
-
-        if (me.editing && me.validateEdit()) {
-            me.fireEvent('edit', me, me.context);
-        }
-
-        me.context = null;
-        me.editing = false;
-    },
-
-    // @abstract
-    validateEdit: function() {
-        var me = this,
-            context = me.context;
-
-        return me.fireEvent('validateedit', me, context) !== false && !context.cancel;
-    }
-});
-
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
-/**
- * The Ext.grid.plugin.RowEditing plugin injects editing at a row level for a Grid. When editing begins,
- * a small floating dialog will be shown for the appropriate row. Each editable column will show a field
- * for editing. There is a button to save or cancel all changes for the edit.
- *
- * The field that will be used for the editor is defined at the
- * {@link Ext.grid.column.Column#editor editor}. The editor can be a field instance or a field configuration.
- * If an editor is not specified for a particular column then that column won't be editable and the value of
- * the column will be displayed. To provide a custom renderer for non-editable values, use the 
- * {@link Ext.grid.column.Column#editRenderer editRenderer} configuration on the column.
- *
- * The editor may be shared for each column in the grid, or a different one may be specified for each column.
- * An appropriate field type should be chosen to match the data structure that it will be editing. For example,
- * to edit a date, it would be useful to specify {@link Ext.form.field.Date} as the editor.
+ * A Column definition class which renders a passed date according to the default locale, or a configured
+ * {@link #format}.
  *
  *     @example
  *     Ext.create('Ext.data.Store', {
- *         storeId:'simpsonsStore',
- *         fields:['name', 'email', 'phone'],
- *         data: [
- *             {"name":"Lisa", "email":"lisa@simpsons.com", "phone":"555-111-1224"},
- *             {"name":"Bart", "email":"bart@simpsons.com", "phone":"555-222-1234"},
- *             {"name":"Homer", "email":"home@simpsons.com", "phone":"555-222-1244"},
- *             {"name":"Marge", "email":"marge@simpsons.com", "phone":"555-222-1254"}
+ *         storeId:'sampleStore',
+ *         fields:[
+ *             { name: 'symbol', type: 'string' },
+ *             { name: 'date',   type: 'date' },
+ *             { name: 'change', type: 'number' },
+ *             { name: 'volume', type: 'number' },
+ *             { name: 'topday', type: 'date' }                        
+ *         ],
+ *         data:[
+ *             { symbol: "msft",   date: '2011/04/22', change: 2.43, volume: 61606325, topday: '04/01/2010' },
+ *             { symbol: "goog",   date: '2011/04/22', change: 0.81, volume: 3053782,  topday: '04/11/2010' },
+ *             { symbol: "apple",  date: '2011/04/22', change: 1.35, volume: 24484858, topday: '04/28/2010' },            
+ *             { symbol: "sencha", date: '2011/04/22', change: 8.85, volume: 5556351,  topday: '04/22/2010' }            
  *         ]
  *     });
- *
+ *     
  *     Ext.create('Ext.grid.Panel', {
- *         title: 'Simpsons',
- *         store: Ext.data.StoreManager.lookup('simpsonsStore'),
+ *         title: 'Date Column Demo',
+ *         store: Ext.data.StoreManager.lookup('sampleStore'),
  *         columns: [
- *             {header: 'Name',  dataIndex: 'name', editor: 'textfield'},
- *             {header: 'Email', dataIndex: 'email', flex:1,
- *                 editor: {
- *                     xtype: 'textfield',
- *                     allowBlank: false
- *                 }
- *             },
- *             {header: 'Phone', dataIndex: 'phone'}
- *         ],
- *         selType: 'rowmodel',
- *         plugins: [
- *             Ext.create('Ext.grid.plugin.RowEditing', {
- *                 clicksToEdit: 1
- *             })
+ *             { text: 'Symbol',   dataIndex: 'symbol', flex: 1 },
+ *             { text: 'Date',     dataIndex: 'date',   xtype: 'datecolumn',   format:'Y-m-d' },
+ *             { text: 'Change',   dataIndex: 'change', xtype: 'numbercolumn', format:'0.00' },
+ *             { text: 'Volume',   dataIndex: 'volume', xtype: 'numbercolumn', format:'0,000' },
+ *             { text: 'Top Day',  dataIndex: 'topday', xtype: 'datecolumn',   format:'l' }            
  *         ],
  *         height: 200,
- *         width: 400,
+ *         width: 450,
  *         renderTo: Ext.getBody()
  *     });
- *
  */
-Ext.define('Ext.grid.plugin.RowEditing', {
-    extend: 'Ext.grid.plugin.Editing',
-    alias: 'plugin.rowediting',
-
-    requires: [
-        'Ext.grid.RowEditor'
-    ],
-
-    lockableScope: 'top',
-
-    editStyle: 'row',
+Ext.define('Ext.grid.column.Date', {
+    extend: 'Ext.grid.column.Column',
+    alias: ['widget.datecolumn'],
+    requires: ['Ext.Date'],
+    alternateClassName: 'Ext.grid.DateColumn',
 
     /**
-     * @cfg {Boolean} autoCancel
-     * `true` to automatically cancel any pending changes when the row editor begins editing a new row.
-     * `false` to force the user to explicitly cancel the pending changes.
+     * @cfg {String} format
+     * A formatting string as used by {@link Ext.Date#format} to format a Date for this Column.
+     *
+     * Defaults to the default date from {@link Ext.Date#defaultFormat} which itself my be overridden
+     * in a locale file.
      */
-    autoCancel: true,
-
+    
     /**
-     * @cfg {Number} clicksToMoveEditor
-     * The number of clicks to move the row editor to a new row while it is visible and actively editing another row.
-     * This will default to the same value as {@link Ext.grid.plugin.Editing#clicksToEdit clicksToEdit}.
+     * @cfg {Object} renderer
+     * @hide
      */
-
+    
     /**
-     * @cfg {Boolean} errorSummary
-     * True to show a {@link Ext.tip.ToolTip tooltip} that summarizes all validation errors present
-     * in the row editor. Set to false to prevent the tooltip from showing.
+     * @cfg {Object} scope
+     * @hide
      */
-    errorSummary: true,
 
-    constructor: function() {
-        var me = this;
-
-        me.callParent(arguments);
-
-        if (!me.clicksToMoveEditor) {
-            me.clicksToMoveEditor = me.clicksToEdit;
+    initComponent: function(){
+        if (!this.format) {
+            this.format = Ext.Date.defaultFormat;
         }
-
-        me.autoCancel = !!me.autoCancel;
-    },
-
-    /**
-     * @private
-     * AbstractComponent calls destroy on all its plugins at destroy time.
-     */
-    destroy: function() {
-        Ext.destroy(this.editor);
+        
         this.callParent(arguments);
     },
-
-    /**
-     * Starts editing the specified record, using the specified Column definition to define which field is being edited.
-     * @param {Ext.data.Model} record The Store data record which backs the row to be edited.
-     * @param {Ext.data.Model} columnHeader The Column object defining the column to be edited.
-     * @return {Boolean} `true` if editing was started, `false` otherwise.
-     */
-    startEdit: function(record, columnHeader) {
-        var me = this,
-            editor = me.getEditor(),
-            context;
-
-        if (editor.beforeEdit() !== false) {
-            context = me.callParent(arguments);
-            if (context) {
-                me.context = context;
-
-                // If editing one side of a lockable grid, cancel any edit on the other side.
-                if (me.lockingPartner) {
-                    me.lockingPartner.cancelEdit();
-                }
-                editor.startEdit(context.record, context.column, context);
-                return true;
-            }
-        }
-        return false;
-    },
-
-    // @private
-    cancelEdit: function() {
-        var me = this;
-
-        if (me.editing) {
-            me.getEditor().cancelEdit();
-            me.callParent(arguments);
-            return;
-        }
-        // If we aren't editing, return true to allow the event to bubble
-        return true;
-    },
-
-    // @private
-    completeEdit: function() {
-        var me = this;
-
-        if (me.editing && me.validateEdit()) {
-            me.editing = false;
-            me.fireEvent('edit', me, me.context);
-        }
-    },
-
-    // @private
-    validateEdit: function() {
-        var me             = this,
-            editor         = me.editor,
-            context        = me.context,
-            record         = context.record,
-            newValues      = {},
-            originalValues = {},
-            editors        = editor.query('>[isFormField]'),
-            e,
-            eLen           = editors.length,
-            name, item;
-
-        for (e = 0; e < eLen; e++) {
-            item = editors[e];
-            name = item.name;
-
-            newValues[name]      = item.getValue();
-            originalValues[name] = record.get(name);
-        }
-
-        Ext.apply(context, {
-            newValues      : newValues,
-            originalValues : originalValues
-        });
-
-        return me.callParent(arguments) && me.getEditor().completeEdit();
-    },
-
-    // @private
-    getEditor: function() {
-        var me = this;
-
-        if (!me.editor) {
-            me.editor = me.initEditor();
-        }
-        return me.editor;
-    },
-
-    // @private
-    initEditor: function() {
-        return new Ext.grid.RowEditor(this.initEditorConfig());
-    },
     
-    initEditorConfig: function(){
-        var me       = this,
-            grid     = me.grid,
-            view     = me.view,
-            headerCt = grid.headerCt,
-            btns     = ['saveBtnText', 'cancelBtnText', 'errorsText', 'dirtyText'],
-            b,
-            bLen     = btns.length,
-            cfg      = {
-                autoCancel: me.autoCancel,
-                errorSummary: me.errorSummary,
-                fields: headerCt.getGridColumns(),
-                hidden: true,
-                view: view,
-                // keep a reference..
-                editingPlugin: me
-            },
-            item;
-
-        for (b = 0; b < bLen; b++) {
-            item = btns[b];
-
-            if (Ext.isDefined(me[item])) {
-                cfg[item] = me[item];
-            }
-        }
-        return cfg;    
-    },
-
-    // @private
-    initEditTriggers: function() {
-        var me = this,
-            view = me.view,
-            moveEditorEvent = me.clicksToMoveEditor === 1 ? 'click' : 'dblclick';
-
-        me.callParent(arguments);
-
-        if (me.clicksToMoveEditor !== me.clicksToEdit) {
-            me.mon(view, 'cell' + moveEditorEvent, me.moveEditorByClick, me);
-        }
-
-        view.on({
-            render: function() {
-                me.mon(me.grid.headerCt, {
-                    scope: me,
-                    columnresize: me.onColumnResize,
-                    columnhide: me.onColumnHide,
-                    columnshow: me.onColumnShow
-                });
-            },
-            single: true
-        });
-    },
-
-    startEditByClick: function() {
-        var me = this;
-        if (!me.editing || me.clicksToMoveEditor === me.clicksToEdit) {
-            me.callParent(arguments);
-        }
-    },
-
-    moveEditorByClick: function() {
-        var me = this;
-        if (me.editing) {
-            me.superclass.onCellClick.apply(me, arguments);
-        }
-    },
-    
-    // @private
-    onColumnAdd: function(ct, column) {
-        if (column.isHeader) {
-            var me = this,
-                editor;
-
-            me.initFieldAccessors(column);
-
-            // Only inform the editor about a new column if the editor has already been instantiated,
-            // so do not use getEditor which instantiates the editor if not present.
-            editor = me.editor;
-            if (editor && editor.onColumnAdd) {
-                editor.onColumnAdd(column);
-            }
-        }
-    },
-
-    // @private
-    onColumnRemove: function(ct, column) {
-        if (column.isHeader) {
-            var me = this,
-                editor = me.getEditor();
-
-            if (editor && editor.onColumnRemove) {
-                editor.onColumnRemove(ct, column);
-            }
-            me.removeFieldAccessors(column);
-        }
-    },
-
-    // @private
-    onColumnResize: function(ct, column, width) {
-        if (column.isHeader) {
-            var me = this,
-                editor = me.getEditor();
-
-            if (editor && editor.onColumnResize) {
-                editor.onColumnResize(column, width);
-            }
-        }
-    },
-
-    // @private
-    onColumnHide: function(ct, column) {
-        // no isHeader check here since its already a columnhide event.
-        var me = this,
-            editor = me.getEditor();
-
-        if (editor && editor.onColumnHide) {
-            editor.onColumnHide(column);
-        }
-    },
-
-    // @private
-    onColumnShow: function(ct, column) {
-        // no isHeader check here since its already a columnshow event.
-        var me = this,
-            editor = me.getEditor();
-
-        if (editor && editor.onColumnShow) {
-            editor.onColumnShow(column);
-        }
-    },
-
-    // @private
-    onColumnMove: function(ct, column, fromIdx, toIdx) {
-        // no isHeader check here since its already a columnmove event.
-        var me = this,
-            editor = me.getEditor();
-
-        // Inject field accessors on move because if the move FROM the main headerCt and INTO a grouped header,
-        // the accessors will have been deleted but not added. They are added conditionally.
-        me.initFieldAccessors(column);
-
-        if (editor && editor.onColumnMove) {
-            // Must adjust the toIdx to account for removal if moving rightwards
-            // because RowEditor.onColumnMove just calls Container.move which does not do this.
-            editor.onColumnMove(column, fromIdx, toIdx);
-        }
-    },
-
-    // @private
-    setColumnField: function(column, field) {
-        var me = this,
-            editor = me.getEditor();
-            
-        editor.removeField(column);
-        me.callParent(arguments);
-        me.getEditor().setField(column);
-    }
-});
-
-Ext.define("JCertifBO.view.sponsor.Grid", {
-    extend: 'Ext.grid.Panel',
-    alias: 'widget.sponsorgrid',
-    
-    cls: 'admin-options-grid',
-
-    requires: [
-        'Ext.grid.plugin.RowEditing', 
-        'Ext.toolbar.Toolbar',
-        'Ext.form.field.ComboBox',
-        'JCertifBO.store.Countries',
-        'JCertifBO.store.Cities',
-    ],
-    
-    border: false,
-    
-    initComponent: function() {
-        
-        var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-            clicksToEdit: 2,
-            autoCancel: false,
-        });
-        
-        Ext.apply(this, {
-            store: this.store,
-
-            columns: [{
-                text: 'Email',
-                dataIndex: 'email',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Name',
-                dataIndex: 'name',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Logo',
-                dataIndex: 'logo',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Level',
-                dataIndex: 'level',
-                flex: 1,
-                editor: {
-                  xtype: 'combo',
-                  store: Ext.create('JCertifBO.store.SponsorLevels'),
-        					displayField: 'label',
-                  valueField: 'label',
-                }
-            }, {
-                text: 'Website',
-                dataIndex: 'website',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Country',
-                dataIndex: 'country',
-                flex: 1,
-                editor: {
-                  xtype : 'combo',
-                  store: Ext.create('JCertifBO.store.Countries'),
-        					queryMode: 'local',
-        					triggerAction: 'all',
-        					displayField: 'country',
-                  valueField: 'cid',
-                  listeners:{
-                    select:function(combo, value) {
-                      var comboCity = Ext.getCmp('grid-combo-city'); 
-                      comboCity.enable();       
-                      comboCity.clearValue();
-                      comboCity.store.clearFilter(true);
-                      comboCity.store.filter('cid',  combo.getValue());
-                    }
-                  }
-                }
-            }, {
-                text: 'City',
-                dataIndex: 'city',
-                flex: 1,
-                editor: {
-                  xtype : 'combo',
-                  id:'grid-combo-city',
-        					store: Ext.create('JCertifBO.store.Cities'),
-        					queryMode: 'local',
-        					triggerAction: 'all',
-        					disabled: true,
-        					displayField: 'city',
-                  valueField: 'city',
-                  lastQuery: ''
-                }
-            }, {
-                text: 'Phone',
-                dataIndex: 'phone',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'About',
-                dataIndex: 'about',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'version',
-                dataIndex: 'version',
-                hidden: true,
-                width: 200
-            }, {
-                text: 'delete',
-                dataIndex: 'delete',
-                hidden: true,
-                width: 200
-            }],
-            
-            dockedItems: [{
-                xtype: 'toolbar',
-                items: [{
-                    iconCls: 'admin-options-add',
-                    text: 'Add',
-                    action: 'add'
-                },{
-                    iconCls: 'admin-options-remove',
-                    text: 'Remove',
-                    itemId: 'removeSponsor',
-                    action: 'remove',
-                    disabled: true
-                },{
-                    iconCls: 'admin-options-refresh',
-                    text: 'Refresh',
-                    action: 'refresh'
-                }]
-            }],
-            
-            plugins: [rowEditing],
-            listeners: {
-                'selectionchange': function(selectionModel, records) {
-                  this.down('#removeSponsor').setDisabled(!records.length);
-                }
-            }
-        });
-
-        this.callParent(arguments);
-    }
-});
-Ext.define("JCertifBO.view.site.Grid", {
-    extend: 'Ext.grid.Panel',
-    alias: 'widget.sitegrid',
-    
-    cls: 'admin-options-grid',
-
-    requires: [
-        'Ext.grid.plugin.RowEditing', 
-        'Ext.toolbar.Toolbar',
-        'Ext.form.field.ComboBox',
-        'JCertifBO.store.Countries',
-        'JCertifBO.store.Cities',
-    ],
-    
-    border: false,
-    
-    initComponent: function() {
-        
-        var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-            clicksToEdit: 2,
-            autoCancel: false,
-        });
-
-        Ext.apply(this, {
-
-            columns: [{
-                text: 'Id',
-                dataIndex: 'id',
-                flex: 1,
-                editor: 'numberfield',
-                hidden: true
-            }, {
-                text: 'Name',
-                dataIndex: 'name',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Street',
-                dataIndex: 'street',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Country',
-                dataIndex: 'country',
-                flex: 1,
-                editor: {
-                  xtype : 'combo',
-                  store: Ext.create('JCertifBO.store.Countries'),
-        					queryMode: 'local',
-        					triggerAction: 'all',
-        					displayField: 'country',
-                  valueField: 'cid',
-                  listeners:{
-                    select:function(combo, value) {
-                      var comboCity = Ext.getCmp('grid-combo-city'); 
-                      comboCity.enable();       
-                      comboCity.clearValue();
-                      comboCity.store.clearFilter(true);
-                      comboCity.store.filter('cid',  combo.getValue());
-                    }
-                  }
-                }
-            }, {
-                text: 'City',
-                dataIndex: 'city',
-                flex: 1,
-                editor: {
-                  xtype : 'combo',
-                  id:'grid-combo-city',
-        					store: Ext.create('JCertifBO.store.Cities'),
-        					queryMode: 'local',
-        					triggerAction: 'all',
-        					disabled: true,
-        					displayField: 'city',
-                  valueField: 'city',
-                  lastQuery: ''
-                }
-            }, {
-                text: 'Contact',
-                dataIndex: 'contact',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Website',
-                dataIndex: 'website',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Description',
-                dataIndex: 'description',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Photo',
-                dataIndex: 'photo',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Latitude',
-                dataIndex: 'latitude',
-                flex: 1,
-                editor: 'numberfield'
-            }, {
-                text: 'Longitude',
-                dataIndex: 'longitude',
-                flex: 1,
-                editor: 'numberfield'
-            }, {
-                text: 'version',
-                dataIndex: 'version',
-                hidden: true,
-                width: 200
-            }, {
-                text: 'delete',
-                dataIndex: 'delete',
-                hidden: true,
-                width: 200
-            }],
-            
-            dockedItems: [{
-                xtype: 'toolbar',
-                items: [{
-                    iconCls: 'admin-options-add',
-                    text: 'Add',
-                    action: 'add'
-                },{
-                    iconCls: 'admin-options-remove',
-                    text: 'Remove',
-                    itemId: 'removeSite',
-                    action: 'remove',
-                    disabled: true
-                },{
-                    iconCls: 'admin-options-refresh',
-                    text: 'Refresh',
-                    action: 'refresh'
-                }]
-            }],
-            
-            plugins: [rowEditing],
-            listeners: {
-                'selectionchange': function(selectionModel, records) {
-                  this.down('#removeSite').setDisabled(!records.length);
-                }
-            }
-        });
-
-        this.callParent(arguments);
-    }
-});
-Ext.define("JCertifBO.view.room.Grid", {
-    extend: 'Ext.grid.Panel',
-    alias: 'widget.roomgrid',
-    
-    cls: 'admin-options-grid',
-
-    requires: ['Ext.grid.plugin.RowEditing', 'Ext.toolbar.Toolbar'],
-    
-    border: false,
-    
-    store : 'Sites',
-    
-    initComponent: function() {
-        
-        var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-            clicksToEdit: 2,
-            autoCancel: false,
-        });
-        
-        Ext.apply(this, {
-            store: this.store,
-
-            columns: [{
-                text: 'Id',
-                dataIndex: 'id',
-                flex: 1,
-                editor: 'textfield',
-                hidden: true
-            }, {
-                text: 'Name',
-                dataIndex: 'name',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Site',
-                dataIndex: 'site',
-                flex: 1,
-                editor: {
-                  xtype: 'combo',
-                  store: this.store,
-        					displayField: 'name',
-                  valueField: 'id',
-                }
-            }, {
-                text: 'Seats',
-                dataIndex: 'seats',
-                flex: 1,
-                editor: 'numberfield'
-            }, {
-                text: 'Description',
-                dataIndex: 'description',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Photo',
-                dataIndex: 'photo',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'version',
-                dataIndex: 'version',
-                hidden: true,
-                width: 200
-            }, {
-                text: 'delete',
-                dataIndex: 'delete',
-                hidden: true,
-                width: 200
-            }],
-            
-            dockedItems: [{
-                xtype: 'toolbar',
-                items: [{
-                    iconCls: 'admin-options-add',
-                    text: 'Add',
-                    action: 'add'
-                },{
-                    iconCls: 'admin-options-remove',
-                    text: 'Remove',
-                    itemId: 'removeRoom',
-                    action: 'remove',
-                    disabled: true
-                },{
-                    iconCls: 'admin-options-refresh',
-                    text: 'Refresh',
-                    action: 'refresh'
-                }]
-            }],
-            
-            plugins: [rowEditing],
-            listeners: {
-                'selectionchange': function(selectionModel, records) {
-                  this.down('#removeRoom').setDisabled(!records.length);
-                }
-            }
-        });
-
-        this.callParent(arguments);
+    defaultRenderer: function(value){
+        return Ext.util.Format.date(value, this.format);
     }
 });
 Ext.define("JCertifBO.view.session.Grid", {
@@ -97792,19 +96831,15 @@ Ext.define("JCertifBO.view.session.Grid", {
     cls: 'admin-options-grid',
 
     requires: [
-        'Ext.grid.plugin.RowEditing', 
         'Ext.toolbar.Toolbar',
-        'Ext.form.field.Date'
+        'Ext.form.field.Date',
+        'Ext.ux.exporter.Exporter',
+        'Ext.grid.column.Date'
     ],
     
     border: false,
     
     initComponent: function() {
-        
-        var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-            clicksToEdit: 2,
-            autoCancel: false,
-        });
         
         Ext.apply(this, {
             store: this.store,
@@ -97813,90 +96848,52 @@ Ext.define("JCertifBO.view.session.Grid", {
                 text: 'Id',
                 dataIndex: 'id',
                 flex: 1,
-                editor: 'textfield',
                 hidden:true
             }, {
                 text: 'Title',
                 dataIndex: 'title',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Summary',
                 dataIndex: 'summary',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Description',
                 dataIndex: 'description',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Status',
                 dataIndex: 'status',
-                flex: 1,
-                editor: {
-                  xtype: 'combo',
-                  store: Ext.create('JCertifBO.store.SessionStatuses'),
-        					displayField: 'label',
-                  valueField: 'label'
-                }
+                flex: 1
             }, {
                 text: 'Keyword',
                 dataIndex: 'keyword',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Category',
                 dataIndex: 'category',
-                flex: 1,
-                editor: {
-                  xtype: 'combo',
-                  store: Ext.create('JCertifBO.store.Categories'),
-        					displayField: 'label',
-                  valueField: 'label'
-                }
+                flex: 1
             }, {
+                xtype: 'datecolumn',
                 text: 'Start',
                 dataIndex: 'start',
                 flex: 1,
-                renderer: Ext.util.Format.dateRenderer('d/m/Y H:m'),
-                editor: {
-                  xtype: 'datefield',
-                  format: 'd/m/Y H:m',
-                  renderer: Ext.util.Format.dateRenderer('d/m/Y H:m')
-                }
+                format: 'd/m/Y H:i'
                 
             }, {
+                xtype: 'datecolumn',
                 text: 'End',
                 dataIndex: 'end',
                 flex: 1,
-                renderer: Ext.util.Format.dateRenderer('d/m/Y H:m'),
-                editor: {
-                  xtype: 'datefield',
-                  format: 'd/m/Y H:m',
-                  renderer: Ext.util.Format.dateRenderer('d/m/Y H:m')
-                }
+                format: 'd/m/Y H:i'
             }, {
                 text: 'Speakers',
                 dataIndex: 'speakers',
-                flex: 1,
-                editor: {
-                  xtype: 'combo',
-                  store: Ext.create('JCertifBO.store.Speakers'),
-        					tpl: '<tpl for="."><div class="x-boundlist-item">{firstname} {lastname}</div></tpl>',
-                  valueField: 'email',
-                  multiSelect: true
-                }
+                flex: 1
             }, {
                 text: 'Room',
                 dataIndex: 'room',
-                flex: 1,
-                editor: {
-                  xtype: 'combo',
-                  store: Ext.create('JCertifBO.store.Rooms'),
-        					displayField: 'name',
-                  valueField: 'id'
-                }
+                flex: 1
             }, {
                 text: 'version',
                 dataIndex: 'version',
@@ -97925,337 +96922,20 @@ Ext.define("JCertifBO.view.session.Grid", {
                     iconCls: 'admin-options-refresh',
                     text: 'Refresh',
                     action: 'refresh'
+                },{
+                    iconCls: 'admin-options-download',
+                    text: 'Export',         
+                    action: 'export'                                 
+                },{
+                    iconCls: 'admin-options-upload',
+                    text: 'Import',
+                    action: 'import'
                 }]
             }],
-            
-            plugins: [rowEditing],
+
             listeners: {
                 'selectionchange': function(selectionModel, records) {
                   this.down('#removeSession').setDisabled(!records.length);
-                }
-            }
-        });
-
-        this.callParent(arguments);
-    }
-});
-Ext.define("JCertifBO.view.speaker.Grid", {
-    extend: 'Ext.grid.Panel',
-    alias: 'widget.speakergrid',
-    
-    cls: 'admin-options-grid',
-
-    requires: ['Ext.grid.plugin.RowEditing', 'Ext.toolbar.Toolbar'],
-    
-    border: false,
-    
-    initComponent: function() {
-        
-        var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-            clicksToEdit: 2,
-            autoCancel: false,
-        });
-        
-        Ext.apply(this, {
-            store: this.store,
-
-            columns: [{
-                text: 'Email',
-                dataIndex: 'email',
-                flex: 1,
-                editor: {
-                  xtype: 'textfield',
-                  vtype: 'email'
-                }
-            }, {
-                text: 'Password',
-                dataIndex: 'password',
-                flex: 1,
-                editor: 'textfield',
-                hidden: true
-            }, {
-                text: 'Title',
-                dataIndex: 'title',
-                flex: 1,
-                editor: {
-                  xtype: 'combo',
-                  store: Ext.create('JCertifBO.store.Titles'),
-        					displayField: 'label',
-                  valueField: 'label'
-                }
-            }, {
-                text: 'Lastname',
-                dataIndex: 'lastname',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Firstname',
-                dataIndex: 'firstname',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Website',
-                dataIndex: 'website',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Country',
-                dataIndex: 'country',
-                flex: 1,
-                editor: {
-                  xtype : 'combo',
-                  store: Ext.create('JCertifBO.store.Countries'),
-        					queryMode: 'local',
-        					triggerAction: 'all',
-        					displayField: 'country',
-                  valueField: 'cid',
-                  listeners:{
-                    select:function(combo, value) {
-                      var comboCity = Ext.getCmp('grid-combo-city'); 
-                      comboCity.enable();       
-                      comboCity.clearValue();
-                      comboCity.store.clearFilter(true);
-                      comboCity.store.filter('cid',  combo.getValue());
-                    }
-                  }
-                }
-            }, {
-                text: 'City',
-                dataIndex: 'city',
-                flex: 1,
-                editor: {
-                  xtype : 'combo',
-                  id:'grid-combo-city',
-        					store: Ext.create('JCertifBO.store.Cities'),
-        					queryMode: 'local',
-        					triggerAction: 'all',
-        					disabled: true,
-        					displayField: 'city',
-                  valueField: 'city',
-                  lastQuery: ''
-                }
-            }, {
-                text: 'Phone',
-                dataIndex: 'phone',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Photo',
-                dataIndex: 'photo',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Biography',
-                dataIndex: 'biography',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Company',
-                dataIndex: 'company',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'version',
-                dataIndex: 'version',
-                hidden: true,
-                width: 200
-            }, {
-                text: 'delete',
-                dataIndex: 'delete',
-                hidden: true,
-                width: 200
-            }],
-            
-            dockedItems: [{
-                xtype: 'toolbar',
-                items: [{
-                    iconCls: 'admin-options-add',
-                    text: 'Add',
-                    action: 'add'
-                },{
-                    iconCls: 'admin-options-remove',
-                    text: 'Remove',
-                    itemId: 'removeSpeaker',
-                    action: 'remove',
-                    disabled: true
-                },{
-                    iconCls: 'admin-options-refresh',
-                    text: 'Refresh',
-                    action: 'refresh'
-                }]
-            }],
-            
-            plugins: [rowEditing],
-            listeners: {
-                'selectionchange': function(selectionModel, records) {
-                  this.down('#removeSpeaker').setDisabled(!records.length);
-                }
-            }
-        });
-
-        this.callParent(arguments);
-    }
-});
-Ext.define("JCertifBO.view.participant.Grid", {
-    extend: 'Ext.grid.Panel',
-    alias: 'widget.participantgrid',
-    
-    cls: 'admin-options-grid',
-
-    requires: ['Ext.grid.plugin.RowEditing', 'Ext.toolbar.Toolbar'],
-    
-    border: false,
-    
-    initComponent: function() {
-        
-        var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-            clicksToEdit: 2,
-            autoCancel: false,
-        });
-        
-        Ext.apply(this, {
-            store: this.store,
-
-            columns: [{
-                text: 'Email',
-                dataIndex: 'email',
-                flex: 1,
-                editor: {
-                  xtype: 'textfield',
-                  vtype: 'email'
-                }
-            }, {
-                text: 'Password',
-                dataIndex: 'password',
-                flex: 1,
-                editor: 'textfield',
-                hidden: true
-            }, {
-                text: 'Title',
-                dataIndex: 'title',
-                flex: 1,
-                editor: {
-                  xtype: 'combo',
-                  store: Ext.create('JCertifBO.store.Titles'),
-        					displayField: 'label',
-                  valueField: 'label',
-                }
-            }, {
-                text: 'Lastname',
-                dataIndex: 'lastname',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Firstname',
-                dataIndex: 'firstname',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Website',
-                dataIndex: 'website',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Country',
-                dataIndex: 'country',
-                flex: 1,
-                editor: {
-                  xtype : 'combo',
-                  store: Ext.create('JCertifBO.store.Countries'),
-        					queryMode: 'local',
-        					triggerAction: 'all',
-        					displayField: 'country',
-                  valueField: 'cid',
-                  listeners:{
-                    select:function(combo, value) {
-                      var comboCity = Ext.getCmp('grid-combo-city'); 
-                      comboCity.enable();       
-                      comboCity.clearValue();
-                      comboCity.store.clearFilter(true);
-                      comboCity.store.filter('cid',  combo.getValue());
-                    }
-                  }
-                }
-            }, {
-                text: 'City',
-                dataIndex: 'city',
-                flex: 1,
-                editor: {
-                  xtype : 'combo',
-                  id:'grid-combo-city',
-        					store: Ext.create('JCertifBO.store.Cities'),
-        					queryMode: 'local',
-        					triggerAction: 'all',
-        					disabled: true,
-        					displayField: 'city',
-                  valueField: 'city',
-                  lastQuery: ''
-                }
-            }, {
-                text: 'Phone',
-                dataIndex: 'phone',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Photo',
-                dataIndex: 'photo',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Biography',
-                dataIndex: 'biography',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Company',
-                dataIndex: 'company',
-                flex: 1,
-                editor: 'textfield'
-            }, {
-                text: 'Sessions',
-                dataIndex: 'sessions',
-                flex: 1,
-                editor: {
-                  xtype: 'combo',
-                  store: Ext.create('JCertifBO.store.Sessions'),
-        					displayField: 'title',
-                  valueField: 'id',
-                }
-            }, {
-                text: 'version',
-                dataIndex: 'version',
-                hidden: true,
-                width: 200
-            }, {
-                text: 'delete',
-                dataIndex: 'delete',
-                hidden: true,
-                width: 200
-            }],
-            
-            dockedItems: [{
-                xtype: 'toolbar',
-                items: [{
-                    iconCls: 'admin-options-add',
-                    text: 'Add',
-                    action: 'add'
-                },{
-                    iconCls: 'admin-options-remove',
-                    text: 'Remove',
-                    itemId: 'removeSpeaker',
-                    action: 'remove',
-                    disabled: true
-                },{
-                    iconCls: 'admin-options-refresh',
-                    text: 'Refresh',
-                    action: 'refresh'
-                }]
-            }],
-            
-            plugins: [rowEditing],
-            listeners: {
-                'selectionchange': function(selectionModel, records) {
-                  this.down('#removeSpeaker').setDisabled(!records.length);
                 }
             }
         });
@@ -98275,6 +96955,12 @@ Ext.define('JCertifBO.model.User', {
         { name: 'access_token', type: 'auto' }
 
     ]
+});
+
+Ext.define('JCertifBO.controller.HomeController', {
+	extend : 'Ext.app.Controller',
+	views : ['Home'],
+	models: ['User']
 });
 
 Ext.define('JCertifBO.model.Referentiel', {
@@ -98432,24 +97118,27 @@ Ext.define('JCertifBO.model.Site', {
 Ext.define('JCertifBO.controller.SiteController', {
     extend: 'Ext.app.Controller',
     
-    stores: ['AdminOptions'],
+    stores: ['AdminOptions', 'Countries', 'Cities'],
     models: ['AdminOption', 'Site'],
     
     views: [
         'site.Grid',
-        'site.Add'
+        'site.Add',
+        'site.Edit'
     ],
 
 
     refs: [
         {ref: 'viewer', selector: 'viewer'},
-        {ref: 'siteGrid', selector: 'sitegrid'}
+        {ref: 'siteGrid', selector: 'sitegrid'},
+        {ref: 'siteFormCountries', selector: 'siteform combo#country'},
+        {ref: 'siteFormCities', selector: 'siteform combo#city'}
     ],
     
     init: function() {
         this.control({
             'sitegrid': {
-                edit: this.updateSite
+                itemdblclick: this.showEditSiteView
             },
             'sitegrid button[action=add]': {
                 click: this.showAddSiteView
@@ -98457,20 +97146,35 @@ Ext.define('JCertifBO.controller.SiteController', {
             'sitegrid button[action=refresh]': {
                 click: this.refreshSiteGrid
             },
+            'sitegrid button[action=remove]' : {
+      				  click : this.removeSite
+      			},
             'siteadd button[action=add]' : {
       				  click : this.addSite
       			},
       			'siteadd button[action=cancel]' : {
       				  click : this.cancel
       			},
-      			'sitegrid button[action=remove]' : {
-      				  click : this.removeSite
+            'siteedit button[action=save]' : {
+      				  click : this.updateSite
+      			},
+      			'siteedit button[action=cancel]' : {
+      				  click : this.cancel
       			}
         });
     },
     
     showAddSiteView: function(btn){
       Ext.create('JCertifBO.view.site.Add');
+      this.getSiteFormCountries().bindStore(this.getCountriesStore());
+      this.getSiteFormCities().bindStore(this.getCitiesStore());
+    },
+    
+    showEditSiteView: function(grid, record){
+      var view = Ext.create('JCertifBO.view.site.Edit');
+      view.down('form').loadRecord(record);
+      this.getSiteFormCountries().bindStore(this.getCountriesStore());
+      this.getSiteFormCities().bindStore(this.getCitiesStore());
     },
     
     refreshSiteGrid: function(btn){
@@ -98484,11 +97188,13 @@ Ext.define('JCertifBO.controller.SiteController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider')
       });
+      var controller = this;
   		if (form.isValid()) {
   			Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getSiteGrid().getStore().model.modelName).get('createUrl'),
   				jsonData : Ext.JSON.encode(form.getValues()),
   				success : function(response) {
+  				  controller.getSiteGrid().getStore().load();
             win.close();														
   				},
   				failure : function(response) {
@@ -98511,10 +97217,12 @@ Ext.define('JCertifBO.controller.SiteController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider'),
       };
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getSiteGrid().getStore().model.modelName).get('removeUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getSiteGrid().getStore().load();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; supprim&eacute;",
@@ -98534,19 +97242,27 @@ Ext.define('JCertifBO.controller.SiteController', {
     },
     
     updateSite: function(btn){
-      var site = this.getSiteGrid().getSelectionModel().getSelection()[0];
-      var data = site.data;
+    var win    = btn.up('window'),
+        form   = win.down('form'),
+        values = form.getValues(),
+        site = this.getSiteGrid().getSelectionModel().getSelection()[0];
+        
+      var data = values;
       //on rajoute la version de l'objet avant modification
       data['version'] = site.raw['version'];
       data['id'] = site.raw['id'];
       data['user'] = Ext.util.Cookies.get('user');
       data['access_token'] = Ext.util.Cookies.get('access_token');
       data['provider'] = Ext.util.Cookies.get('provider');
-
+      
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getSiteGrid().getStore().model.modelName).get('updateUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getSiteGrid().getStore().removeAll();
+  				  controller.getSiteGrid().getStore().load();
+  				  win.close();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; sauvegard&eacute;",
@@ -98595,8 +97311,8 @@ Ext.define('JCertifBO.model.Session', {
         { name: 'status', type: 'auto' },
         { name: 'keyword', type: 'auto' },
         { name: 'category', type: 'auto' },
-        { name: 'start', type: 'date', dateFormat: 'd/m/Y H:m' },
-        { name: 'end', type: 'date', dateFormat: 'd/m/Y H:m' },
+        { name: 'start', type: 'date', dateFormat: 'd/m/Y H:i' },
+        { name: 'end', type: 'date', dateFormat: 'd/m/Y H:i' },
         { name: 'speakers', type: 'auto'},
         { name: 'room', type: 'auto' }
 
@@ -98644,28 +97360,6 @@ Ext.define('JCertifBO.model.Participant', {
     ]
 });
 
-Ext.define('JCertifBO.store.Users', {
-	extend : 'Ext.data.Store',
-	model : 'JCertifBO.model.User',
-	autoLoad : true,
-
-	proxy : {
-		type : 'ajax',
-		url : 'data/users.json',
-		reader : {
-			type : 'json',
-			root : 'users',
-			successProperty : 'success'
-		}
-	}
-});
-Ext.define('JCertifBO.controller.HomeController', {
-	extend : 'Ext.app.Controller',
-	views : ['Home'],
-	models: ['User'],
-  stores: ['Users']
-});
-
 Ext.define('JCertifBO.store.Sites', {
 	extend : 'Ext.data.Store',
 	model : 'JCertifBO.model.Site',
@@ -98693,19 +97387,21 @@ Ext.define('JCertifBO.controller.RoomController', {
     
     views: [
         'room.Grid',
-        'room.Add'
+        'room.Add',
+        'room.Edit'
     ],
 
 
     refs: [
         {ref: 'viewer', selector: 'viewer'},
-        {ref: 'roomGrid', selector: 'roomgrid'}
+        {ref: 'roomGrid', selector: 'roomgrid'},
+        {ref: 'roomFormSites', selector: 'roomform combo#site'}
     ],
     
     init: function() {
         this.control({
             'roomgrid': {
-                edit: this.updateRoom
+                itemdblclick: this.showEditRoomView
             },
             'roomgrid button[action=add]': {
                 click: this.showAddRoomView
@@ -98713,20 +97409,33 @@ Ext.define('JCertifBO.controller.RoomController', {
             'roomgrid button[action=refresh]': {
                 click: this.refreshRoomGrid
             },
+      			'roomgrid button[action=remove]' : {
+      				  click : this.removeRoom
+      			},
             'roomadd button[action=add]' : {
       				  click : this.addRoom
       			},
       			'roomadd button[action=cancel]' : {
       				  click : this.cancel
       			},
-      			'roomgrid button[action=remove]' : {
-      				  click : this.removeRoom
+            'roomedit button[action=save]' : {
+      				  click : this.updateRoom
+      			},
+      			'roomedit button[action=cancel]' : {
+      				  click : this.cancel
       			}
         });
     },
     
     showAddRoomView: function(btn){
       Ext.create('JCertifBO.view.room.Add');
+      this.getRoomFormSites().bindStore(this.getSitesStore());
+    },
+    
+    showEditRoomView: function(grid, record){
+      var view = Ext.create('JCertifBO.view.room.Edit');
+      view.down('form').loadRecord(record);
+      this.getRoomFormSites().bindStore(this.getSitesStore());
     },
     
     refreshRoomGrid: function(btn){
@@ -98740,11 +97449,13 @@ Ext.define('JCertifBO.controller.RoomController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider')
       });
+      var controller = this;
   		if (form.isValid()) {
   			Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getRoomGrid().getStore().model.modelName).get('createUrl'),
   				jsonData : Ext.JSON.encode(form.getValues()),
   				success : function(response) {
+  				  controller.getRoomGrid().getStore().load();
             win.close();														
   				},
   				failure : function(response) {
@@ -98767,10 +97478,12 @@ Ext.define('JCertifBO.controller.RoomController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider'),
       };
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getRoomGrid().getStore().model.modelName).get('removeUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getRoomGrid().getStore().load();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; supprim&eacute;",
@@ -98790,8 +97503,12 @@ Ext.define('JCertifBO.controller.RoomController', {
     },
     
     updateRoom: function(btn){
-      var room = this.getRoomGrid().getSelectionModel().getSelection()[0];
-      var data = room.data;
+     var win    = btn.up('window'),
+        form   = win.down('form'),
+        values = form.getValues(),
+        room = this.getRoomGrid().getSelectionModel().getSelection()[0];
+      
+      var data = values;
       //on rajoute la version de l'objet avant modification
       data['version'] = room.raw['version'];
       data['id'] = room.raw['id'];
@@ -98799,10 +97516,14 @@ Ext.define('JCertifBO.controller.RoomController', {
       data['access_token'] = Ext.util.Cookies.get('access_token');
       data['provider'] = Ext.util.Cookies.get('provider');
 
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getRoomGrid().getStore().model.modelName).get('updateUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getRoomGrid().getStore().removeAll();
+  				  controller.getRoomGrid().getStore().load();
+  				  win.close();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; sauvegard&eacute;",
@@ -98832,7 +97553,7 @@ Ext.define('JCertifBO.store.Speakers', {
 	proxy: {
       type: 'ajax',
       api: {
-          read: BACKEND_URL + '/speaker/list',
+          read: BACKEND_URL + '/admin/speaker/list' + '?access_token=' + Ext.util.Cookies.get('access_token') + '&provider=' + Ext.util.Cookies.get('provider') + '&user=' + Ext.util.Cookies.get('user'),
           create: BACKEND_URL + '/speaker/register',
           update: BACKEND_URL + '/speaker/update',
           destroy: BACKEND_URL + '/speaker/remove'
@@ -98870,7 +97591,7 @@ Ext.define('JCertifBO.store.Sessions', {
 	proxy: {
       type: 'ajax',
       api: {
-          read: BACKEND_URL + '/session/list',
+          read: BACKEND_URL + '/session/list' + '?access_token=' + Ext.util.Cookies.get('access_token') + '&provider=' + Ext.util.Cookies.get('provider') + '&user=' + Ext.util.Cookies.get('user'),
           create: BACKEND_URL + '/session/new',
           update: BACKEND_URL + '/session/update',
           destroy: BACKEND_URL + '/session/remove'
@@ -98901,6 +97622,21 @@ Ext.define('JCertifBO.model.Title', {
 Ext.define('JCertifBO.model.SessionStatus', {
     extend: 'JCertifBO.model.Referentiel'
     
+});
+
+Ext.define('JCertifBO.model.AuthProvider', {
+    extend: 'Ext.data.Model',
+    
+    fields: [
+        { name: 'name', type: 'auto' },
+        { name: 'authorizationUrl', type: 'auto' },
+        { name: 'accessTokenUrl', type: 'auto' },
+        { name: 'requestTokenUrl', type: 'auto' },
+        { name: 'logoutUrl', type: 'auto' },
+        { name: 'clientId', type: 'auto' },
+        { name: 'clientSecret', type: 'auto' },
+        { name: 'scope', type: 'auto' }
+    ]
 });
 
 Ext.define('JCertifBO.controller.AdminOptionsController', {
@@ -98960,12 +97696,14 @@ Ext.define('JCertifBO.controller.AdminOptionsController', {
         this.getOptionShow().removeAll();
         this.getOptionShow().add({xtype: gridName, flex: 1});
         var grid = this.getGrid(gridName);
-            
+        
+        Ext.Ajax.useDefaultXhrHeader = false;
+        Ext.Ajax.cors = true;    
         var store = Ext.create('Ext.data.Store', {
             model: option.get('model'),
             proxy: {
                 type: 'ajax',
-                url : BACKEND_URL + option.get('loadUrl'),
+                url : BACKEND_URL + option.get('loadUrl') + '?access_token=' + Ext.util.Cookies.get('access_token') + '&provider=' + Ext.util.Cookies.get('provider') + '&user=' + Ext.util.Cookies.get('user'),
                 reader: {
                     type: 'json'
                 }
@@ -99060,24 +97798,28 @@ Ext.define('JCertifBO.store.SponsorLevels', {
 Ext.define('JCertifBO.controller.SponsorController', {
     extend: 'Ext.app.Controller',
     
-    stores: ['AdminOptions', 'SponsorLevels'],
+    stores: ['AdminOptions', 'SponsorLevels', 'Countries', 'Cities'],
     models: ['AdminOption', 'Sponsor'],
     
     views: [
         'sponsor.Grid',
-        'sponsor.Add'
+        'sponsor.Add',
+        'sponsor.Edit'
     ],
 
 
     refs: [
         {ref: 'viewer', selector: 'viewer'},
-        {ref: 'sponsorGrid', selector: 'sponsorgrid'}
+        {ref: 'sponsorGrid', selector: 'sponsorgrid'},
+        {ref: 'sponsorFormLevels', selector: 'sponsorform combo#level'},
+        {ref: 'sponsorFormCountries', selector: 'sponsorform combo#country'},
+        {ref: 'sponsorFormCities', selector: 'sponsorform combo#city'}
     ],
     
     init: function() {
         this.control({
             'sponsorgrid': {
-                edit: this.updateSponsor
+                itemdblclick: this.showEditSponsorView 
             },
             'sponsorgrid button[action=add]': {
                 click: this.showAddSponsorView
@@ -99085,20 +97827,37 @@ Ext.define('JCertifBO.controller.SponsorController', {
             'sponsorgrid button[action=refresh]': {
                 click: this.refreshSponsorGrid
             },
+      			'sponsorgrid button[action=remove]' : {
+      				  click : this.removeSponsor
+      			},
             'sponsoradd button[action=add]' : {
       				  click : this.addSponsor
       			},
       			'sponsoradd button[action=cancel]' : {
       				  click : this.cancel
       			},
-      			'sponsorgrid button[action=remove]' : {
-      				  click : this.removeSponsor
+            'sponsoredit button[action=save]' : {
+      				  click : this.updateSponsor
+      			},
+      			'sponsoredit button[action=cancel]' : {
+      				  click : this.cancel
       			}
         });
     },
     
     showAddSponsorView: function(btn){
       Ext.create('JCertifBO.view.sponsor.Add');
+      this.getSponsorFormLevels().bindStore(this.getSponsorLevelsStore());
+      this.getSponsorFormCountries().bindStore(this.getCountriesStore());
+      this.getSponsorFormCities().bindStore(this.getCitiesStore());
+    },
+    
+    showEditSponsorView: function(grid, record){
+      var view = Ext.create('JCertifBO.view.sponsor.Edit');
+      view.down('form').loadRecord(record);
+      this.getSponsorFormLevels().bindStore(this.getSponsorLevelsStore());
+      this.getSponsorFormCountries().bindStore(this.getCountriesStore());
+      this.getSponsorFormCities().bindStore(this.getCitiesStore());
     },
     
     refreshSponsorGrid: function(btn){
@@ -99112,11 +97871,13 @@ Ext.define('JCertifBO.controller.SponsorController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider')
       });
+      var controller = this;
   		if (form.isValid()) {
   			Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getSponsorGrid().getStore().model.modelName, 0, false, true, true).get('createUrl'),
   				jsonData : Ext.JSON.encode(form.getValues()),
   				success : function(response) {
+  				  controller.getSponsorGrid().getStore().load();
             win.close();														
   				},
   				failure : function(response) {
@@ -99139,10 +97900,12 @@ Ext.define('JCertifBO.controller.SponsorController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider'),
       };
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getSponsorGrid().getStore().model.modelName, 0, false, true, true).get('removeUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getSponsorGrid().getStore().load();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; supprim&eacute;",
@@ -99162,19 +97925,26 @@ Ext.define('JCertifBO.controller.SponsorController', {
     },
     
     updateSponsor: function(btn){
-      var sponsor = this.getSponsorGrid().getSelectionModel().getSelection()[0];
-      var data = sponsor.data;
+      var win    = btn.up('window'),
+        form   = win.down('form'),
+        values = form.getValues(),
+        sponsor = this.getSponsorGrid().getSelectionModel().getSelection()[0];
+      
+      var data = values;
       //on rajoute la version de l'objet avant modification
       data['version'] = sponsor.raw['version'];
-      data['email'] = sponsor.raw['email'];
       data['user'] = Ext.util.Cookies.get('user');
       data['access_token'] = Ext.util.Cookies.get('access_token');
       data['provider'] = Ext.util.Cookies.get('provider');
-
+      
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getSponsorGrid().getStore().model.modelName, 0, false, true, true).get('updateUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getSponsorGrid().getStore().removeAll();
+  				  controller.getSponsorGrid().getStore().load();
+  				  win.close();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; sauvegard&eacute;",
@@ -99243,19 +98013,28 @@ Ext.define('JCertifBO.controller.SessionController', {
     
     views: [
         'session.Grid',
-        'session.Add'
+        'session.Add',
+        'session.Edit',
+        'session.Export',
+        'session.Import'
     ],
 
 
     refs: [
         {ref: 'viewer', selector: 'viewer'},
-        {ref: 'sessionGrid', selector: 'sessiongrid'}
+        {ref: 'sessionGrid', selector: 'sessiongrid'},
+        {ref: 'sessionFormStatuses', selector: 'sessionform combo#status'},
+        {ref: 'sessionFormCategories', selector: 'sessionform combo#category'},
+        {ref: 'sessionFormSpeakers', selector: 'sessionform combo#speakers'},
+        {ref: 'sessionFormRooms', selector: 'sessionform combo#room'},
+        {ref: 'sessionExportForm', selector: 'sessionexport'},
+        {ref: 'sessionExportFormFormats', selector: 'sessionexport combo#format'}
     ],
     
     init: function() {
         this.control({
             'sessiongrid': {
-                edit: this.updateSession
+                itemdblclick: this.showEditSessionView
             },
             'sessiongrid button[action=add]': {
                 click: this.showAddSessionView
@@ -99263,20 +98042,62 @@ Ext.define('JCertifBO.controller.SessionController', {
             'sessiongrid button[action=refresh]': {
                 click: this.refreshSessionGrid
             },
+      			'sessiongrid button[action=remove]' : {
+      				  click : this.removeSession
+      			},
+      			'sessiongrid button[action=export]' : {
+      				  click : this.showExportDialog
+      			},
+      			'sessiongrid button[action=import]' : {
+      				  click : this.showImportDialog
+      			},
             'sessionadd button[action=add]' : {
       				  click : this.addSession
       			},
       			'sessionadd button[action=cancel]' : {
       				  click : this.cancel
       			},
-      			'sessiongrid button[action=remove]' : {
-      				  click : this.removeSession
-      			}
+            'sessionedit button[action=save]' : {
+      				  click : this.updateSession
+      			},
+      			'sessionedit button[action=cancel]' : {
+      				  click : this.cancel
+      			},
+      			'sessionexport button[action=export]' : {
+      				  click : this.exportSessions
+      			},
+      			'sessionimport button[action=import]' : {
+      				  click : this.importSessions
+      			},
+      			'sessionimport button[action=cancel]' : {
+      				  click : this.cancel
+      			},
         });
     },
     
     showAddSessionView: function(btn){
       Ext.create('JCertifBO.view.session.Add');
+      this.getSessionFormStatuses().bindStore(this.getSessionStatusesStore());
+      this.getSessionFormCategories().bindStore(this.getCategoriesStore());
+      this.getSessionFormSpeakers().bindStore(this.getSpeakersStore());
+      this.getSessionFormRooms().bindStore(this.getRoomsStore());
+    },
+    
+    showEditSessionView: function(grid, record){
+      var view = Ext.create('JCertifBO.view.session.Edit');
+      view.down('form').loadRecord(record);
+      this.getSessionFormStatuses().bindStore(this.getSessionStatusesStore());
+      this.getSessionFormCategories().bindStore(this.getCategoriesStore());
+      this.getSessionFormSpeakers().bindStore(this.getSpeakersStore());
+      this.getSessionFormRooms().bindStore(this.getRoomsStore());
+    },
+    
+    showExportDialog: function(btn){     
+      Ext.create("JCertifBO.view.session.Export");
+    },
+    
+    showImportDialog: function(btn){     
+      Ext.create("JCertifBO.view.session.Import");
     },
     
     refreshSessionGrid: function(btn){
@@ -99290,11 +98111,13 @@ Ext.define('JCertifBO.controller.SessionController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider')
       });
+      var controller = this;
   		if (form.isValid()) {
   			Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getSessionGrid().getStore().model.modelName, 0, false, true, true).get('createUrl'),
   				jsonData : Ext.JSON.encode(form.getValues()),
   				success : function(response) {
+  				  controller.getSessionGrid().getStore().load();
             win.close();														
   				},
   				failure : function(response) {
@@ -99317,10 +98140,12 @@ Ext.define('JCertifBO.controller.SessionController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider'),
       };
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getSessionGrid().getStore().model.modelName, 0, false, true, true).get('removeUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getSessionGrid().getStore().load();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; supprim&eacute;",
@@ -99340,8 +98165,12 @@ Ext.define('JCertifBO.controller.SessionController', {
     },
     
     updateSession: function(btn){
-      var session = this.getSessionGrid().getSelectionModel().getSelection()[0];
-      var data = session.data;
+      var win    = btn.up('window'),
+        form   = win.down('form'),
+        values = form.getValues(),
+        session = this.getSessionGrid().getSelectionModel().getSelection()[0];
+        
+      var data = values;
       //on rajoute la version de l'objet avant modification
       data['version'] = session.raw['version'];
       data['id'] = session.raw['id'];
@@ -99349,10 +98178,14 @@ Ext.define('JCertifBO.controller.SessionController', {
       data['access_token'] = Ext.util.Cookies.get('access_token');
       data['provider'] = Ext.util.Cookies.get('provider');
 
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getSessionGrid().getStore().model.modelName, 0, false, true, true).get('updateUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getSessionGrid().getStore().removeAll();
+  				  controller.getSessionGrid().getStore().load();
+  				  win.close();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; sauvegard&eacute;",
@@ -99369,6 +98202,128 @@ Ext.define('JCertifBO.controller.SessionController', {
   					});
   				}
   			});
+    },
+    
+    exportSessions: function(btn){
+      var win    = btn.up('window'),
+          format = this.getSessionExportFormFormats().getValue();
+      var filename = '2013_JCertif_Sessions.' + Ext.ux.exporter.Exporter.getFormatterByName(format).extension;
+      //extract data from grid as csv format
+      var data = Ext.ux.exporter.Exporter.exportAny(this.getSessionGrid(), format, {});
+      var params = {};
+      params['access_token'] = Ext.util.Cookies.get('access_token');
+      params['provider'] = Ext.util.Cookies.get('provider');
+      params['user'] = Ext.util.Cookies.get('user');
+      params['filename'] = filename;
+      params['data'] = data;
+      //save data on the server in a temp file      
+      Ext.Ajax.request({
+          url: BACKEND_URL + '/admin/export/write',
+          jsonData : Ext.JSON.encode(params),
+          success: function(response) {
+              //prompt a download of the temp file that was saved
+              var ifrm = document.getElementById('downloadFrame');
+              win.close();
+              ifrm.src = BACKEND_URL + '/admin/export/read' + '?access_token=' + Ext.util.Cookies.get('access_token') + '&provider=' + Ext.util.Cookies.get('provider') + '&user=' + Ext.util.Cookies.get('user') + '&filename=' + filename;
+          },
+          failure: function(response){
+              Ext.MessageBox.show({
+    						title : 'Error',
+    						msg : response.responseText,
+    						buttons : Ext.MessageBox.OK,
+    						icon : Ext.MessageBox.ERROR
+    					});
+          }
+      });
+    },
+    
+    importSessions: function(btn){
+      var win    = btn.up('window'),
+          form = win.down('form').getForm(),
+          file = Ext.getCmp('sessions-file-upload').getEl().down('input[type=file]').dom.files[0];
+      
+      var controller = this;
+      if (form.isValid()) {
+          //extract data from grid as csv format
+          var reader = new FileReader();
+          var sessions = [];
+          var errors = [];
+          var waitingBox = Ext.MessageBox.show({
+             msg: 'Uploading your sessions, please wait...',
+             progressText: 'Uploading...',
+             width:300,
+             wait:true,
+             waitConfig: {interval:200},
+             icon:'ext-mb-upload',
+             iconHeight: 50,
+             animateTarget: 'sessions-file-upload'
+          });
+          var totalNumberOfSessions = 0 ;
+          var proceededNumberOfSessions = 0 ;
+          reader.onload = (function(theFile) {
+              return function(e) {
+                  var allTextLines = e.target.result.split(/\r\n|\n/);
+                  var headers = allTextLines[0].split(';');
+                  totalNumberOfSessions = allTextLines.length - 1;
+                  for (var i=1; i<allTextLines.length; i++) {
+                      var data = allTextLines[i].split(';');
+                      if (data.length == headers.length) {         
+                          var params = {};
+                          for (var j=0; j<headers.length; j++) {
+                              params[headers[j].toLowerCase().replace(/\"/g,'')] = data[j].replace(/\"/g,'');
+                          }
+                          Ext.Ajax.request({
+                            url: BACKEND_URL + controller.getAdminOptionsStore().findRecord('model', controller.getSessionGrid().getStore().model.modelName, 0, false, true, true).get('createUrl'),
+                            jsonData : Ext.JSON.encode(params),
+                            success: function(response, options) {
+                                sessions.push(Ext.decode(options.jsonData).title);
+                            },
+                            failure: function(response, options){
+                                errors.push(Ext.decode(options.jsonData).title);
+                                
+                            },
+                            callback : function(){
+                                proceededNumberOfSessions++;
+                                if(totalNumberOfSessions == proceededNumberOfSessions){
+                                  waitingBox.close();
+                                  if(errors.length == 0){
+                                    Ext.MessageBox.show({
+                          						title : 'Success',
+                          						msg : 'Your sessions have been uploaded',
+                          						buttons : Ext.MessageBox.OK,
+                          						icon : Ext.MessageBox.INFO
+                          					});
+                                  }else{
+                                    var errorReportHtml = '';
+                                    for (var j=0; j<errors.length; j++) {
+                                        errorReportHtml += errors[j] + '<br />';
+                                    }
+                                    Ext.MessageBox.show({
+                          						title : 'Warning',
+                          						msg : 'One or more sessions upload failed : <br/>' + errorReportHtml,
+                          						buttons : Ext.MessageBox.OK,
+                          						icon : Ext.MessageBox.WARNING
+                          					});
+                                  }
+                                  controller.getSessionGrid().getStore().load();
+                                }
+                            }
+                        });
+                      }else{
+                        waitingBox.close();
+                        Ext.MessageBox.show({
+              						title : 'Error',
+              						msg : 'File ' + file.name + ' not well formated',
+              						buttons : Ext.MessageBox.OK,
+              						icon : Ext.MessageBox.ERROR
+              					});
+                      }
+                  }
+              };
+          })(file);         
+          win.close();
+          reader.readAsBinaryString(file);
+      }
     },
     
     cancel: function(btn){
@@ -99397,24 +98352,33 @@ Ext.define('JCertifBO.store.Titles', {
 Ext.define('JCertifBO.controller.SpeakerController', {
     extend: 'Ext.app.Controller',
     
-    stores: ['AdminOptions', 'Titles'],
+    stores: ['AdminOptions', 'Titles', 'Countries', 'Cities'],
     models: ['AdminOption', 'Speaker'],
     
     views: [
         'speaker.Grid',
-        'speaker.Add'
+        'speaker.Add',
+        'speaker.Edit',
+        'speaker.Export',
+        'speaker.Import'
     ],
 
 
     refs: [
         {ref: 'viewer', selector: 'viewer'},
-        {ref: 'speakerGrid', selector: 'speakergrid'}
+        {ref: 'speakerGrid', selector: 'speakergrid'},
+        {ref: 'speakerFormTitles', selector: 'speakerform combo#title'},
+        {ref: 'speakerFormCountries', selector: 'speakerform combo#country'},
+        {ref: 'speakerFormCities', selector: 'speakerform combo#city'},
+        {ref: 'speakerFormPasswordField', selector: 'speakerform textfield#password'},
+        {ref: 'speakerExportForm', selector: 'speakerexport'},
+        {ref: 'speakerExportFormFormats', selector: 'speakerexport combo#format'}
     ],
     
     init: function() {
         this.control({
             'speakergrid': {
-                edit: this.updateSpeaker
+                itemdblclick: this.showEditSpeakerView
             },
             'speakergrid button[action=add]': {
                 click: this.showAddSpeakerView
@@ -99422,20 +98386,61 @@ Ext.define('JCertifBO.controller.SpeakerController', {
             'speakergrid button[action=refresh]': {
                 click: this.refreshSpeakerGrid
             },
+      			'speakergrid button[action=remove]' : {
+      				  click : this.removeSpeaker
+      			},
+      			'speakergrid button[action=export]' : {
+      				  click : this.showExportDialog
+      			},
+      			'speakergrid button[action=import]' : {
+      				  click : this.showImportDialog
+      			},
             'speakeradd button[action=add]' : {
       				  click : this.addSpeaker
       			},
       			'speakeradd button[action=cancel]' : {
       				  click : this.cancel
       			},
-      			'speakergrid button[action=remove]' : {
-      				  click : this.removeSpeaker
-      			}
+            'speakeredit button[action=save]' : {
+      				  click : this.updateSpeaker
+      			},
+      			'speakeredit button[action=cancel]' : {
+      				  click : this.cancel
+      			},
+      			'speakerexport button[action=export]' : {
+      				  click : this.exportSpeakers
+      			},
+      			'speakerimport button[action=import]' : {
+      				  click : this.importSpeakers
+      			},
+      			'speakerimport button[action=cancel]' : {
+      				  click : this.cancel
+      			},
         });
     },
     
     showAddSpeakerView: function(btn){
       Ext.create('JCertifBO.view.speaker.Add');
+      this.getSpeakerFormTitles().bindStore(this.getTitlesStore());
+      this.getSpeakerFormCountries().bindStore(this.getCountriesStore());
+      this.getSpeakerFormCities().bindStore(this.getCitiesStore());
+    },
+    
+    showEditSpeakerView: function(grid, record){
+      var view = Ext.create('JCertifBO.view.speaker.Edit');
+      view.down('form').loadRecord(record);
+      this.getSpeakerFormTitles().bindStore(this.getTitlesStore());
+      this.getSpeakerFormCountries().bindStore(this.getCountriesStore());
+      this.getSpeakerFormCities().bindStore(this.getCitiesStore());
+      this.getSpeakerFormPasswordField().setDisabled(true);
+    },
+    
+    showExportDialog: function(btn){     
+      Ext.create("JCertifBO.view.speaker.Export");
+    },
+    
+    showImportDialog: function(btn){     
+      Ext.create("JCertifBO.view.speaker.Import");
     },
     
     refreshSpeakerGrid: function(btn){
@@ -99449,11 +98454,13 @@ Ext.define('JCertifBO.controller.SpeakerController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider')
       });
+      var controller = this;
   		if (form.isValid()) {
   			Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getSpeakerGrid().getStore().model.modelName).get('createUrl'),
   				jsonData : Ext.JSON.encode(form.getValues()),
   				success : function(response) {
+  				  controller.getSpeakerGrid().getStore().load();
             win.close();														
   				},
   				failure : function(response) {
@@ -99476,10 +98483,12 @@ Ext.define('JCertifBO.controller.SpeakerController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider'),
       };
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getSpeakerGrid().getStore().model.modelName).get('removeUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getSpeakerGrid().getStore().load();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; supprim&eacute;",
@@ -99499,19 +98508,26 @@ Ext.define('JCertifBO.controller.SpeakerController', {
     },
     
     updateSpeaker: function(btn){
-      var speaker = this.getSpeakerGrid().getSelectionModel().getSelection()[0];
-      var data = speaker.data;
+      var win    = btn.up('window'),
+        form   = win.down('form'),
+        values = form.getValues(),
+        speaker = this.getSpeakerGrid().getSelectionModel().getSelection()[0];
+      
+      var data = values;
       //on rajoute la version de l'objet avant modification
       data['version'] = speaker.raw['version'];
-      data['email'] = speaker.raw['email'];
       data['user'] = Ext.util.Cookies.get('user');
       data['access_token'] = Ext.util.Cookies.get('access_token');
       data['provider'] = Ext.util.Cookies.get('provider');
 
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getSpeakerGrid().getStore().model.modelName).get('updateUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getSpeakerGrid().getStore().removeAll();
+  				  controller.getSpeakerGrid().getStore().load();
+  				  win.close();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; sauvegard&eacute;",
@@ -99530,6 +98546,130 @@ Ext.define('JCertifBO.controller.SpeakerController', {
   			});
     },
     
+    exportSpeakers: function(btn){
+      var win    = btn.up('window'),
+            format = this.getSpeakerExportFormFormats().getValue();
+      var filename = '2013_JCertif_Speakers.' + Ext.ux.exporter.Exporter.getFormatterByName(format).extension;
+      //extract data from grid as csv format
+      var data = Ext.ux.exporter.Exporter.exportAny(this.getSpeakerGrid(), format, {});
+      var params = {};
+      params['access_token'] = Ext.util.Cookies.get('access_token');
+      params['provider'] = Ext.util.Cookies.get('provider');
+      params['user'] = Ext.util.Cookies.get('user');
+      params['filename'] = filename;
+      params['data'] = data;
+      //save data on the server in a temp file
+      Ext.Ajax.request({
+          url: BACKEND_URL + '/admin/export/write',
+          jsonData : Ext.JSON.encode(params),
+          success: function(response) {
+              //prompt a download of the temp file that was saved
+              var ifrm = document.getElementById('downloadFrame');
+              win.close();
+              ifrm.src = BACKEND_URL + '/admin/export/read' + '?access_token=' + Ext.util.Cookies.get('access_token') + '&provider=' + Ext.util.Cookies.get('provider') + '&user=' + Ext.util.Cookies.get('user') + '&filename=' + filename;
+          },
+          failure: function(response){
+              Ext.MessageBox.show({
+    						title : 'Error',
+    						msg : response.responseText,
+    						buttons : Ext.MessageBox.OK,
+    						icon : Ext.MessageBox.ERROR
+    					});
+          }
+      });
+    },
+    
+    importSpeakers: function(btn){
+      var win    = btn.up('window'),
+          form = win.down('form').getForm(),
+          file = Ext.getCmp('speakers-file-upload').getEl().down('input[type=file]').dom.files[0];
+          
+      var controller = this;
+      if (form.isValid()) {
+          //extract data from grid as csv format
+          var reader = new FileReader();
+          var speakers = [];
+          var errors = [];
+          var waitingBox = Ext.MessageBox.show({
+             msg: 'Uploading your speakers, please wait...',
+             progressText: 'Uploading...',
+             width:300,
+             wait:true,
+             waitConfig: {interval:200},
+             icon:'ext-mb-upload',
+             iconHeight: 50,
+             animateTarget: 'speakers-file-upload'
+          });
+          var totalNumberOfSpeakers = 0 ;
+          var proceededNumberOfSpeakers = 0 ;
+          var defaultPassword = 'adminjcertif' ;
+          reader.onload = (function(theFile) {
+              return function(e) {
+                  var allTextLines = e.target.result.split(/\r\n|\n/);
+                  var headers = allTextLines[0].split(';');
+                  totalNumberOfSpeakers = allTextLines.length - 1;
+                  for (var i=1; i<allTextLines.length; i++) {
+                      var data = allTextLines[i].split(';');
+                      if (data.length == headers.length) {         
+                          var params = {};
+                          for (var j=0; j<headers.length; j++) {
+                              params[headers[j].toLowerCase().replace(/\"/g,'')] = data[j].replace(/\"/g,'');
+                          }
+                          params['password'] = defaultPassword;
+                          Ext.Ajax.request({
+                            url: BACKEND_URL + controller.getAdminOptionsStore().findRecord('model', controller.getSpeakerGrid().getStore().model.modelName, 0, false, true, true).get('createUrl'),
+                            jsonData : Ext.JSON.encode(params),
+                            success: function(response, options) {
+                                speakers.push(Ext.decode(options.jsonData).email);
+                            },
+                            failure: function(response, options){
+                                errors.push(Ext.decode(options.jsonData).email);
+                                
+                            },
+                            callback : function(){
+                                proceededNumberOfSpeakers++;
+                                if(totalNumberOfSpeakers == proceededNumberOfSpeakers){
+                                  waitingBox.close();
+                                  if(errors.length == 0){
+                                    Ext.MessageBox.show({
+                          						title : 'Success',
+                          						msg : "Your speakers have been uploaded.<br/> they all have default password '"+ defaultPassword +"'",
+                          						buttons : Ext.MessageBox.OK,
+                          						icon : Ext.MessageBox.INFO
+                          					});
+                                  }else{
+                                    var errorReportHtml = '';
+                                    for (var j=0; j<errors.length; j++) {
+                                        errorReportHtml += errors[j] + '<br />';
+                                    }
+                                    Ext.MessageBox.show({
+                          						title : 'Warning',
+                          						msg : 'One or more speakers upload failed : <br/>' + errorReportHtml,
+                          						buttons : Ext.MessageBox.OK,
+                          						icon : Ext.MessageBox.WARNING
+                          					});
+                                  }
+                                  controller.getSpeakerGrid().getStore().load();
+                                }
+                            }
+                        });
+                      }else{
+                        waitingBox.close();
+                        Ext.MessageBox.show({
+              						title : 'Error',
+              						msg : 'File ' + file.name + ' not well formated',
+              						buttons : Ext.MessageBox.OK,
+              						icon : Ext.MessageBox.ERROR
+              					});
+                      }
+                  }
+              };
+          })(file);         
+          win.close();
+          reader.readAsBinaryString(file);
+      }
+    },
+    
     cancel: function(btn){
       btn.up('window').close();
     }
@@ -99538,24 +98678,30 @@ Ext.define('JCertifBO.controller.SpeakerController', {
 Ext.define('JCertifBO.controller.ParticipantController', {
     extend: 'Ext.app.Controller',
     
-    stores: ['AdminOptions', 'Titles', 'Sessions'],
+    stores: ['AdminOptions', 'Titles', 'Countries', 'Cities', 'Sessions'],
     models: ['AdminOption', 'Participant'],
     
     views: [
         'participant.Grid',
-        'participant.Add'
+        'participant.Add',
+        'participant.Edit'
     ],
 
 
     refs: [
         {ref: 'viewer', selector: 'viewer'},
-        {ref: 'participantGrid', selector: 'participantgrid'}
+        {ref: 'participantGrid', selector: 'participantgrid'},
+        {ref: 'participantFormTitles', selector: 'participantform combo#title'},
+        {ref: 'participantFormCountries', selector: 'participantform combo#country'},
+        {ref: 'participantFormCities', selector: 'participantform combo#city'},
+        {ref: 'participantFormSessions', selector: 'participantform combo#sessions'},
+        {ref: 'participantFormPasswordField', selector: 'participantform textfield#password'}
     ],
     
     init: function() {
         this.control({
             'participantgrid': {
-                edit: this.updateParticipant
+                itemdblclick: this.showEditParticipantView
             },
             'participantgrid button[action=add]': {
                 click: this.showAddParticipantView
@@ -99563,20 +98709,40 @@ Ext.define('JCertifBO.controller.ParticipantController', {
             'participantgrid button[action=refresh]': {
                 click: this.refreshParticipantGrid
             },
+      			'participantgrid button[action=remove]' : {
+      				  click : this.removeParticipant
+      			},
             'participantadd button[action=add]' : {
       				  click : this.addParticipant
       			},
       			'participantadd button[action=cancel]' : {
       				  click : this.cancel
       			},
-      			'participantgrid button[action=remove]' : {
-      				  click : this.removeParticipant
+            'participantedit button[action=save]' : {
+      				  click : this.updateParticipant
+      			},
+      			'participantedit button[action=cancel]' : {
+      				  click : this.cancel
       			}
         });
     },
     
     showAddParticipantView: function(btn){
       Ext.create('JCertifBO.view.participant.Add');
+      this.getParticipantFormTitles().bindStore(this.getTitlesStore());
+      this.getParticipantFormCountries().bindStore(this.getCountriesStore());
+      this.getParticipantFormCities().bindStore(this.getCitiesStore());
+      this.getParticipantFormSessions().bindStore(this.getSessionsStore());
+    },
+    
+    showEditParticipantView: function(grid, record){
+      var view = Ext.create('JCertifBO.view.participant.Edit');
+      view.down('form').loadRecord(record);
+      this.getParticipantFormTitles().bindStore(this.getTitlesStore());
+      this.getParticipantFormCountries().bindStore(this.getCountriesStore());
+      this.getParticipantFormCities().bindStore(this.getCitiesStore());
+      this.getParticipantFormSessions().bindStore(this.getSessionsStore());
+      this.getParticipantFormPasswordField().setDisabled(true);
     },
     
     refreshParticipantGrid: function(btn){
@@ -99590,11 +98756,13 @@ Ext.define('JCertifBO.controller.ParticipantController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider')
       });
+      var controller = this;
   		if (form.isValid()) {
   			Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getParticipantGrid().getStore().model.modelName).get('createUrl'),
   				jsonData : Ext.JSON.encode(form.getValues()),
   				success : function(response) {
+  				  controller.getParticipantGrid().getStore().load();
             win.close();														
   				},
   				failure : function(response) {
@@ -99617,10 +98785,12 @@ Ext.define('JCertifBO.controller.ParticipantController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider'),
       };
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getParticipantGrid().getStore().model.modelName).get('removeUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getParticipantGrid().getStore().load();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; supprim&eacute;",
@@ -99640,19 +98810,26 @@ Ext.define('JCertifBO.controller.ParticipantController', {
     },
     
     updateParticipant: function(btn){
-      var participant = this.getParticipantGrid().getSelectionModel().getSelection()[0];
-      var data = participant.data;
+      var win    = btn.up('window'),
+        form   = win.down('form'),
+        values = form.getValues(),
+        participant = this.getParticipantGrid().getSelectionModel().getSelection()[0];
+        
+      var data = values;
       //on rajoute la version de l'objet avant modification
       data['version'] = participant.raw['version'];
-      data['email'] = participant.raw['email'];
       data['user'] = Ext.util.Cookies.get('user');
       data['access_token'] = Ext.util.Cookies.get('access_token');
       data['provider'] = Ext.util.Cookies.get('provider');
 
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getParticipantGrid().getStore().model.modelName).get('updateUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getParticipantGrid().getStore().removeAll();
+  				  controller.getParticipantGrid().getStore().load();
+  				  win.close();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; sauvegard&eacute;",
@@ -99676,6 +98853,282 @@ Ext.define('JCertifBO.controller.ParticipantController', {
     }
 });
 
+Ext.define('JCertifBO.store.AuthProviders', {
+	extend : 'Ext.data.Store',
+	model : 'JCertifBO.model.AuthProvider',
+	autoLoad : true,
+
+	data: [
+        {name: 'userpass', authorizationUrl: BACKEND_URL + '/admin', accessTokenUrl: BACKEND_URL + '/token/new', requestTokenUrl: BACKEND_URL + '/token/new'},
+        {name: 'google', authorizationUrl: 'https://accounts.google.com/o/oauth2/auth', accessTokenUrl: 'https://accounts.google.com/o/oauth2/token', clientId: '854354618002.apps.googleusercontent.com', scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email', logoutUrl: 'http://accounts.google.com/Logout'},
+        {name: 'github', authorizationUrl: 'https://github.com/login/oauth/authorize', accessTokenUrl: 'https://github.com/login/oauth/access_token', clientId: '672000c39117d988c3d9', clientSecret: 'e97fdd89ec9c08d27c4de56444f6908c285fcda3', scope: 'user:email'}
+    ]
+});
+Ext.define('JCertifBO.controller.LoginController', {
+	extend : 'Ext.app.Controller',
+	views : ['Login'],
+	stores: ['AuthProviders'],
+	model : 'GoogleToken',
+  requires : [
+      'Ext.util.Cookies'
+  ],
+	init : function() {
+		this.control({
+			'login button[action=login]' : {
+				click : this.connect
+			},
+			'login button[action=reset]' : {
+				click : this.reset
+			},
+			'login button[action=googleplus-login]' : {
+				click : this.googleConnect
+			},
+			'login button[action=github-login]' : {
+				click : this.githubConnect
+			},
+			'appheader button[action=logout]' : {
+				click : this.logout
+			}
+		});
+	},
+	
+	onLaunch : function(){
+	    //check if usre is already authenticated
+      var email = Ext.util.Cookies.get('user');
+      if(email != undefined){
+        Ext.create('JCertifBO.view.Home');
+      }else{
+        Ext.create('JCertifBO.view.Login');
+      }
+      
+  },
+  
+	connect : function(btn) {
+		var win = btn.up('window'), form = win.down('form').getForm(), emailData = win.down('form').down('#email').getValue();
+    	
+		if (form.isValid()) {
+			Ext.Ajax.request({
+				url : BACKEND_URL + '/admin',
+				loadMask: true,
+				jsonData : Ext.JSON.encode(form.getValues()),
+				success : function(response) {				  
+				  var accessToken = Ext.decode(response.responseText).access_token;		
+          Ext.util.Cookies.set('user',emailData);
+          Ext.util.Cookies.set('access_token',accessToken);
+          Ext.util.Cookies.set('provider', 'userpass');
+          win.close();
+          Ext.create('JCertifBO.view.Home');
+				},
+				failure : function(response) {
+					Ext.MessageBox.show({
+						title : 'Login Failed',
+						msg : response.responseText,
+						buttons : Ext.MessageBox.OK,
+						icon : Ext.MessageBox.ERROR
+					});
+				}
+			});
+    }
+	},
+	
+	googleConnect : function(btn) {
+	   var loginWin = btn.up('window'), baseUrl = this.getAuthProvidersStore().findRecord('name', 'google').get('authorizationUrl'),
+        clientId = this.getAuthProvidersStore().findRecord('name', 'google').get('clientId'),
+        scope = this.getAuthProvidersStore().findRecord('name', 'google').get('scope');
+		
+		_url = baseUrl + '?client_id='+ clientId +'&response_type=token&scope='+scope+'&redirect_uri='+BACKOFFICE_URL;
+		var socialWin = window.open(_url, "gplusLoginWindow", 'width=800, height=600'); 
+    var acToken;
+    var controller = this;
+    var pollTimer = window.setInterval(function() { 
+        try {
+            if (socialWin.document.URL.indexOf(BACKOFFICE_URL) != -1) {
+                window.clearInterval(pollTimer);
+                var params = {}, queryString = socialWin.location.hash.substring(1),
+                regex = /([^&=]+)=([^&]*)/g, m;
+                while (m = regex.exec(queryString)) {
+                  params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+                }
+                error =  params['error'];
+                acToken =  params['access_token'];                                 
+                if(error != undefined){                
+                  Ext.MessageBox.show({
+          					title : 'Login Failed',
+          					msg : error,
+          					buttons : Ext.MessageBox.OK,
+          					icon : Ext.MessageBox.ERROR
+          				});
+                }
+                controller.validateGoogleToken(acToken, loginWin);                                
+                socialWin.close(); 
+            }
+        } catch(e) {
+          console.log(e)
+        }
+    }, 500); 
+     
+	},
+	
+	githubConnect : function(btn) {
+	   var loginWin = btn.up('window'), baseUrl = this.getAuthProvidersStore().findRecord('name', 'github').get('authorizationUrl'),
+        clientId = this.getAuthProvidersStore().findRecord('name', 'github').get('clientId'),
+        clientSecret = this.getAuthProvidersStore().findRecord('name', 'github').get('clientSecret'),
+        scope = this.getAuthProvidersStore().findRecord('name', 'github').get('scope');
+		
+		_url = baseUrl + '?client_id='+ clientId + '&redirect_uri='+BACKOFFICE_URL
+		var socialWin = window.open(_url, "githubLoginWindow", 'scrollbars=1, width=800, height=600'); 
+    var code;
+    var controller = this;
+    var pollTimer = window.setInterval(function() { 
+        try {
+            if (socialWin.document.URL.indexOf(BACKOFFICE_URL) != -1) {
+                window.clearInterval(pollTimer);
+                var params = {}, queryString = socialWin.document.URL.substring(socialWin.document.URL.indexOf('?')+1),
+                regex = /([^&=]+)=([^&]*)/g, m;
+                while (m = regex.exec(queryString)) {
+                  params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+                }
+                error =  params['error'];
+                code =  params['code']; 
+                if(error != undefined){                
+                  Ext.MessageBox.show({
+          					title : 'Login Failed',
+          					msg : error,
+          					buttons : Ext.MessageBox.OK,
+          					icon : Ext.MessageBox.ERROR
+          				});
+                }
+                controller.validateGithubToken(clientId, clientSecret, code, loginWin);                                  
+                socialWin.close();               
+            }
+        } catch(e) {
+          console.log(e)
+        }
+    }, 500); 
+     
+	},
+  
+  validateGoogleToken : function(accessToken, loginWindow){
+    Ext.Ajax.useDefaultXhrHeader = false;
+    Ext.Ajax.cors = true;
+    Ext.Ajax.request({
+			url : 'https://www.googleapis.com/oauth2/v1/userinfo?access_token='+accessToken,
+			loadMask: false,
+			success : function(response) {				  
+			  var email = Ext.decode(response.responseText).email;
+	      var name = Ext.decode(response.responseText).name;
+	      var picture = Ext.decode(response.responseText).picture;
+	      Ext.util.Cookies.set('user',email);
+        Ext.util.Cookies.set('user_name',name);
+        Ext.util.Cookies.set('picture',picture);
+        Ext.util.Cookies.set('access_token',accessToken);
+        Ext.util.Cookies.set('provider', 'google');
+        Ext.create('JCertifBO.view.Home');
+        loginWindow.close();
+			},
+			failure : function(response) {
+				Ext.MessageBox.show({
+					title : 'Login Failed',
+					msg : response.responseText,
+					buttons : Ext.MessageBox.OK,
+					icon : Ext.MessageBox.ERROR
+				});
+			}
+		});
+  },  
+  
+  validateGithubToken : function(clientId, clientSecret, code, loginWindow){
+    Ext.Ajax.useDefaultXhrHeader = false;
+    Ext.Ajax.cors = true;
+    Ext.Ajax.timeout = 60000;
+    Ext.Ajax.request({
+			url : 'https://github.com/login/oauth/access_token',
+			params: {
+			  client_id: clientId,
+			  client_secret: clientSecret,
+			  code: code
+      },
+      mothod: 'POST',
+			loadMask: false,
+			success : function(response) {				  
+			  var accessToken = Ext.decode(response.responseText).access_token;
+			  
+			  Ext.Ajax.request({
+    			url : 'https://api.github.com/user?access_token='+accessToken,
+    			loadMask: false,
+    			success : function(response) {				  
+    			  var email = Ext.decode(response.responseText).email;
+    	      var name = Ext.decode(response.responseText).name;
+    	      var picture = Ext.decode(response.responseText).avatar_url;
+    	      Ext.util.Cookies.set('user',email);
+            Ext.util.Cookies.set('user_name',name);
+            Ext.util.Cookies.set('picture',picture);
+            Ext.util.Cookies.set('access_token',accessToken);
+            Ext.util.Cookies.set('provider', 'google');
+            Ext.create('JCertifBO.view.Home');
+            loginWindow.close();
+    			},
+    			failure : function(response) {
+    				Ext.MessageBox.show({
+    					title : 'Login Failed',
+    					msg : response.responseText,
+    					buttons : Ext.MessageBox.OK,
+    					icon : Ext.MessageBox.ERROR
+    				});
+    			}
+    		});
+			},
+			failure : function(response) {
+				Ext.MessageBox.show({
+					title : 'Login Failed',
+					msg : response.responseText,
+					buttons : Ext.MessageBox.OK,
+					icon : Ext.MessageBox.ERROR
+				});
+			}
+		});
+		
+    
+		
+  },  
+  
+	reset : function(btn) {
+		btn.up('window').down('form').getForm().reset();
+	},
+	
+	logout : function(btn) {
+	  var provider = Ext.util.Cookies.get('provider');
+	  var logoutUrl = Ext.util.Cookies.get('logoutUrl');
+		Ext.util.Cookies.clear('user');
+    Ext.util.Cookies.clear('user_name');
+    Ext.util.Cookies.clear('picture');
+    Ext.util.Cookies.clear('provider');
+    Ext.util.Cookies.clear('access_token');  
+    Ext.state.Manager.clear();
+    if(logoutUrl != undefined){
+      Ext.Ajax.request({
+  			url : logoutUrl,
+  			loadMask: false,
+  			success : function(response) {
+          
+          window.location.reload();				  
+  			},
+  			failure : function(response) {
+  				Ext.MessageBox.show({
+  					title : 'Logout from '+ provider +' failed',
+  					msg : response.responseText,
+  					buttons : Ext.MessageBox.OK,
+  					icon : Ext.MessageBox.INFO
+  				});
+  			}
+  		});
+    }else{
+      window.location.reload();
+    }
+    
+	}
+	
+});
 /*
 This file is part of Ext JS 4.2
 
@@ -102409,6 +101862,131 @@ Ext.define('Ext.resizer.BorderSplitterTracker', {
     }
 });
 
+/**
+*
+*  Base64 encode / decode
+*  http://www.webtoolkit.info/
+*
+**/
+
+(function() {
+
+    // private property
+    var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+    // private method for UTF-8 encoding
+    function utf8Encode(string) {
+        string = string.replace(/\r\n/g,"\n");
+        var utftext = "";
+        for (var n = 0; n < string.length; n++) {
+            var c = string.charCodeAt(n);
+            if (c < 128) {
+                utftext += String.fromCharCode(c);
+            }
+            else if((c > 127) && (c < 2048)) {
+                utftext += String.fromCharCode((c >> 6) | 192);
+                utftext += String.fromCharCode((c & 63) | 128);
+            }
+            else {
+                utftext += String.fromCharCode((c >> 12) | 224);
+                utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+                utftext += String.fromCharCode((c & 63) | 128);
+            }
+        }
+        return utftext;
+    }
+
+    Ext.define("Ext.ux.exporter.Base64", {
+        statics: {
+        //This was the original line, which tries to use Firefox's built in Base64 encoder, but this kept throwing exceptions....
+        // encode : (typeof btoa == 'function') ? function(input) { return btoa(input); } : function (input) {
+        encode : function (input) {
+            var output = "";
+            var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+            var i = 0;
+            input = utf8Encode(input);
+            while (i < input.length) {
+                chr1 = input.charCodeAt(i++);
+                chr2 = input.charCodeAt(i++);
+                chr3 = input.charCodeAt(i++);
+                enc1 = chr1 >> 2;
+                enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+                enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+                enc4 = chr3 & 63;
+                if (isNaN(chr2)) {
+                    enc3 = enc4 = 64;
+                } else if (isNaN(chr3)) {
+                    enc4 = 64;
+                }
+                output = output +
+                keyStr.charAt(enc1) + keyStr.charAt(enc2) +
+                keyStr.charAt(enc3) + keyStr.charAt(enc4);
+            }
+            return output;
+        }}
+    });
+})();
+/**
+ * @class Ext.ux.Exporter.Button
+ * @extends Ext.Component
+ * @author Nige White, with modifications from Ed Spencer, with modifications from iwiznia.
+ * Specialised Button class that allows downloading of data via data: urls.
+ * Internally, this is just a link.
+ * Pass it either an Ext.Component subclass with a 'store' property, or just a store or nothing and it will try to grab the first parent of this button that is a grid or tree panel:
+ * new Ext.ux.Exporter.Button({component: someGrid});
+ * new Ext.ux.Exporter.Button({store: someStore});
+ * @cfg {Ext.Component} component The component the store is bound to
+ * @cfg {Ext.data.Store} store The store to export (alternatively, pass a component with a getStore method)
+ */
+Ext.define("Ext.ux.exporter.Button", {
+    extend: "Ext.Component",
+    alias: "widget.exporterbutton",
+    html: '<p></p>',
+    config: {
+        swfPath: '/extjs/src/ux/exporter/downloadify.swf',
+        downloadImage: '/extjs/src/ux/exporter/download.png',
+        width: 62,
+        height: 22,
+        downloadName: "download"
+    },
+
+    constructor: function(config) {
+      config = config || {};
+
+      this.initConfig();
+      Ext.ux.exporter.Button.superclass.constructor.call(this, config);
+
+      var self = this;
+      this.on("afterrender", function() { // We wait for the combo to be rendered, so we can look up to grab the component containing it
+          self.setComponent(self.store || self.component || self.up("gridpanel") || self.up("treepanel"), config);
+      });
+    },
+
+    setComponent: function(component, config) {
+        this.component = component;
+        this.store = !component.is ? component : component.getStore(); // only components or stores, if it doesn't respond to is method, it's a store
+        this.setDownloadify(config);
+    },
+
+    setDownloadify: function(config) {
+        var self = this;
+        Downloadify.create(this.el.down('p').id,{
+            filename: function() {
+              return self.getDownloadName() + "." + Ext.ux.exporter.Exporter.getFormatterByName(self.formatter).extension;
+            },
+            data: function() {
+              return Ext.ux.exporter.Exporter.exportAny(self.component, self.formatter, config);
+            },
+            transparent: false,
+            swf: this.getSwfPath(),
+            downloadImage: this.getDownloadImage(),
+            width: this.getWidth(),
+            height: this.getHeight(),
+            transparent: true,
+            append: false
+        });
+    }
+});
 /*
 This file is part of Ext JS 4.2
 
@@ -105286,6 +104864,24 @@ Ext.define('Ext.form.CheckboxManager', {
     }
 });
 
+/**
+ * @class Ext.ux.Exporter.Formatter
+ * @author Ed Spencer (http://edspencer.net)
+ * @cfg {Ext.data.Store} store The store to export
+ */
+Ext.define("Ext.ux.exporter.Formatter", {
+    /**
+     * Performs the actual formatting. This must be overridden by a subclass
+     */
+    format: Ext.emptyFn,
+    constructor: function(config) {
+        config = config || {};
+
+        Ext.applyIf(config, {
+
+        });
+    }
+});
 /*
 This file is part of Ext JS 4.2
 
@@ -107474,6 +107070,256 @@ Ext.define('Ext.form.field.Checkbox', {
     }
 });
 
+/**
+ * @class Ext.ux.Exporter.CSVFormatter
+ * @extends Ext.ux.Exporter.Formatter
+ * Specialised Format class for outputting .csv files
+ */
+Ext.define("Ext.ux.exporter.csvFormatter.CsvFormatter", {
+    extend: "Ext.ux.exporter.Formatter",
+    
+    /**
+     * @cfg {String} contentType The content type to use. Defaults to 'data:text/csv;base64,'
+     */
+    contentType: 'data:text/csv;base64,',
+    
+    /**
+     * @cfg {String} separator The separator to use. Defaults to ';'
+     */
+    separator: ";",
+
+    /**
+     * @cfg {String} extension The extension to use. Defaults to 'csv'
+     */
+    extension: "csv",
+    
+    /**
+     * @cfg {String} lineSeparator The line separator to use. Defaults to "\n"
+     */
+    lineSeparator: "\n",
+    
+    /**
+     * @cfg {Boolean} capitalizeHeaders Capitalizes the header fields. Defaults to false
+     */
+    capitalizeHeaders: false,
+
+    /**
+     * Formats the store to the CSV format. 
+     * @param store The store to export
+     * @param config {Object} [config] Config object. Contains the "columns" property, which is an array of field names.
+     */
+    format: function(store, config) {
+        this.columns = config.columns || (store.fields ? store.fields.items : store.model.prototype.fields.items);
+        return this.getHeaders() + this.lineSeparator + this.getRows(store);
+    },
+    
+    /**
+     * Returns the headers for the specific store.
+     * 
+     * @param {Object} store The store to process
+     * @returns {String} The header line
+     */
+    getHeaders: function(store) {
+        var columns = [];
+        
+        Ext.each(this.columns, function(col) {
+          var title;
+          if (col.text != undefined) {
+            title = col.text;
+          } else if(col.name) {
+            title = col.name.replace(/_/g, " ");
+          } else {
+        	  title = "";
+          }
+          
+          if (this.capitalizeHeaders) {
+        	  title = Ext.String.capitalize(title);        	  
+          }
+
+          columns.push(title);
+        }, this);
+
+        return columns.join(this.separator);
+    },
+    /**
+     * Returns all rows for the store
+     * 
+     * @param {Object} store The store to use
+     * @returns {String}
+     */
+    getRows: function(store) {
+        var rows = [];
+        store.each(function(record, index) {
+          rows.push(this.getCells(record, index));
+        }, this);
+
+        return rows.join(this.lineSeparator);
+    },
+    /**
+     * Returns the cells for a specific row
+     * @param {Object} record The record
+     * @returns {String} The cells of the record
+     */
+    getCells: function(record, index) {
+        var cells = [];
+
+        Ext.each(this.columns, function(col, iCol) {
+            var name = col.name || col.dataIndex;
+            var value = "";
+            
+            if(typeof name !== 'undefined') {
+                if (Ext.isFunction(col.renderer)) {
+                  value = col.renderer(record.get(name), {}, record, index, iCol, record.store);
+                } else {
+                  value = record.get(name);
+                }
+                
+                value = '"' + value + '"';
+                cells.push(value);
+            }
+        });
+
+        return cells.join(this.separator);
+    }
+});
+/**
+ * @class Ext.ux.Exporter.WikiFormatter
+ * @extends Ext.ux.Exporter.Formatter
+ * Specialised Format class for outputting mediawiki tables
+ */
+Ext.define("Ext.ux.exporter.wikiFormatter.WikiFormatter", {
+    extend: "Ext.ux.exporter.Formatter",
+    
+    /**
+     * @cfg {String} contentType The content type to use. Defaults to 'data:text/plain;base64,'
+     */
+    contentType: 'data:text/plain;base64,',
+    
+    /**
+     * @cfg {String} cls The table class. Defaults to "wikitable"
+     */
+    cls: "wikitable",
+
+    /**
+     * @cfg {String} extension The extension to use. Defaults to 'txt'
+     */
+    extension: "txt",
+    
+    /**
+     * @cfg {String} lineSeparator The line separator to use. Defaults to "\n"
+     */
+    lineSeparator: "\n",
+    
+    /**
+     * @cfg {Boolean} capitalizeHeaders Capitalizes the header fields. Defaults to false
+     */
+    capitalizeHeaders: false,
+
+    /**
+     * Formats the store to the wiki table format. 
+     * @param store The store to export
+     * @param config {Object} [config] Config object. Contains the "columns" property, which is an array of field names.
+     */
+    format: function(store, config) {
+        this.columns = config.columns || (store.fields ? store.fields.items : store.model.prototype.fields.items);
+        return "{|" + this.getHeaders() + this.lineSeparator +
+        		this.getRows(store) + this.lineSeparator + "|}";
+    },
+    
+    /**
+     * Returns the headers for the specific store.
+     * 
+     * @param {Object} store The store to process
+     * @returns {String} The header line
+     */
+    getHeaders: function(store) {
+        var columns = [];
+        
+        Ext.each(this.columns, function(col) {
+          var title;
+          if (col.text != undefined) {
+            title = col.text;
+          } else if(col.name) {
+            title = col.name.replace(/_/g, " ");
+          } else {
+        	  title = "";
+          }
+          
+          if (this.capitalizeHeaders) {
+        	  title = Ext.String.capitalize(title);        	  
+          }
+
+          columns.push("! " + title);
+        }, this);
+
+        var retVal = ' class="'+ this.cls + '" valign="top"' + this.lineSeparator;
+        retVal += columns.join(this.lineSeparator);
+        
+        return retVal;
+    },
+    /**
+     * Returns all rows for the store
+     * 
+     * @param {Object} store The store to use
+     * @returns {String}
+     */
+    getRows: function(store) {
+        var rows = [];
+        store.each(function(record) {
+          rows.push("|-" + this.lineSeparator + this.getCells(record));
+        }, this);
+
+        return rows.join(this.lineSeparator);
+    },
+    /**
+     * Returns the cells for a specific row
+     * @param {Object} record The record
+     * @returns {String} The cells of the record
+     */
+    getCells: function(record) {
+        var cells = [];
+        
+        Ext.each(this.columns, function(col) {
+            var name = col.name || col.dataIndex;
+            var value = "";
+            
+            if(typeof name !== 'undefined') {
+                if (Ext.isFunction(col.renderer)) {
+                  value = col.renderer(record.get(name), null, record);
+                } else {
+                  value = record.get(name);
+                }
+                
+                cells.push("| " + value);
+            }
+        });
+
+        return cells.join(this.lineSeparator);
+    }
+});
+/**
+ * @class Ext.ux.Exporter.ExcelFormatter
+ * @extends Ext.ux.Exporter.Formatter
+ * Specialised Format class for outputting .xls files
+ */
+Ext.define("Ext.ux.exporter.excelFormatter.ExcelFormatter", {
+    extend: "Ext.ux.exporter.Formatter",
+    uses: [
+        "Ext.ux.exporter.excelFormatter.Cell",
+        "Ext.ux.exporter.excelFormatter.Style",
+        "Ext.ux.exporter.excelFormatter.Worksheet",
+        "Ext.ux.exporter.excelFormatter.Workbook"
+    ],
+    contentType: 'data:application/vnd.ms-excel;base64,',
+    extension: "xls",
+
+    format: function(store, config) {
+      var workbook = new Ext.ux.exporter.excelFormatter.Workbook(config);
+      workbook.addWorksheet(store, config || {});
+
+      return workbook.render();
+    }
+});
 /*
 This file is part of Ext JS 4.2
 
@@ -113953,6 +113799,643 @@ Ext.define('Ext.resizer.ResizeTracker', {
     }
 });
 
+/**
+ * @class Ext.ux.Exporter.ExcelFormatter.Cell
+ * @extends Object
+ * Represents a single cell in a worksheet
+ */
+
+Ext.define("Ext.ux.exporter.excelFormatter.Cell", {
+    constructor: function(config) {
+        Ext.applyIf(config, {
+          type: "String"
+        });
+
+        Ext.apply(this, config);
+
+        Ext.ux.exporter.excelFormatter.Cell.superclass.constructor.apply(this, arguments);
+    },
+
+    render: function() {
+        return this.tpl.apply(this);
+    },
+
+    tpl: new Ext.XTemplate(
+        '<ss:Cell ss:StyleID="{style}">',
+          '<ss:Data ss:Type="{type}"><![CDATA[{value}]]></ss:Data>',
+        '</ss:Cell>'
+    )
+});
+/**
+ * @class Ext.ux.Exporter.ExcelFormatter.Style
+ * @extends Object
+ * Represents a style declaration for a Workbook (this is like defining CSS rules). Example:
+ *
+ * new Ext.ux.Exporter.ExcelFormatter.Style({
+ *   attributes: [
+ *     {
+ *       name: "Alignment",
+ *       properties: [
+ *         {name: "Vertical", value: "Top"},
+ *         {name: "WrapText", value: "1"}
+ *       ]
+ *     },
+ *     {
+ *       name: "Borders",
+ *       children: [
+ *         name: "Border",
+ *         properties: [
+ *           {name: "Color", value: "#e4e4e4"},
+ *           {name: "Weight", value: "1"}
+ *         ]
+ *       ]
+ *     }
+ *   ]
+ * })
+ *
+ * @cfg {String} id The ID of this style (required)
+ * @cfg {Array} attributes The attributes for this style
+ * @cfg {String} parentStyle The (optional parentStyle ID)
+ */
+Ext.define("Ext.ux.exporter.excelFormatter.Style", {
+  constructor: function(config) {
+    config = config || {};
+
+    Ext.apply(this, config, {
+      parentStyle: '',
+      attributes : []
+    });
+
+    Ext.ux.exporter.excelFormatter.Style.superclass.constructor.apply(this, arguments);
+
+    if (this.id == undefined) throw new Error("An ID must be provided to Style");
+
+    this.preparePropertyStrings();
+  },
+
+  /**
+   * Iterates over the attributes in this style, and any children they may have, creating property
+   * strings on each suitable for use in the XTemplate
+   */
+  preparePropertyStrings: function() {
+    Ext.each(this.attributes, function(attr, index) {
+      this.attributes[index].propertiesString = this.buildPropertyString(attr);
+      this.attributes[index].children = attr.children || [];
+
+      Ext.each(attr.children, function(child, childIndex) {
+        this.attributes[index].children[childIndex].propertiesString = this.buildPropertyString(child);
+      }, this);
+    }, this);
+  },
+
+  /**
+   * Builds a concatenated property string for a given attribute, suitable for use in the XTemplate
+   */
+  buildPropertyString: function(attribute) {
+    var propertiesString = "";
+
+    Ext.each(attribute.properties || [], function(property) {
+      propertiesString += Ext.String.format('ss:{0}="{1}" ', property.name, property.value);
+    }, this);
+
+    return propertiesString;
+  },
+
+  render: function() {
+    return this.tpl.apply(this);
+  },
+
+  tpl: new Ext.XTemplate(
+    '<tpl if="parentStyle.length == 0">',
+      '<ss:Style ss:ID="{id}">',
+    '</tpl>',
+    '<tpl if="parentStyle.length != 0">',
+      '<ss:Style ss:ID="{id}" ss:Parent="{parentStyle}">',
+    '</tpl>',
+    '<tpl for="attributes">',
+      '<tpl if="children.length == 0">',
+        '<ss:{name} {propertiesString} />',
+      '</tpl>',
+      '<tpl if="children.length > 0">',
+        '<ss:{name} {propertiesString}>',
+          '<tpl for="children">',
+            '<ss:{name} {propertiesString} />',
+          '</tpl>',
+        '</ss:{name}>',
+      '</tpl>',
+    '</tpl>',
+    '</ss:Style>'
+  )
+});
+/**
+ * @class Ext.ux.Exporter.ExcelFormatter.Worksheet
+ * @extends Object
+ * Represents an Excel worksheet
+ * @cfg {Ext.data.Store} store The store to use (required)
+ */
+Ext.define("Ext.ux.exporter.excelFormatter.Worksheet", {
+
+  constructor: function(store, config) {
+    config = config || {};
+
+    this.store = store;
+
+    Ext.applyIf(config, {
+      hasTitle   : true,
+      hasHeadings: true,
+      stripeRows : true,
+
+      title      : "Workbook",
+      columns    : store.fields == undefined ? {} : store.fields.items
+    });
+    
+    Ext.apply(this, config);
+
+    Ext.ux.exporter.excelFormatter.Worksheet.superclass.constructor.apply(this, arguments);
+  },
+
+  /**
+   * @property dateFormatString
+   * @type String
+   * String used to format dates (defaults to "Y-m-d"). All other data types are left unmolested
+   */
+  dateFormatString: "Y-m-d",
+
+  worksheetTpl: new Ext.XTemplate(
+    '<ss:Worksheet ss:Name="{title}">',
+      '<ss:Names>',
+        '<ss:NamedRange ss:Name="Print_Titles" ss:RefersTo="=\'{title}\'!R1:R2" />',
+      '</ss:Names>',
+      '<ss:Table x:FullRows="1" x:FullColumns="1" ss:ExpandedColumnCount="{colCount}" ss:ExpandedRowCount="{rowCount}">',
+        '{columns}',
+        '<ss:Row ss:Height="38">',
+            '<ss:Cell ss:StyleID="title" ss:MergeAcross="{colCount - 1}">',
+              '<ss:Data xmlns:html="http://www.w3.org/TR/REC-html40" ss:Type="String">',
+                '<html:B><html:U><html:Font html:Size="15">{title}',
+                '</html:Font></html:U></html:B></ss:Data><ss:NamedCell ss:Name="Print_Titles" />',
+            '</ss:Cell>',
+        '</ss:Row>',
+        '<ss:Row ss:AutoFitHeight="1">',
+          '{header}',
+        '</ss:Row>',
+        '{rows}',
+      '</ss:Table>',
+      '<x:WorksheetOptions>',
+        '<x:PageSetup>',
+          '<x:Layout x:CenterHorizontal="1" x:Orientation="Landscape" />',
+          '<x:Footer x:Data="Page &amp;P of &amp;N" x:Margin="0.5" />',
+          '<x:PageMargins x:Top="0.5" x:Right="0.5" x:Left="0.5" x:Bottom="0.8" />',
+        '</x:PageSetup>',
+        '<x:FitToPage />',
+        '<x:Print>',
+          '<x:PrintErrors>Blank</x:PrintErrors>',
+          '<x:FitWidth>1</x:FitWidth>',
+          '<x:FitHeight>32767</x:FitHeight>',
+          '<x:ValidPrinterInfo />',
+          '<x:VerticalResolution>600</x:VerticalResolution>',
+        '</x:Print>',
+        '<x:Selected />',
+        '<x:DoNotDisplayGridlines />',
+        '<x:ProtectObjects>False</x:ProtectObjects>',
+        '<x:ProtectScenarios>False</x:ProtectScenarios>',
+      '</x:WorksheetOptions>',
+    '</ss:Worksheet>'
+  ),
+
+  /**
+   * Builds the Worksheet XML
+   * @param {Ext.data.Store} store The store to build from
+   */
+  render: function(store) {
+    return this.worksheetTpl.apply({
+      header  : this.buildHeader(),
+      columns : this.buildColumns().join(""),
+      rows    : this.buildRows().join(""),
+      colCount: this.columns.length,
+      rowCount: this.store.getCount() + 2,
+      title   : this.title
+    });
+  },
+
+  buildColumns: function() {
+    var cols = [];
+
+    Ext.each(this.columns, function(column) {
+      cols.push(this.buildColumn());
+    }, this);
+
+    return cols;
+  },
+
+  buildColumn: function(width) {
+    return Ext.String.format('<ss:Column ss:AutoFitWidth="1" ss:Width="{0}" />', width || 164);
+  },
+
+  buildRows: function() {
+    var rows = [];
+
+    this.store.each(function(record, index) {
+      rows.push(this.buildRow(record, index));
+    }, this);
+
+    return rows;
+  },
+
+  buildHeader: function() {
+    var cells = [];
+
+    Ext.each(this.columns, function(col) {
+      var title;
+
+      //if(col.dataIndex) {
+          if (col.text != undefined) {
+            title = col.text;
+          } else if(col.name) {
+            //make columns taken from Record fields (e.g. with a col.name) human-readable
+            title = col.name.replace(/_/g, " ");
+            title = Ext.String.capitalize(title);
+          }
+
+          cells.push(Ext.String.format('<ss:Cell ss:StyleID="headercell"><ss:Data ss:Type="String">{0}</ss:Data><ss:NamedCell ss:Name="Print_Titles" /></ss:Cell>', title));
+      //}
+    }, this);
+
+    return cells.join("");
+  },
+
+  buildRow: function(record, index) {
+    var style,
+        cells = [];
+    if (this.stripeRows === true) style = index % 2 == 0 ? 'even' : 'odd';
+
+    var iCol = 0;
+    Ext.each(this.columns, function(col) {
+      var name  = col.name || col.dataIndex;
+
+      if(typeof name !== 'undefined') {
+          //if given a renderer via a ColumnModel, use it and ensure data type is set to String
+          if (Ext.isFunction(col.renderer)) {
+            var value = col.renderer(record.get(name), {}, record, index, iCol++, this.store),
+                type = "String";
+          } else {
+            var value = record.get(name),
+                type  = this.typeMappings[col.type || record.fields.get(name).type.type];
+          }
+
+          cells.push(this.buildCell(value, type, style).render());
+      }
+    }, this);
+
+    return Ext.String.format("<ss:Row>{0}</ss:Row>", cells.join(""));
+  },
+
+  buildCell: function(value, type, style) {
+    if (type == "DateTime" && Ext.isFunction(value.format)) value = value.format(this.dateFormatString);
+
+    return new Ext.ux.exporter.excelFormatter.Cell({
+      value: value,
+      type : type,
+      style: style
+    });
+  },
+
+  /**
+   * @property typeMappings
+   * @type Object
+   * Mappings from Ext.data.Record types to Excel types
+   */
+  typeMappings: {
+    'int'   : "Number",
+    'string': "String",
+    'float' : "Number",
+    'date'  : "DateTime"
+  }
+});
+/**
+ * @class Ext.ux.Exporter.ExcelFormatter.Workbook
+ * @extends Object
+ * Represents an Excel workbook
+ */
+Ext.define("Ext.ux.exporter.excelFormatter.Workbook", {
+
+  constructor: function(config) {
+    config = config || {};
+
+    Ext.apply(this, config, {
+      /**
+       * @property title
+       * @type String
+       * The title of the workbook (defaults to "Workbook")
+       */
+      title: "Workbook",
+
+      /**
+       * @property worksheets
+       * @type Array
+       * The array of worksheets inside this workbook
+       */
+      worksheets: [],
+
+      /**
+       * @property compileWorksheets
+       * @type Array
+       * Array of all rendered Worksheets
+       */
+      compiledWorksheets: [],
+
+      /**
+       * @property cellBorderColor
+       * @type String
+       * The colour of border to use for each Cell
+       */
+      cellBorderColor: "#e4e4e4",
+
+      /**
+       * @property styles
+       * @type Array
+       * The array of Ext.ux.Exporter.ExcelFormatter.Style objects attached to this workbook
+       */
+      styles: [],
+
+      /**
+       * @property compiledStyles
+       * @type Array
+       * Array of all rendered Ext.ux.Exporter.ExcelFormatter.Style objects for this workbook
+       */
+      compiledStyles: [],
+
+      /**
+       * @property hasDefaultStyle
+       * @type Boolean
+       * True to add the default styling options to all cells (defaults to true)
+       */
+      hasDefaultStyle: true,
+
+      /**
+       * @property hasStripeStyles
+       * @type Boolean
+       * True to add the striping styles (defaults to true)
+       */
+      hasStripeStyles: true,
+
+      windowHeight    : 9000,
+      windowWidth     : 50000,
+      protectStructure: false,
+      protectWindows  : false
+    });
+
+    if (this.hasDefaultStyle) this.addDefaultStyle();
+    if (this.hasStripeStyles) this.addStripedStyles();
+
+    this.addTitleStyle();
+    this.addHeaderStyle();
+  },
+
+  render: function() {
+    this.compileStyles();
+    this.joinedCompiledStyles = this.compiledStyles.join("");
+
+    this.compileWorksheets();
+    this.joinedWorksheets = this.compiledWorksheets.join("");
+
+    return this.tpl.apply(this);
+  },
+
+  /**
+   * Adds a worksheet to this workbook based on a store and optional config
+   * @param {Ext.data.Store} store The store to initialize the worksheet with
+   * @param {Object} config Optional config object
+   * @return {Ext.ux.Exporter.ExcelFormatter.Worksheet} The worksheet
+   */
+  addWorksheet: function(store, config) {
+    var worksheet = new Ext.ux.exporter.excelFormatter.Worksheet(store, config);
+
+    this.worksheets.push(worksheet);
+
+    return worksheet;
+  },
+
+  /**
+   * Adds a new Ext.ux.Exporter.ExcelFormatter.Style to this Workbook
+   * @param {Object} config The style config, passed to the Style constructor (required)
+   */
+  addStyle: function(config) {
+    var style = new Ext.ux.exporter.excelFormatter.Style(config || {});
+
+    this.styles.push(style);
+
+    return style;
+  },
+
+  /**
+   * Compiles each Style attached to this Workbook by rendering it
+   * @return {Array} The compiled styles array
+   */
+  compileStyles: function() {
+    this.compiledStyles = [];
+
+    Ext.each(this.styles, function(style) {
+      this.compiledStyles.push(style.render());
+    }, this);
+
+    return this.compiledStyles;
+  },
+
+  /**
+   * Compiles each Worksheet attached to this Workbook by rendering it
+   * @return {Array} The compiled worksheets array
+   */
+  compileWorksheets: function() {
+    this.compiledWorksheets = [];
+
+    Ext.each(this.worksheets, function(worksheet) {
+      this.compiledWorksheets.push(worksheet.render());
+    }, this);
+
+    return this.compiledWorksheets;
+  },
+
+  tpl: new Ext.XTemplate(
+    '<?xml version="1.0" encoding="utf-8"?>',
+    '<ss:Workbook xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:o="urn:schemas-microsoft-com:office:office">',
+      '<o:DocumentProperties>',
+        '<o:Title>{title}</o:Title>',
+      '</o:DocumentProperties>',
+      '<ss:ExcelWorkbook>',
+        '<ss:WindowHeight>{windowHeight}</ss:WindowHeight>',
+        '<ss:WindowWidth>{windowWidth}</ss:WindowWidth>',
+        '<ss:ProtectStructure>{protectStructure}</ss:ProtectStructure>',
+        '<ss:ProtectWindows>{protectWindows}</ss:ProtectWindows>',
+      '</ss:ExcelWorkbook>',
+      '<ss:Styles>',
+        '{joinedCompiledStyles}',
+      '</ss:Styles>',
+        '{joinedWorksheets}',
+    '</ss:Workbook>'
+  ),
+
+  /**
+   * Adds the default Style to this workbook. This sets the default font face and size, as well as cell borders
+   */
+  addDefaultStyle: function() {
+    var borderProperties = [
+      {name: "Color",     value: this.cellBorderColor},
+      {name: "Weight",    value: "1"},
+      {name: "LineStyle", value: "Continuous"}
+    ];
+
+    this.addStyle({
+      id: 'Default',
+      attributes: [
+        {
+          name: "Alignment",
+          properties: [
+            {name: "Vertical", value: "Top"},
+            {name: "WrapText", value: "1"}
+          ]
+        },
+        {
+          name: "Font",
+          properties: [
+            {name: "FontName", value: "arial"},
+            {name: "Size",     value: "10"}
+          ]
+        },
+        {name: "Interior"}, {name: "NumberFormat"}, {name: "Protection"},
+        {
+          name: "Borders",
+          children: [
+            {
+              name: "Border",
+              properties: [{name: "Position", value: "Top"}].concat(borderProperties)
+            },
+            {
+              name: "Border",
+              properties: [{name: "Position", value: "Bottom"}].concat(borderProperties)
+            },
+            {
+              name: "Border",
+              properties: [{name: "Position", value: "Left"}].concat(borderProperties)
+            },
+            {
+              name: "Border",
+              properties: [{name: "Position", value: "Right"}].concat(borderProperties)
+            }
+          ]
+        }
+      ]
+    });
+  },
+
+  addTitleStyle: function() {
+    this.addStyle({
+      id: "title",
+      attributes: [
+        {name: "Borders"},
+        {name: "Font"},
+        {
+          name: "NumberFormat",
+          properties: [
+            {name: "Format", value: "@"}
+          ]
+        },
+        {
+          name: "Alignment",
+          properties: [
+            {name: "WrapText",   value: "1"},
+            {name: "Horizontal", value: "Center"},
+            {name: "Vertical",   value: "Center"}
+          ]
+        }
+      ]
+    });
+  },
+
+  addHeaderStyle: function() {
+    this.addStyle({
+      id: "headercell",
+      attributes: [
+        {
+          name: "Font",
+          properties: [
+            {name: "Bold", value: "1"},
+            {name: "Size", value: "10"}
+          ]
+        },
+        {
+          name: "Interior",
+          properties: [
+            {name: "Pattern", value: "Solid"},
+            {name: "Color",   value: "#A3C9F1"}
+          ]
+        },
+        {
+          name: "Alignment",
+          properties: [
+            {name: "WrapText",   value: "1"},
+            {name: "Horizontal", value: "Center"}
+          ]
+        }
+      ]
+    });
+  },
+
+  /**
+   * Adds the default striping styles to this workbook
+   */
+  addStripedStyles: function() {
+    this.addStyle({
+      id: "even",
+      attributes: [
+        {
+          name: "Interior",
+          properties: [
+            {name: "Pattern", value: "Solid"},
+            {name: "Color",   value: "#CCFFFF"}
+          ]
+        }
+      ]
+    });
+
+    this.addStyle({
+      id: "odd",
+      attributes: [
+        {
+          name: "Interior",
+          properties: [
+            {name: "Pattern", value: "Solid"},
+            {name: "Color",   value: "#CCCCFF"}
+          ]
+        }
+      ]
+    });
+
+    Ext.each(['even', 'odd'], function(parentStyle) {
+      this.addChildNumberFormatStyle(parentStyle, parentStyle + 'date', "[ENG][$-409]dd\-mmm\-yyyy;@");
+      this.addChildNumberFormatStyle(parentStyle, parentStyle + 'int', "0");
+      this.addChildNumberFormatStyle(parentStyle, parentStyle + 'float', "0.00");
+    }, this);
+  },
+
+  /**
+   * Private convenience function to easily add a NumberFormat style for a given parentStyle
+   * @param {String} parentStyle The ID of the parentStyle Style
+   * @param {String} id The ID of the new style
+   * @param {String} value The value of the NumberFormat's Format property
+   */
+  addChildNumberFormatStyle: function(parentStyle, id, value) {
+    this.addStyle({
+      id: id,
+      parentStyle: "even",
+      attributes: [
+        {
+          name: "NumberFormat",
+          properties: [{name: "Format", value: value}]
+        }
+      ]
+    });
+  }
+});
 /*
 This file is part of Ext JS 4.2
 

@@ -11,8 +11,8 @@ Ext.define('JCertifBO.store.AdminOptions', {
         {name: 'Sponsors', createUrl: '/sponsor/new', loadUrl: '/sponsor/list', updateUrl: '/sponsor/update', removeUrl: '/sponsor/remove', model: 'JCertifBO.model.Sponsor', grid: 'sponsorgrid'},
         {name: 'Sites', createUrl: '/site/new', loadUrl: '/site/list', updateUrl: '/site/update', removeUrl: '/site/remove', model: 'JCertifBO.model.Site', grid: 'sitegrid'},
         {name: 'Salles', createUrl: '/room/new', loadUrl: '/room/list', updateUrl: '/room/update', removeUrl: '/room/remove', model: 'JCertifBO.model.Room', grid: 'roomgrid'},
-        {name: 'Sessions', createUrl: '/session/new', loadUrl: '/session/list', updateUrl: '/session/update', removeUrl: '/session/remove', model: 'JCertifBO.model.Session', grid: 'sessiongrid'},
-        {name: 'Pr&eacute;sentateurs', createUrl: '/speaker/register', loadUrl: '/speaker/list', updateUrl: '/speaker/update', removeUrl: '/speaker/remove', model: 'JCertifBO.model.Speaker', grid: 'speakergrid'},
+        {name: 'Sessions', createUrl: '/session/new', loadUrl: '/admin/session/list', updateUrl: '/session/update', removeUrl: '/session/remove', model: 'JCertifBO.model.Session', grid: 'sessiongrid'},
+        {name: 'Pr&eacute;sentateurs', createUrl: '/speaker/register', loadUrl: '/admin/speaker/list', updateUrl: '/speaker/update', removeUrl: '/speaker/remove', model: 'JCertifBO.model.Speaker', grid: 'speakergrid'},
         {name: 'Participants', createUrl: '/participant/register', loadUrl: '/participant/list', updateUrl: '/participant/update', removeUrl: '/participant/remove', model: 'JCertifBO.model.Participant', grid: 'participantgrid'}
     ]
 });

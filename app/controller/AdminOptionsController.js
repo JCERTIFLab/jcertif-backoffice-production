@@ -55,12 +55,14 @@ Ext.define('JCertifBO.controller.AdminOptionsController', {
         this.getOptionShow().removeAll();
         this.getOptionShow().add({xtype: gridName, flex: 1});
         var grid = this.getGrid(gridName);
-            
+        
+        Ext.Ajax.useDefaultXhrHeader = false;
+        Ext.Ajax.cors = true;    
         var store = Ext.create('Ext.data.Store', {
             model: option.get('model'),
             proxy: {
                 type: 'ajax',
-                url : BACKEND_URL + option.get('loadUrl'),
+                url : BACKEND_URL + option.get('loadUrl') + '?access_token=' + Ext.util.Cookies.get('access_token') + '&provider=' + Ext.util.Cookies.get('provider') + '&user=' + Ext.util.Cookies.get('user'),
                 reader: {
                     type: 'json'
                 }

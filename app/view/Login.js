@@ -61,6 +61,16 @@ Ext.define('JCertifBO.view.Login', {
 			} ]
 		} ];
 		this.buttons = [ {
+			cls : 'google-auth-icon',
+			action : 'googleplus-login',
+			autoWidth : true,
+      autoHeight : true
+		},{
+			cls : 'github-auth-icon',
+			action : 'github-login',
+			autoWidth : true,
+      autoHeight : true
+		},{
 			text : 'Reset',
 			action : 'reset'
 		}, {

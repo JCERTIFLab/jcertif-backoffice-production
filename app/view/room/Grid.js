@@ -4,18 +4,13 @@ Ext.define("JCertifBO.view.room.Grid", {
     
     cls: 'admin-options-grid',
 
-    requires: ['Ext.grid.plugin.RowEditing', 'Ext.toolbar.Toolbar'],
+    requires: ['Ext.toolbar.Toolbar'],
     
     border: false,
     
     store : 'Sites',
     
     initComponent: function() {
-        
-        var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-            clicksToEdit: 2,
-            autoCancel: false,
-        });
         
         Ext.apply(this, {
             store: this.store,
@@ -24,38 +19,27 @@ Ext.define("JCertifBO.view.room.Grid", {
                 text: 'Id',
                 dataIndex: 'id',
                 flex: 1,
-                editor: 'textfield',
                 hidden: true
             }, {
                 text: 'Name',
                 dataIndex: 'name',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Site',
                 dataIndex: 'site',
-                flex: 1,
-                editor: {
-                  xtype: 'combo',
-                  store: this.store,
-        					displayField: 'name',
-                  valueField: 'id',
-                }
+                flex: 1
             }, {
                 text: 'Seats',
                 dataIndex: 'seats',
-                flex: 1,
-                editor: 'numberfield'
+                flex: 1
             }, {
                 text: 'Description',
                 dataIndex: 'description',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Photo',
                 dataIndex: 'photo',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'version',
                 dataIndex: 'version',
@@ -86,8 +70,7 @@ Ext.define("JCertifBO.view.room.Grid", {
                     action: 'refresh'
                 }]
             }],
-            
-            plugins: [rowEditing],
+
             listeners: {
                 'selectionchange': function(selectionModel, records) {
                   this.down('#removeRoom').setDisabled(!records.length);

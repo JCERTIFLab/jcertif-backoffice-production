@@ -3,17 +3,20 @@ Ext.define("JCertifBO.view.AppHeader", {
     alias: 'widget.appheader',
     layout: 'hbox',
     cls: 'app-header',
-    
+  
     items: [{
         xtype: 'component',
         autoEl: {
             tag: 'h1'
         },
-        html: 'JCertif BackOffice',
+        html: 'JCertif BackOffice v' + VERSION,
         flex: 1
     },{
+        cls: 'logout-icon',
         xtype: 'button',
-        text: 'D&eacute;connexion',
-        action: 'logout'
+        action: 'logout',
+        tooltip: 'Logout',
+        autoWidth : true,
+        autoHeight : true
     }]
 });

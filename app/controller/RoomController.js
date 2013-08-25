@@ -6,19 +6,21 @@ Ext.define('JCertifBO.controller.RoomController', {
     
     views: [
         'room.Grid',
-        'room.Add'
+        'room.Add',
+        'room.Edit'
     ],
 
 
     refs: [
         {ref: 'viewer', selector: 'viewer'},
-        {ref: 'roomGrid', selector: 'roomgrid'}
+        {ref: 'roomGrid', selector: 'roomgrid'},
+        {ref: 'roomFormSites', selector: 'roomform combo#site'}
     ],
     
     init: function() {
         this.control({
             'roomgrid': {
-                edit: this.updateRoom
+                itemdblclick: this.showEditRoomView
             },
             'roomgrid button[action=add]': {
                 click: this.showAddRoomView
@@ -26,20 +28,33 @@ Ext.define('JCertifBO.controller.RoomController', {
             'roomgrid button[action=refresh]': {
                 click: this.refreshRoomGrid
             },
+      			'roomgrid button[action=remove]' : {
+      				  click : this.removeRoom
+      			},
             'roomadd button[action=add]' : {
       				  click : this.addRoom
       			},
       			'roomadd button[action=cancel]' : {
       				  click : this.cancel
       			},
-      			'roomgrid button[action=remove]' : {
-      				  click : this.removeRoom
+            'roomedit button[action=save]' : {
+      				  click : this.updateRoom
+      			},
+      			'roomedit button[action=cancel]' : {
+      				  click : this.cancel
       			}
         });
     },
     
     showAddRoomView: function(btn){
       Ext.create('JCertifBO.view.room.Add');
+      this.getRoomFormSites().bindStore(this.getSitesStore());
+    },
+    
+    showEditRoomView: function(grid, record){
+      var view = Ext.create('JCertifBO.view.room.Edit');
+      view.down('form').loadRecord(record);
+      this.getRoomFormSites().bindStore(this.getSitesStore());
     },
     
     refreshRoomGrid: function(btn){
@@ -53,11 +68,13 @@ Ext.define('JCertifBO.controller.RoomController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider')
       });
+      var controller = this;
   		if (form.isValid()) {
   			Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getRoomGrid().getStore().model.modelName).get('createUrl'),
   				jsonData : Ext.JSON.encode(form.getValues()),
   				success : function(response) {
+  				  controller.getRoomGrid().getStore().load();
             win.close();														
   				},
   				failure : function(response) {
@@ -80,10 +97,12 @@ Ext.define('JCertifBO.controller.RoomController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider'),
       };
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getRoomGrid().getStore().model.modelName).get('removeUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getRoomGrid().getStore().load();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; supprim&eacute;",
@@ -103,8 +122,12 @@ Ext.define('JCertifBO.controller.RoomController', {
     },
     
     updateRoom: function(btn){
-      var room = this.getRoomGrid().getSelectionModel().getSelection()[0];
-      var data = room.data;
+     var win    = btn.up('window'),
+        form   = win.down('form'),
+        values = form.getValues(),
+        room = this.getRoomGrid().getSelectionModel().getSelection()[0];
+      
+      var data = values;
       //on rajoute la version de l'objet avant modification
       data['version'] = room.raw['version'];
       data['id'] = room.raw['id'];
@@ -112,10 +135,14 @@ Ext.define('JCertifBO.controller.RoomController', {
       data['access_token'] = Ext.util.Cookies.get('access_token');
       data['provider'] = Ext.util.Cookies.get('provider');
 
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getRoomGrid().getStore().model.modelName).get('updateUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
+  				  controller.getRoomGrid().getStore().removeAll();
+  				  controller.getRoomGrid().getStore().load();
+  				  win.close();
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; sauvegard&eacute;",

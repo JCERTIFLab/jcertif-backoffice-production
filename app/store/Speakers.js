@@ -4,7 +4,7 @@ Ext.define('JCertifBO.store.Speakers', {
 	proxy: {
       type: 'ajax',
       api: {
-          read: BACKEND_URL + '/speaker/list',
+          read: BACKEND_URL + '/admin/speaker/list' + '?access_token=' + Ext.util.Cookies.get('access_token') + '&provider=' + Ext.util.Cookies.get('provider') + '&user=' + Ext.util.Cookies.get('user'),
           create: BACKEND_URL + '/speaker/register',
           update: BACKEND_URL + '/speaker/update',
           destroy: BACKEND_URL + '/speaker/remove'

@@ -5,7 +5,6 @@ Ext.define("JCertifBO.view.sponsor.Grid", {
     cls: 'admin-options-grid',
 
     requires: [
-        'Ext.grid.plugin.RowEditing', 
         'Ext.toolbar.Toolbar',
         'Ext.form.field.ComboBox',
         'JCertifBO.store.Countries',
@@ -16,90 +15,45 @@ Ext.define("JCertifBO.view.sponsor.Grid", {
     
     initComponent: function() {
         
-        var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-            clicksToEdit: 2,
-            autoCancel: false,
-        });
-        
         Ext.apply(this, {
             store: this.store,
 
             columns: [{
                 text: 'Email',
                 dataIndex: 'email',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Name',
                 dataIndex: 'name',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Logo',
                 dataIndex: 'logo',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Level',
                 dataIndex: 'level',
-                flex: 1,
-                editor: {
-                  xtype: 'combo',
-                  store: Ext.create('JCertifBO.store.SponsorLevels'),
-        					displayField: 'label',
-                  valueField: 'label',
-                }
+                flex: 1
             }, {
                 text: 'Website',
                 dataIndex: 'website',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'Country',
                 dataIndex: 'country',
-                flex: 1,
-                editor: {
-                  xtype : 'combo',
-                  store: Ext.create('JCertifBO.store.Countries'),
-        					queryMode: 'local',
-        					triggerAction: 'all',
-        					displayField: 'country',
-                  valueField: 'cid',
-                  listeners:{
-                    select:function(combo, value) {
-                      var comboCity = Ext.getCmp('grid-combo-city'); 
-                      comboCity.enable();       
-                      comboCity.clearValue();
-                      comboCity.store.clearFilter(true);
-                      comboCity.store.filter('cid',  combo.getValue());
-                    }
-                  }
-                }
+                flex: 1
             }, {
                 text: 'City',
                 dataIndex: 'city',
-                flex: 1,
-                editor: {
-                  xtype : 'combo',
-                  id:'grid-combo-city',
-        					store: Ext.create('JCertifBO.store.Cities'),
-        					queryMode: 'local',
-        					triggerAction: 'all',
-        					disabled: true,
-        					displayField: 'city',
-                  valueField: 'city',
-                  lastQuery: ''
-                }
+                flex: 1
             }, {
                 text: 'Phone',
                 dataIndex: 'phone',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'About',
                 dataIndex: 'about',
-                flex: 1,
-                editor: 'textfield'
+                flex: 1
             }, {
                 text: 'version',
                 dataIndex: 'version',
@@ -130,8 +84,7 @@ Ext.define("JCertifBO.view.sponsor.Grid", {
                     action: 'refresh'
                 }]
             }],
-            
-            plugins: [rowEditing],
+
             listeners: {
                 'selectionchange': function(selectionModel, records) {
                   this.down('#removeSponsor').setDisabled(!records.length);
