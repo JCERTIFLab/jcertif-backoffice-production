@@ -3,7 +3,7 @@ Ext.define("JCertifBO.view.sponsor.Edit", {
   	alias : 'widget.sponsoredit',
   	title : "Mise &agrave; jour d'un sponsor",
   	width : 400,
-  	height : 400,
+  	height : 500,
   	autoShow : true,
   	closable : true,
   	draggable : true,

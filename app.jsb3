@@ -665,6 +665,16 @@
                     "path": "app/view/speaker/"
                 },
                 {
+                    "clsName": "JCertifBO.view.country.Add",
+                    "name": "Add.js",
+                    "path": "app/view/country/"
+                },
+                {
+                    "clsName": "JCertifBO.view.city.Add",
+                    "name": "Add.js",
+                    "path": "app/view/city/"
+                },
+                {
                     "clsName": "Ext.ux.exporter.Exporter",
                     "name": "Exporter.js",
                     "path": "ext/src/ux//exporter/"
@@ -925,16 +935,6 @@
                     "path": "app/store/"
                 },
                 {
-                    "clsName": "JCertifBO.store.Countries",
-                    "name": "Countries.js",
-                    "path": "app/store/"
-                },
-                {
-                    "clsName": "JCertifBO.store.Cities",
-                    "name": "Cities.js",
-                    "path": "app/store/"
-                },
-                {
                     "clsName": "Ext.view.TableLayout",
                     "name": "TableLayout.js",
                     "path": "../../JCertif%20Backoffice%202013%20-%20PROD/jcertif-backoffice-production/ext/src/view/"
@@ -1045,6 +1045,16 @@
                     "path": "app/view/participant/"
                 },
                 {
+                    "clsName": "JCertifBO.view.country.Grid",
+                    "name": "Grid.js",
+                    "path": "app/view/country/"
+                },
+                {
+                    "clsName": "JCertifBO.view.city.Grid",
+                    "name": "Grid.js",
+                    "path": "app/view/city/"
+                },
+                {
                     "clsName": "Ext.form.field.Spinner",
                     "name": "Spinner.js",
                     "path": "../../JCertif%20Backoffice%202013%20-%20PROD/jcertif-backoffice-production/ext/src/form/field/"
@@ -1073,16 +1083,6 @@
                     "clsName": "Ext.form.field.ComboBox",
                     "name": "ComboBox.js",
                     "path": "../../JCertif%20Backoffice%202013%20-%20PROD/jcertif-backoffice-production/ext/src/form/field/"
-                },
-                {
-                    "clsName": "JCertifBO.view.sponsor.Grid",
-                    "name": "Grid.js",
-                    "path": "app/view/sponsor/"
-                },
-                {
-                    "clsName": "JCertifBO.view.site.Grid",
-                    "name": "Grid.js",
-                    "path": "app/view/site/"
                 },
                 {
                     "clsName": "Ext.form.field.TextArea",
@@ -1280,11 +1280,6 @@
                     "path": "app/model/"
                 },
                 {
-                    "clsName": "JCertifBO.controller.SiteController",
-                    "name": "SiteController.js",
-                    "path": "app/controller/"
-                },
-                {
                     "clsName": "JCertifBO.model.Room",
                     "name": "Room.js",
                     "path": "app/model/"
@@ -1303,6 +1298,51 @@
                     "clsName": "JCertifBO.model.Participant",
                     "name": "Participant.js",
                     "path": "app/model/"
+                },
+                {
+                    "clsName": "JCertifBO.model.Country",
+                    "name": "Country.js",
+                    "path": "app/model/"
+                },
+                {
+                    "clsName": "JCertifBO.controller.CountryController",
+                    "name": "CountryController.js",
+                    "path": "app/controller/"
+                },
+                {
+                    "clsName": "JCertifBO.model.City",
+                    "name": "City.js",
+                    "path": "app/model/"
+                },
+                {
+                    "clsName": "JCertifBO.store.Countries",
+                    "name": "Countries.js",
+                    "path": "app/store/"
+                },
+                {
+                    "clsName": "JCertifBO.controller.CityController",
+                    "name": "CityController.js",
+                    "path": "app/controller/"
+                },
+                {
+                    "clsName": "JCertifBO.store.Cities",
+                    "name": "Cities.js",
+                    "path": "app/store/"
+                },
+                {
+                    "clsName": "JCertifBO.view.sponsor.Grid",
+                    "name": "Grid.js",
+                    "path": "app/view/sponsor/"
+                },
+                {
+                    "clsName": "JCertifBO.view.site.Grid",
+                    "name": "Grid.js",
+                    "path": "app/view/site/"
+                },
+                {
+                    "clsName": "JCertifBO.controller.SiteController",
+                    "name": "SiteController.js",
+                    "path": "app/controller/"
                 },
                 {
                     "clsName": "JCertifBO.store.Sites",

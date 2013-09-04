@@ -94,6 +94,10 @@ Ext.define("JCertifBO.view.participant.Grid", {
                     iconCls: 'admin-options-refresh',
                     text: 'Refresh',
                     action: 'refresh'
+                },{
+                    iconCls: 'email-send',
+                    text: 'Send Welcome Email',
+                    action: 'welcome-email'
                 }]
             }],
 

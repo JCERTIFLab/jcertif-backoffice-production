@@ -3,7 +3,7 @@ Ext.define("JCertifBO.view.participant.Add", {
   	alias : 'widget.participantadd',
   	title : "Ajout d'un nouveau participant",
   	width : 400,
-  	height : 500,
+  	height : 600,
   	autoShow : true,
   	closable : true,
   	draggable : true,

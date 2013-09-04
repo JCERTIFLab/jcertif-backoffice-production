@@ -66,6 +66,10 @@
     background: url(../images/image_add.png) no-repeat 0 0 !important;
 }
 
+.email-send {
+    background: url(../images/email_go.png) no-repeat 0 0 !important;
+}
+
 .x-message-box .ext-mb-upload {
     background: url("../images/download.gif") no-repeat scroll 6px 0px transparent;
     height: 52px!important;

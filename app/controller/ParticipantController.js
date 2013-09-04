@@ -35,6 +35,9 @@ Ext.define('JCertifBO.controller.ParticipantController', {
       			'participantgrid button[action=remove]' : {
       				  click : this.removeParticipant
       			},
+      			'participantgrid button[action=welcome-email]' : {
+      				  click : this.sendWelcomeEmail
+      			},
             'participantadd button[action=add]' : {
       				  click : this.addParticipant
       			},
@@ -156,6 +159,39 @@ Ext.define('JCertifBO.controller.ParticipantController', {
             Ext.MessageBox.show({
   						title : 'Message',
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; sauvegard&eacute;",
+  						buttons : Ext.MessageBox.OK,
+  						icon : Ext.MessageBox.INFO
+  					});														
+  				},
+  				failure : function(response) {
+  					Ext.MessageBox.show({
+  						title : 'Error',
+  						msg : response.responseText,
+  						buttons : Ext.MessageBox.OK,
+  						icon : Ext.MessageBox.ERROR
+  					});
+  				}
+  			});
+    },
+    
+    sendWelcomeEmail: function(btn){
+      var participant = this.getParticipantGrid().getSelectionModel().getSelection()[0];
+        
+      var data = {};
+      //on rajoute la version de l'objet avant modification
+      data['email'] = participant.raw['email'];
+      data['user'] = Ext.util.Cookies.get('user');
+      data['access_token'] = Ext.util.Cookies.get('access_token');
+      data['provider'] = Ext.util.Cookies.get('provider');
+
+      var controller = this;
+      Ext.Ajax.request({
+  				url : BACKEND_URL + '/admin/email/welcome',
+  				jsonData : Ext.JSON.encode(data),
+  				success : function(response) {
+            Ext.MessageBox.show({
+  						title : 'Message',
+  						msg : "L'email de bienvenue a bien &eacute;t&eacute; envoy&eacute;",
   						buttons : Ext.MessageBox.OK,
   						icon : Ext.MessageBox.INFO
   					});														

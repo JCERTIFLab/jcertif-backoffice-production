@@ -1,49 +1,49 @@
-Ext.define('JCertifBO.controller.ReferentielController', {
+Ext.define('JCertifBO.controller.CountryController', {
     extend: 'Ext.app.Controller',
     
     stores: ['AdminOptions'],
-    models: ['AdminOption', 'Referentiel'],
+    models: ['AdminOption', 'Country'],
     
     views: [
-        'referentiel.Grid',
-        'referentiel.Add'
+        'country.Grid',
+        'country.Add'
     ],
 
 
     refs: [
         {ref: 'viewer', selector: 'viewer'},
-        {ref: 'referentielGrid', selector: 'referentielgrid'}
+        {ref: 'countryGrid', selector: 'countrygrid'}
     ],
     
     init: function() {
         this.control({
-            'referentielgrid button[action=add]': {
-                click: this.showAddReferentielView
+            'countrygrid button[action=add]': {
+                click: this.showAddCountryView
             },
-            'referentielgrid button[action=refresh]': {
-                click: this.refreshReferentielGrid
+            'countrygrid button[action=refresh]': {
+                click: this.refreshCountryGrid
             },
-            'referentieladd button[action=add]' : {
-      				  click : this.addReferentiel
+            'countryadd button[action=add]' : {
+      				  click : this.addCountry
       			},
-      			'referentieladd button[action=cancel]' : {
+      			'countryadd button[action=cancel]' : {
       				  click : this.cancel
       			},
-      			'referentielgrid button[action=remove]' : {
-      				  click : this.removeReferentiel
+      			'countrygrid button[action=remove]' : {
+      				  click : this.removeCountry
       			}
         });
     },
     
-    showAddReferentielView: function(btn){
-      Ext.create('JCertifBO.view.referentiel.Add');
+    showAddCountryView: function(btn){
+      Ext.create('JCertifBO.view.country.Add');
     },
     
-    refreshReferentielGrid: function(btn){
-      this.getReferentielGrid().getStore().load();
+    refreshCountryGrid: function(btn){
+      this.getCountryGrid().getStore().load();
     },
     
-    addReferentiel: function(btn){
+    addCountry: function(btn){
       var win = btn.up('window'), form = win.down('form').getForm();
       form.setValues({
         user: Ext.util.Cookies.get('user'),
@@ -53,10 +53,10 @@ Ext.define('JCertifBO.controller.ReferentielController', {
       var controller = this;
   		if (form.isValid()) {
   			Ext.Ajax.request({
-  				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getReferentielGrid().getStore().model.modelName).get('createUrl'),
+  				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getCountryGrid().getStore().model.modelName).get('createUrl'),
   				jsonData : Ext.JSON.encode(form.getValues()),
   				success : function(response) {
-  				  controller.getReferentielGrid().getStore().load();
+  				  controller.getCountryGrid().getStore().load();
             win.close();														
   				},
   				failure : function(response) {
@@ -71,17 +71,17 @@ Ext.define('JCertifBO.controller.ReferentielController', {
   		}
     },
     
-    removeReferentiel: function(btn){
-      var referentiel = this.getReferentielGrid().getSelectionModel().getSelection()[0];
+    removeCountry: function(btn){
+      var country = this.getCountryGrid().getSelectionModel().getSelection()[0];
       var data = {
-        label: referentiel.data.label,
+        name: country.data.name,
         user: Ext.util.Cookies.get('user'),
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider'),
       };
       var controller = this;
       Ext.Ajax.request({
-  				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getReferentielGrid().getStore().model.modelName).get('removeUrl'),
+  				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getCountryGrid().getStore().model.modelName).get('removeUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
             Ext.MessageBox.show({
@@ -90,7 +90,7 @@ Ext.define('JCertifBO.controller.ReferentielController', {
   						buttons : Ext.MessageBox.OK,
   						icon : Ext.MessageBox.INFO
   					});		
-            controller.getReferentielGrid().getStore().load();												
+            controller.getCountryGrid().getStore().load();												
   				},
   				failure : function(response) {
   					Ext.MessageBox.show({

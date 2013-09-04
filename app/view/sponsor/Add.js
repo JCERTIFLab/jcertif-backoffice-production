@@ -3,7 +3,7 @@ Ext.define("JCertifBO.view.sponsor.Add", {
   	alias : 'widget.sponsoradd',
   	title : "Ajout d'un nouveau sponsor",
   	width : 400,
-  	height : 400,
+  	height : 500,
   	autoShow : true,
   	closable : true,
   	draggable : true,

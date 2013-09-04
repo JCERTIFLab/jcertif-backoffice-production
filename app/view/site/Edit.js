@@ -3,7 +3,7 @@ Ext.define("JCertifBO.view.site.Edit", {
   	alias : 'widget.siteedit',
   	title : "Mise &agrave; jour d'un site",
   	width : 400,
-  	height : 450,
+  	height : 500,
   	autoShow : true,
   	closable : true,
   	draggable : true,

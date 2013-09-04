@@ -54505,6 +54505,134 @@ Ext.define("JCertifBO.view.speaker.Export", {
   		this.callParent(arguments);
   	}
 });
+Ext.define("JCertifBO.view.country.Add", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.countryadd',
+  	title : "Rajout d'un nouveau pays",
+  	width : 350,
+  	height : 200,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  
+  	initComponent : function() {
+  
+  		this.items = [ {
+  			xtype : 'form',
+  			border : 0,
+  			items : [ {
+  					xtype : 'textfield',
+  					fieldLabel : 'Name',
+  					name : 'name',
+  					itemId : 'name',
+  					emptyText : 'name',
+  					allowblank : false,
+  				},{
+  					xtype : 'textfield',
+  					name : 'provider',
+  					itemId : 'provider',
+  					hidden: true
+  				},{
+  					xtype : 'textfield',
+  					name : 'user',
+  					itemId : 'user',
+  					hidden: true
+  				},{
+  					xtype : 'textfield',
+  					name : 'access_token',
+  					itemId : 'access_token',
+  					hidden: true
+  				}]
+  		} ];
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Add',
+  			action : 'add'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
+Ext.define("JCertifBO.view.city.Add", {
+    extend : 'Ext.window.Window',
+  	alias : 'widget.cityadd',
+  	title : "Rajout d'une nouvelle ville",
+  	width : 350,
+  	height : 230,
+  	autoShow : true,
+  	closable : true,
+  	draggable : true,
+  	shadow : 'frame',
+  	shadowOffset : 10,
+  	padding : 10,
+  	bodyPadding : 10,
+  	layout : {
+  		type : 'vbox',
+  		align : 'center',
+  		pack : 'center'
+  	},
+  
+  	initComponent : function() {
+  
+  		this.items = [ {
+  			xtype : 'form',
+  			border : 0,
+  			items : [ {
+  					xtype : 'textfield',
+  					fieldLabel : 'Name',
+  					name : 'name',
+  					itemId : 'name',
+  					emptyText : 'name',
+  					allowblank : false,
+  				},{
+  				  xtype : 'combo',
+  					fieldLabel : 'Country',
+      			store: this.store,
+      			displayField: 'name',
+            valueField: 'cid',
+      			name : 'cid',
+      			itemId : 'country',
+      			emptyText : 'country',
+      			allowblank : false
+  				},{
+  					xtype : 'textfield',
+  					name : 'provider',
+  					itemId : 'provider',
+  					hidden: true
+  				},{
+  					xtype : 'textfield',
+  					name : 'user',
+  					itemId : 'user',
+  					hidden: true
+  				},{
+  					xtype : 'textfield',
+  					name : 'access_token',
+  					itemId : 'access_token',
+  					hidden: true
+  				}]
+  		} ];
+  		this.buttons = [ {
+  			text : 'Cancel',
+  			action : 'cancel'
+  		}, {
+  			text : 'Add',
+  			action : 'add'
+  		} ];
+  
+  		this.callParent(arguments);
+  	}
+});
 /**
  * @class Ext.ux.Exporter
  * @author Ed Spencer (http://edspencer.net), with modifications from iwiznia.
@@ -75216,6 +75344,8 @@ Ext.define('JCertifBO.store.AdminOptions', {
         {name: 'Statuts de session', createUrl: '/ref/sessionstatus/new', loadUrl: '/ref/sessionstatus/list', removeUrl: '/ref/sessionstatus/remove', model: 'JCertifBO.model.SessionStatus', grid: 'referentielgrid'},
         {name: 'Niveaux de sponsoring', createUrl: '/ref/sponsorlevel/new', loadUrl: '/ref/sponsorlevel/list', removeUrl: '/ref/sponsorlevel/remove', model: 'JCertifBO.model.SponsorLevel', grid: 'referentielgrid'},
         {name: 'Civilit&eacute;', createUrl: '/ref/title/new', loadUrl: '/ref/title/list', removeUrl: '/ref/title/remove', model: 'JCertifBO.model.Title', grid: 'referentielgrid'},
+        {name: 'Pays', createUrl: '/ref/country/new', loadUrl: '/ref/country/list', removeUrl: '/ref/country/remove', model: 'JCertifBO.model.Country', grid: 'countrygrid'},
+        {name: 'Villes', createUrl: '/ref/city/new', loadUrl: '/ref/city/list', removeUrl: '/ref/city/remove', model: 'JCertifBO.model.City', grid: 'citygrid'},
         {name: 'Sponsors', createUrl: '/sponsor/new', loadUrl: '/sponsor/list', updateUrl: '/sponsor/update', removeUrl: '/sponsor/remove', model: 'JCertifBO.model.Sponsor', grid: 'sponsorgrid'},
         {name: 'Sites', createUrl: '/site/new', loadUrl: '/site/list', updateUrl: '/site/update', removeUrl: '/site/remove', model: 'JCertifBO.model.Site', grid: 'sitegrid'},
         {name: 'Salles', createUrl: '/room/new', loadUrl: '/room/list', updateUrl: '/room/update', removeUrl: '/room/remove', model: 'JCertifBO.model.Room', grid: 'roomgrid'},
@@ -75224,535 +75354,6 @@ Ext.define('JCertifBO.store.AdminOptions', {
         {name: 'Participants', createUrl: '/participant/register', loadUrl: '/participant/list', updateUrl: '/participant/update', removeUrl: '/participant/remove', model: 'JCertifBO.model.Participant', grid: 'participantgrid'}
     ]
 });
-
-Ext.define('JCertifBO.store.Countries', {
-	extend : 'Ext.data.Store',
-	fields: ['cid', 'country'],
-  data: [
-      {cid: 'Afghanistan' , country: 'Afghanistan' },
-      {cid: 'Albania' , country: 'Albania' },
-      {cid: 'Algeria' , country: 'Algeria' },
-      {cid: 'Andorra' , country: 'Andorra' },
-      {cid: 'Angola' , country: 'Angola' },
-      {cid: 'Antigua and Barbuda' , country: 'Antigua and Barbuda' },
-      {cid: 'Argentina' , country: 'Argentina' },
-      {cid: 'Armenia' , country: 'Armenia' },
-      {cid: 'Australia' , country: 'Australia' },
-      {cid: 'Austria' , country: 'Austria' },
-      {cid: 'Azerbaijan' , country: 'Azerbaijan' },
-      {cid: 'Bahamas' , country: 'Bahamas' },
-      {cid: 'Bahrain' , country: 'Bahrain' },
-      {cid: 'Bangladesh' , country: 'Bangladesh' },
-      {cid: 'Barbados' , country: 'Barbados' },
-      {cid: 'Belarus' , country: 'Belarus' },
-      {cid: 'Belgium' , country: 'Belgium' },
-      {cid: 'Belize' , country: 'Belize' },
-      {cid: 'Benin' , country: 'Benin' },
-      {cid: 'Bhutan' , country: 'Bhutan' },
-      {cid: 'Bolivia' , country: 'Bolivia' },
-      {cid: 'Bosnia and Herzegovina' , country: 'Bosnia and Herzegovina' },
-      {cid: 'Botswana' , country: 'Botswana' },
-      {cid: 'Brazil' , country: 'Brazil' },
-      {cid: 'Brunei' , country: 'Brunei' },
-      {cid: 'Bulgaria' , country: 'Bulgaria' },
-      {cid: 'Burkina Faso' , country: 'Burkina Faso' },
-      {cid: 'Burma' , country: 'Burma' },
-      {cid: 'Burundi' , country: 'Burundi' },
-      {cid: 'Cambodia' , country: 'Cambodia' },
-      {cid: 'Cameroon' , country: 'Cameroon' },
-      {cid: 'Canada' , country: 'Canada' },
-      {cid: 'Cape Verde' , country: 'Cape Verde' },
-      {cid: 'Central African Republic' , country: 'Central African Republic' },
-      {cid: 'Chad' , country: 'Chad' },
-      {cid: 'Chile' , country: 'Chile' },
-      {cid: 'China' , country: 'China' },
-      {cid: 'Colombia' , country: 'Colombia' },
-      {cid: 'Comoros' , country: 'Comoros' },
-      {cid: 'Democratic Republic of the Congo' , country: 'Democratic Republic of the Congo' },
-      {cid: 'Republic of the Congo' , country: 'Republic of the Congo' },
-      {cid: 'Costa Rica' , country: 'Costa Rica' },
-      {cid: 'Croatia' , country: 'Croatia' },
-      {cid: 'Cuba' , country: 'Cuba' },
-      {cid: 'Cyprus' , country: 'Cyprus' },
-      {cid: 'Czech Republic' , country: 'Czech Republic' },
-      {cid: 'Denmark' , country: 'Denmark' },
-      {cid: 'Djibouti' , country: 'Djibouti' },
-      {cid: 'Dominica' , country: 'Dominica' },
-      {cid: 'Dominican Republic' , country: 'Dominican Republic' },
-      {cid: 'East Timor' , country: 'East Timor' },
-      {cid: 'Ecuador' , country: 'Ecuador' },
-      {cid: 'Egypt' , country: 'Egypt' },
-      {cid: 'El Salvador' , country: 'El Salvador' },
-      {cid: 'Equatorial Guinea' , country: 'Equatorial Guinea' },
-      {cid: 'Eritrea' , country: 'Eritrea' },
-      {cid: 'Estonia' , country: 'Estonia' },
-      {cid: 'Ethiopia' , country: 'Ethiopia' },
-      {cid: 'Fiji' , country: 'Fiji' },
-      {cid: 'Finland' , country: 'Finland' },
-      {cid: 'France' , country: 'France' },
-      {cid: 'Gabon' , country: 'Gabon' },
-      {cid: 'The Gambia' , country: 'Gambia, The' },
-      {cid: 'Georgia' , country: 'Georgia' },
-      {cid: 'Germany' , country: 'Germany' },
-      {cid: 'Ghana' , country: 'Ghana' },
-      {cid: 'Greece' , country: 'Greece' },
-      {cid: 'Grenada' , country: 'Grenada' },
-      {cid: 'Guatemala' , country: 'Guatemala' },
-      {cid: 'Guinea' , country: 'Guinea' },
-      {cid: 'Guinea-Bissau' , country: 'Guinea-Bissau' },
-      {cid: 'Guyana' , country: 'Guyana' },
-      {cid: 'Haiti' , country: 'Haiti' },
-      {cid: 'Honduras' , country: 'Honduras' },
-      {cid: 'Hungary' , country: 'Hungary' },
-      {cid: 'Iceland' , country: 'Iceland' },
-      {cid: 'India' , country: 'India' },
-      {cid: 'Indonesia' , country: 'Indonesia' },
-      {cid: 'Iran' , country: 'Iran' },
-      {cid: 'Iraq' , country: 'Iraq' },
-      {cid: 'Republic of Ireland' , country: 'Republic of Ireland' },
-      {cid: 'Israel' , country: 'Israel' },
-      {cid: 'Italy' , country: 'Italy' },
-      {cid: 'Ivory Coast' , country: 'Ivory Coast' },
-      {cid: 'Jamaica' , country: 'Jamaica' },
-      {cid: 'Japan' , country: 'Japan' },
-      {cid: 'Jordan' , country: 'Jordan' },
-      {cid: 'Kazakhstan' , country: 'Kazakhstan' },
-      {cid: 'Kenya' , country: 'Kenya' },
-      {cid: 'Kiribati' , country: 'Kiribati' },
-      {cid: 'North Korea' , country: 'North Korea' },
-      {cid: 'South Korea ' , country: 'South Korea ' },
-      {cid: 'Kuwait' , country: 'Kuwait' },
-      {cid: 'Kyrgyzstan' , country: 'Kyrgyzstan' },
-      {cid: 'Laos' , country: 'Laos' },
-      {cid: 'Latvia' , country: 'Latvia' },
-      {cid: 'Lebanon' , country: 'Lebanon' },
-      {cid: 'Lesotho' , country: 'Lesotho' },
-      {cid: 'Liberia' , country: 'Liberia' },
-      {cid: 'Libya' , country: 'Libya' },
-      {cid: 'Liechtenstein' , country: 'Liechtenstein' },
-      {cid: 'Lithuania' , country: 'Lithuania' },
-      {cid: 'Luxembourg' , country: 'Luxembourg' },
-      {cid: 'Republic of Macedonia ' , country: 'Republic of Macedonia ' },
-      {cid: 'Madagascar' , country: 'Madagascar' },
-      {cid: 'Malawi' , country: 'Malawi' },
-      {cid: 'Malaysia' , country: 'Malaysia' },
-      {cid: 'Maldives' , country: 'Maldives' },
-      {cid: 'Mali' , country: 'Mali' },
-      {cid: 'Malta' , country: 'Malta' },
-      {cid: 'Marshall Islands' , country: 'Marshall Islands' },
-      {cid: 'Mauritania' , country: 'Mauritania' },
-      {cid: 'Mauritius' , country: 'Mauritius' },
-      {cid: 'Mexico' , country: 'Mexico' },
-      {cid: 'Federated States of Micronesia' , country: 'Federated States of Micronesia' },
-      {cid: 'Moldova' , country: 'Moldova' },
-      {cid: 'Monaco' , country: 'Monaco' },
-      {cid: 'Mongolia' , country: 'Mongolia' },
-      {cid: 'Montenegro' , country: 'Montenegro' },
-      {cid: 'Morocco' , country: 'Morocco' },
-      {cid: 'Mozambique' , country: 'Mozambique' },
-      {cid: 'Namibia' , country: 'Namibia' },
-      {cid: 'Nauru' , country: 'Nauru' },
-      {cid: 'Nepal' , country: 'Nepal' },
-      {cid: 'Kingdom of the Netherlands' , country: 'Kingdom of the Netherlands' },
-      {cid: 'New Zealand' , country: 'New Zealand' },
-      {cid: 'Nicaragua' , country: 'Nicaragua' },
-      {cid: 'Niger' , country: 'Niger' },
-      {cid: 'Nigeria' , country: 'Nigeria' },
-      {cid: 'Norway' , country: 'Norway' },
-      {cid: 'Oman' , country: 'Oman' },
-      {cid: 'Pakistan' , country: 'Pakistan' },
-      {cid: 'Palau' , country: 'Palau' },
-      {cid: 'State of Palestine' , country: 'State of Palestine' },
-      {cid: 'Panama' , country: 'Panama' },
-      {cid: 'Papua New Guinea' , country: 'Papua New Guinea' },
-      {cid: 'Paraguay' , country: 'Paraguay' },
-      {cid: 'Peru' , country: 'Peru' },
-      {cid: 'Philippines' , country: 'Philippines' },
-      {cid: 'Poland' , country: 'Poland' },
-      {cid: 'Portugal' , country: 'Portugal' },
-      {cid: 'Qatar' , country: 'Qatar' },
-      {cid: 'Romania' , country: 'Romania' },
-      {cid: 'Russia' , country: 'Russia' },
-      {cid: 'Rwanda' , country: 'Rwanda' },
-      {cid: 'Saint Kitts and Nevis' , country: 'Saint Kitts and Nevis' },
-      {cid: 'Saint Lucia' , country: 'Saint Lucia' },
-      {cid: 'Saint Vincent and the Grenadines' , country: 'Saint Vincent and the Grenadines' },
-      {cid: 'Samoa' , country: 'Samoa' },
-      {cid: 'San Marino' , country: 'San Marino' },
-      {cid: 'Sao Tom&eacute; and Principe' , country: 'Sao Tom&eacute; and Principe' },
-      {cid: 'Saudi Arabia' , country: 'Saudi Arabia' },
-      {cid: 'Senegal' , country: 'Senegal' },
-      {cid: 'Serbia' , country: 'Serbia' },
-      {cid: 'Seychelles' , country: 'Seychelles' },
-      {cid: 'Sierra Leone' , country: 'Sierra Leone' },
-      {cid: 'Singapore' , country: 'Singapore' },
-      {cid: 'Slovakia' , country: 'Slovakia' },
-      {cid: 'Slovenia' , country: 'Slovenia' },
-      {cid: 'Solomon Islands' , country: 'Solomon Islands' },
-      {cid: 'Somalia' , country: 'Somalia' },
-      {cid: 'South Africa' , country: 'South Africa' },
-      {cid: 'South Sudan' , country: 'South Sudan' },
-      {cid: 'Spain' , country: 'Spain' },
-      {cid: 'Sri Lanka' , country: 'Sri Lanka' },
-      {cid: 'Sudan' , country: 'Sudan' },
-      {cid: 'Suriname' , country: 'Suriname' },
-      {cid: 'Swaziland' , country: 'Swaziland' },
-      {cid: 'Sweden' , country: 'Sweden' },
-      {cid: 'Switzerland' , country: 'Switzerland' },
-      {cid: 'Syria' , country: 'Syria' },
-      {cid: 'Tajikistan' , country: 'Tajikistan' },
-      {cid: 'Tanzania' , country: 'Tanzania' },
-      {cid: 'Thailand' , country: 'Thailand' },
-      {cid: 'Togo' , country: 'Togo' },
-      {cid: 'Tonga' , country: 'Tonga' },
-      {cid: 'Trinidad and Tobago' , country: 'Trinidad and Tobago' },
-      {cid: 'Tunisia' , country: 'Tunisia' },
-      {cid: 'Turkey' , country: 'Turkey' },
-      {cid: 'Turkmenistan' , country: 'Turkmenistan' },
-      {cid: 'Tuvalu' , country: 'Tuvalu' },
-      {cid: 'Uganda' , country: 'Uganda' },
-      {cid: 'Ukraine' , country: 'Ukraine' },
-      {cid: 'United Arab Emirates' , country: 'United Arab Emirates' },
-      {cid: 'United Kingdom' , country: 'United Kingdom' },
-      {cid: 'United States' , country: 'United States of America' },
-      {cid: 'Uruguay' , country: 'Uruguay' },
-      {cid: 'Uzbekistan' , country: 'Uzbekistan' },
-      {cid: 'Vanuatu' , country: 'Vanuatu' },
-      {cid: 'Vatican City' , country: 'Vatican City' },
-      {cid: 'Venezuela' , country: 'Venezuela' },
-      {cid: 'Vietnam' , country: 'Vietnam' },
-      {cid: 'Yemen' , country: 'Yemen' },
-      {cid: 'Zambia' , country: 'Zambia' },
-      {cid: 'Zimbabwe' , country: 'Zimbabwe' }
-  ]
-});
-Ext.define('JCertifBO.store.Cities', {
-	extend : 'Ext.data.Store',
-	fields: ['cid', 'city'],
-  data: [
-      {cid: 'Afghanistan' , city: 'Kabul' },
-      {cid: 'Albania' , city: 'Tirana' },
-      {cid: 'Algeria' , city: 'Algiers' },
-      {cid: 'Andorra' , city: 'Andorra la Vella' },
-      {cid: 'Angola' , city: 'Luanda' },
-      {cid: 'Antigua and Barbuda' , city: "St. John's" },
-      {cid: 'Argentina' , city: 'Buenos Aires' },
-      {cid: 'Armenia' , city: 'Yerevan' },
-      {cid: 'Australia' , city: 'Canberra' },
-      {cid: 'Australia' , city: 'Sydney' },
-      {cid: 'Australia' , city: 'Melbourne' },
-      {cid: 'Australia' , city: 'Perth' },
-      {cid: 'Australia' , city: 'Adelaide' },
-      {cid: 'Australia' , city: 'Gold Coast' },
-      {cid: 'Australia' , city: 'Newcastle' },
-      {cid: 'Australia' , city: 'Brisbane' },
-      {cid: 'Austria' , city: 'Vienna' },
-      {cid: 'Azerbaijan' , city: 'Baku' },
-      {cid: 'Bahamas' , city: 'Nassau' },
-      {cid: 'Bahrain' , city: 'Manama' },
-      {cid: 'Bangladesh' , city: 'Dhaka' },
-      {cid: 'Barbados' , city: 'Bridgetown' },
-      {cid: 'Belarus' , city: 'Minsk' },
-      {cid: 'Belgium' , city: 'Brussels' },
-      {cid: 'Belize' , city: 'Belmopan' },
-      {cid: 'Benin' , city: 'Porto-Novo' },
-      {cid: 'Benin' , city: 'Cotonou' },
-      {cid: 'Bhutan' , city: 'Thimphu' },
-      {cid: 'Bolivia' , city: 'Sucre' },
-      {cid: 'Bolivia' , city: 'La Paz' },
-      {cid: 'Bolivia' , city: 'Santa Cruz' },
-      {cid: 'Bosnia and Herzegovina' , city: 'Sarajevo' },
-      {cid: 'Botswana' , city: 'Gaborone' },
-      {cid: 'Brazil' , city: 'Bras�lia' },
-      {cid: 'Brazil' , city: 'S�o Paulo' },
-      {cid: 'Brazil' , city: 'Rio de Janeiro' },
-      {cid: 'Brazil' , city: 'Salvador' },
-      {cid: 'Brazil' , city: 'Porto Alegre' },
-      {cid: 'Brazil' , city: 'Belo Horizonte' },
-      {cid: 'Brunei' , city: 'Bandar Seri Begawan' },
-      {cid: 'Bulgaria' , city: 'Sofia' },
-      {cid: 'Burkina Faso' , city: 'Ouagadougou' },
-      {cid: 'Burma' , city: 'Naypyidaw (Pyinmana)' },
-      {cid: 'Burma' , city: 'Yangon' },
-      {cid: 'Burma' , city: 'Mandalay' },
-      {cid: 'Burundi' , city: 'Bujumbura' },
-      {cid: 'Cambodia' , city: 'Phnom Penh' },
-      {cid: 'Cameroon' , city: 'Yaound&eacute;' },
-      {cid: 'Cameroon' , city: 'Douala' },
-      {cid: 'Canada' , city: 'Ottawa' },
-      {cid: 'Canada' , city: 'Toronto' },
-      {cid: 'Canada' , city: 'Montreal' },
-      {cid: 'Canada' , city: 'Vancouver' },
-      {cid: 'Canada' , city: 'Calgary' },
-      {cid: 'Cape Verde' , city: 'Praia' },
-      {cid: 'Central African Republic' , city: 'Bangui' },
-      {cid: 'Chad' , city: "N'Djamena" },
-      {cid: 'Chile' , city: 'Santiago' },
-      {cid: 'Chile' , city: 'Valpara�so' },
-      {cid: 'China' , city: 'Beijing' },
-      {cid: 'China' , city: 'Shanghai' },
-      {cid: 'Colombia' , city: 'Bogot�' },
-      {cid: 'Comoros' , city: 'Moroni' },
-      {cid: 'Democratic Republic of the Congo' , city: 'Kinshasa' },
-      {cid: 'Republic of the Congo' , city: 'Brazzaville' },
-      {cid: 'Costa Rica' , city: 'San Jos&eacute;' },
-      {cid: 'Croatia' , city: 'Zagreb' },
-      {cid: 'Cuba' , city: 'Havana' },
-      {cid: 'Cyprus' , city: 'Nicosia' },
-      {cid: 'Czech Republic' , city: 'Prague' },
-      {cid: 'Denmark' , city: 'Copenhagen' },
-      {cid: 'Djibouti' , city: 'Djibouti' },
-      {cid: 'Dominica' , city: 'Roseau' },
-      {cid: 'Dominican Republic' , city: 'Santo Domingo' },
-      {cid: 'East Timor' , city: 'Dili' },
-      {cid: 'Ecuador' , city: 'Quito' },
-      {cid: 'Ecuador' , city: 'Guayaquil' },
-      {cid: 'Egypt' , city: 'Cairo' },
-      {cid: 'El Salvador' , city: 'San Salvador' },
-      {cid: 'Equatorial Guinea' , city: 'Malabo' },
-      {cid: 'Eritrea' , city: 'Asmara' },
-      {cid: 'Estonia' , city: 'Tallinn' },
-      {cid: 'Ethiopia' , city: 'Addis Ababa' },
-      {cid: 'Fiji' , city: 'Suva' },
-      {cid: 'Finland' , city: 'Helsinki' },
-      {cid: 'France' , city: 'Paris' },
-      {cid: 'France' , city: 'Nantes' },
-      {cid: 'France' , city: 'Nice' },
-      {cid: 'France' , city: 'Lilles' },
-      {cid: 'France' , city: 'Poitier' },
-      {cid: 'France' , city: 'Toulouse' },
-      {cid: 'France' , city: 'Rennes' },
-      {cid: 'Gabon' , city: 'Libreville' },
-      {cid: 'The Gambia' , city: 'Banjul' },
-      {cid: 'Georgia' , city: 'Tbilisi' },
-      {cid: 'Germany' , city: 'Berlin' },
-      {cid: 'Ghana' , city: 'Accra' },
-      {cid: 'Greece' , city: 'Athens' },
-      {cid: 'Grenada' , city: "St. George's" },
-      {cid: 'Guatemala' , city: 'Guatemala City' },
-      {cid: 'Guinea' , city: 'Conakry' },
-      {cid: 'Guinea-Bissau' , city: 'Bissau' },
-      {cid: 'Guyana' , city: 'Georgetown' },
-      {cid: 'Haiti' , city: 'Port-au-Prince' },
-      {cid: 'Honduras' , city: 'Tegucigalpa' },
-      {cid: 'Hungary' , city: 'Budapest' },
-      {cid: 'Iceland' , city: 'Reykjav�k' },
-      {cid: 'India' , city: 'New Delhi' },
-      {cid: 'India' , city: 'Delhi' },
-      {cid: 'India' , city: 'Mumbai' },
-      {cid: 'India' , city: 'Bangalore' },
-      {cid: 'India' , city: 'Hydrabad' },
-      {cid: 'India' , city: 'Ahmedabad' },
-      {cid: 'India' , city: 'Chennai' },
-      {cid: 'India' , city: 'Kolkata' },
-      {cid: 'Indonesia' , city: 'Jakarta' },
-      {cid: 'Iran' , city: 'Tehran' },
-      {cid: 'Iraq' , city: 'Baghdad' },
-      {cid: 'Republic of Ireland' , city: 'Dublin' },
-      {cid: 'Israel' , city: 'Jerusalem' },
-      {cid: 'Israel' , city: 'Tel Aviv' },
-      {cid: 'Italy' , city: 'Rome' },
-      {cid: 'Italy' , city: 'Milan' },
-      {cid: 'Italy' , city: 'Naples' },
-      {cid: 'Ivory Coast' , city: 'Yamoussoukro' },
-      {cid: 'Ivory Coast' , city: 'Abidjan' },
-      {cid: 'Jamaica' , city: 'Kingston' },
-      {cid: 'Japan' , city: 'Tokyo' },
-      {cid: 'Japan' , city: 'Kyoto' },
-      {cid: 'Jordan' , city: 'Amman' },
-      {cid: 'Kazakhstan' , city: 'Astana' },
-      {cid: 'Kazakhstan' , city: 'Almaty' },
-      {cid: 'Kazakhstan' , city: 'Shymkent' },
-      {cid: 'Kenya' , city: 'Nairobi' },
-      {cid: 'Kiribati' , city: 'South Tarawa' },
-      {cid: 'North Korea' , city: 'Pyongyang' },
-      {cid: 'South Korea' , city: 'Seoul' },
-      {cid: 'Kuwait' , city: 'Kuwait City' },
-      {cid: 'Kyrgyzstan' , city: 'Bishkek' },
-      {cid: 'Laos' , city: 'Vientiane' },
-      {cid: 'Latvia' , city: 'Riga' },
-      {cid: 'Lebanon' , city: 'Beirut' },
-      {cid: 'Lesotho' , city: 'Maseru' },
-      {cid: 'Liberia' , city: 'Monrovia' },
-      {cid: 'Libya' , city: 'Tripoli' },
-      {cid: 'Liechtenstein' , city: 'Vaduz' },
-      {cid: 'Liechtenstein' , city: 'Schaan' },
-      {cid: 'Lithuania' , city: 'Vilnius' },
-      {cid: 'Luxembourg' , city: 'Luxembourg City' },
-      {cid: 'Republic of Macedonia' , city: 'Skopje' },
-      {cid: 'Madagascar' , city: 'Antananarivo' },
-      {cid: 'Malawi' , city: 'Lilongwe' },
-      {cid: 'Malaysia' , city: 'Kuala Lumpur' },
-      {cid: 'Malaysia' , city: 'Putrajaya' },
-      {cid: 'Maldives' , city: 'Mal&eacute;' },
-      {cid: 'Mali' , city: 'Bamako' },
-      {cid: 'Malta' , city: 'Valletta' },
-      {cid: 'Marshall Islands' , city: 'Majuro' },
-      {cid: 'Mauritania' , city: 'Nouakchott' },
-      {cid: 'Mauritius' , city: 'Port Louis' },
-      {cid: 'Mexico' , city: 'Mexico City' },
-      {cid: 'Federated States of Micronesia' , city: 'Palikir' },
-      {cid: 'Federated States of Micronesia' , city: 'Weno' },
-      {cid: 'Moldova' , city: 'Chisinau' },
-      {cid: 'Monaco' , city: 'Monaco' },
-      {cid: 'Mongolia' , city: 'Ulan Bator' },
-      {cid: 'Montenegro' , city: 'Podgorica' },
-      {cid: 'Morocco' , city: 'Rabat' },
-      {cid: 'Morocco' , city: 'Casablanca' },
-      {cid: 'Mozambique' , city: 'Maputo' },
-      {cid: 'Namibia' , city: 'Windhoek' },
-      {cid: 'Nauru' , city: 'inYaren' },
-      {cid: 'Nauru' , city: 'Denigomodu' },
-      {cid: 'Nauru' , city: 'Meneng' },
-      {cid: 'Nauru' , city: 'Aiwo' },
-      {cid: 'Nepal' , city: 'Kathmandu' },
-      {cid: 'Kingdom of the Netherlands' , city: 'The Hague' },
-      {cid: 'Kingdom of the Netherlands' , city: 'Rotterdam' },
-      {cid: 'Kingdom of the Netherlands' , city: 'Amsterdam' },
-      {cid: 'New Zealand' , city: 'Wellington' },
-      {cid: 'New Zealand' , city: 'Auckland' },
-      {cid: 'New Zealand' , city: 'Christchurch' },
-      {cid: 'Nicaragua' , city: 'Managua' },
-      {cid: 'Niger' , city: 'Niamey' },
-      {cid: 'Nigeria' , city: 'Abuja' },
-      {cid: 'Nigeria' , city: 'Lagos' },
-      {cid: 'Nigeria' , city: 'Ibadan' },
-      {cid: 'Nigeria' , city: 'Kano' },
-      {cid: 'Nigeria' , city: 'Ilorin' },
-      {cid: 'Nigeria' , city: 'Port Harcourt' },
-      {cid: 'Nigeria' , city: 'Ogbomosho' },
-      {cid: 'Norway' , city: 'Oslo' },
-      {cid: 'Oman' , city: 'Muscat' },
-      {cid: 'Pakistan' , city: 'Islamabad' },
-      {cid: 'Pakistan' , city: 'Lahore' },
-      {cid: 'Pakistan' , city: 'Faisalabad' },
-      {cid: 'Pakistan' , city: 'Rawalpindi' },
-      {cid: 'Pakistan' , city: 'Gujranwala' },
-      {cid: 'Pakistan' , city: 'Multan' },
-      {cid: 'Pakistan' , city: 'Hyderabad' },
-      {cid: 'Pakistan' , city: 'Peshawar' },
-      {cid: 'Pakistan' , city: 'Quetta' },
-      {cid: 'Pakistan' , city: 'Karachi' },
-      {cid: 'Palau' , city: 'Ngerulmud' },
-      {cid: 'Palau' , city: 'Koror' },
-      {cid: 'Palau' , city: 'Meyuns' },
-      {cid: 'Palau' , city: 'Airai' },
-      {cid: 'State of Palestine' , city: 'Jerusalem' },
-      {cid: 'State of Palestine' , city: 'Gaza' },
-      {cid: 'State of Palestine' , city: 'Ramallah' },
-      {cid: 'State of Palestine' , city: 'West Bank' },
-      {cid: 'Panama' , city: 'Panama City' },
-      {cid: 'Papua New Guinea' , city: 'Port Moresby' },
-      {cid: 'Paraguay' , city: 'Asunci�n' },
-      {cid: 'Peru' , city: 'Lima' },
-      {cid: 'Philippines' , city: 'Manila' },
-      {cid: 'Philippines' , city: 'Quezon City' },
-      {cid: 'Poland' , city: 'Warsaw' },
-      {cid: 'Portugal' , city: 'Lisbon' },
-      {cid: 'Qatar' , city: 'Doha' },
-      {cid: 'Romania' , city: 'Bucharest' },
-      {cid: 'Russia' , city: 'Moscow' },
-      {cid: 'Rwanda' , city: 'Kigali' },
-      {cid: 'Saint Kitts and Nevis' , city: 'Basseterre' },
-      {cid: 'Saint Lucia' , city: 'Castries' },
-      {cid: 'Saint Vincent and the Grenadines' , city: 'Kingstown' },
-      {cid: 'Samoa' , city: 'Apia' },
-      {cid: 'San Marino' , city: 'San Marino' },
-      {cid: 'San Marino' , city: 'Serravalle' },
-      {cid: 'San Marino' , city: 'Borgo Maggiore' },
-      {cid: 'Sao Tom&eacute; and Principe' , city: 'Sao Tom&eacute;' },
-      {cid: 'Saudi Arabia' , city: 'Riyadh' },
-      {cid: 'Senegal' , city: 'Dakar' },
-      {cid: 'Serbia' , city: 'Belgrade' },
-      {cid: 'Seychelles' , city: 'Victoria' },
-      {cid: 'Sierra Leone' , city: 'Freetown' },
-      {cid: 'Singapore' , city: 'Singapore' },
-      {cid: 'Slovakia' , city: 'Bratislava' },
-      {cid: 'Slovenia' , city: 'Ljubljana' },
-      {cid: 'Solomon Islands' , city: 'Honiara' },
-      {cid: 'Somalia' , city: 'Mogadishu' },
-      {cid: 'South Africa' , city: 'Pretoria' },
-      {cid: 'South Africa' , city: 'Cape Town' },
-      {cid: 'South Africa' , city: 'Bloemfontein' },
-      {cid: 'South Africa' , city: 'Durban' },
-      {cid: 'South Africa' , city: 'Johannesburg' },
-      {cid: 'South Sudan' , city: 'Juba' },
-      {cid: 'Spain' , city: 'Madrid' },
-      {cid: 'Sri Lanka' , city: 'Sri Jayawardenapura Kotte' },
-      {cid: 'Sri Lanka' , city: 'Colombo' },
-      {cid: 'Sudan' , city: 'Omdurman' },
-      {cid: 'Sudan' , city: 'Khartoum' },
-      {cid: 'Suriname' , city: 'Paramaribo' },
-      {cid: 'Swaziland' , city: 'Mbabane' },
-      {cid: 'Swaziland' , city: 'Lobamba' },
-      {cid: 'Swaziland' , city: 'Manzini' },
-      {cid: 'Sweden' , city: 'Stockholm' },
-      {cid: 'Switzerland' , city: 'Bern' },
-      {cid: 'Switzerland' , city: 'Zurich' },
-      {cid: 'Switzerland' , city: 'Geneva' },
-      {cid: 'Switzerland' , city: 'Basel' },
-      {cid: 'Switzerland' , city: 'Lausanne' },
-      {cid: 'Syria' , city: 'Damascus' },
-      {cid: 'Syria' , city: 'Aleppo' },
-      {cid: 'Tajikistan' , city: 'Dushanbe' },
-      {cid: 'Tanzania' , city: 'Dodoma' },
-      {cid: 'Tanzania' , city: 'Dar es Salaam' },
-      {cid: 'Tanzania' , city: 'Mwanza' },
-      {cid: 'Thailand' , city: 'Bangkok' },
-      {cid: 'Togo' , city: 'Lom&eacute;' },
-      {cid: 'Tonga' , city: "Nuku'alofa" },
-      {cid: 'Trinidad and Tobago' , city: 'Port of Spain' },
-      {cid: 'Trinidad and Tobago' , city: 'Chaguanas' },
-      {cid: 'Trinidad and Tobago' , city: 'San Fernando' },
-      {cid: 'Trinidad and Tobago' , city: 'San Juan' },
-      {cid: 'Tunisia' , city: 'Tunis' },
-      {cid: 'Turkey' , city: 'Ankara' },
-      {cid: 'Turkey' , city: 'Istanbul' },
-      {cid: 'Turkmenistan' , city: 'Ashgabat' },
-      {cid: 'Tuvalu' , city: 'Funafuti' },
-      {cid: 'Uganda' , city: 'Kampala' },
-      {cid: 'Ukraine' , city: 'Kiev' },
-      {cid: 'United Arab Emirates' , city: 'Abu Dhabi' },
-      {cid: 'United Arab Emirates' , city: 'Dubai' },
-      {cid: 'United Arab Emirates' , city: 'Sharjah' },
-      {cid: 'United Kingdom' , city: 'London' },
-      {cid: 'United States' , city: 'Washington, D.C.' },
-      {cid: 'United States' , city: 'New York City' },
-      {cid: 'United States' , city: 'Los Angeles' },
-      {cid: 'United States' , city: 'Chicago' },
-      {cid: 'United States' , city: 'Houston' },
-      {cid: 'United States' , city: 'Philadelphia' },
-      {cid: 'United States' , city: 'Phoenix' },
-      {cid: 'United States' , city: 'San Antonio' },
-      {cid: 'United States' , city: 'San Diego' },
-      {cid: 'United States' , city: 'Dallas' },
-      {cid: 'United States' , city: 'San Jose' },
-      {cid: 'United States' , city: 'Austin' },
-      {cid: 'United States' , city: 'Jacksonville' },
-      {cid: 'United States' , city: 'Indianapolis' },
-      {cid: 'United States' , city: 'San Francisco' },
-      {cid: 'United States' , city: 'Columbus' },
-      {cid: 'United States' , city: 'Fort Worth' },
-      {cid: 'United States' , city: 'Charlotte' },
-      {cid: 'United States' , city: 'Detroit' },
-      {cid: 'United States' , city: 'El Paso' },
-      {cid: 'United States' , city: 'Memphis' },
-      {cid: 'United States' , city: 'Boston' },
-      {cid: 'United States' , city: 'Seattle' },
-      {cid: 'United States' , city: 'Denver' },
-      {cid: 'Uruguay' , city: 'Montevideo' },
-      {cid: 'Uzbekistan' , city: 'Tashkent' },
-      {cid: 'Vanuatu' , city: 'Port Vila' },
-      {cid: 'Vatican City' , city: 'Vatican City' },
-      {cid: 'Venezuela' , city: 'Caracas' },
-      {cid: 'Vietnam' , city: 'Hanoi' },
-      {cid: 'Vietnam' , city: 'Ho Chi Minh City' },
-      {cid: 'Yemen' , city: "Sana'a" },
-      {cid: 'Zambia' , city: 'Lusaka' },
-      {cid: 'Zimbabwe' , city: 'Harare' }
-  ]
-});
-
 
 /*
 This file is part of Ext JS 4.2
@@ -85507,12 +85108,144 @@ Ext.define("JCertifBO.view.participant.Grid", {
                     iconCls: 'admin-options-refresh',
                     text: 'Refresh',
                     action: 'refresh'
+                },{
+                    iconCls: 'email-send',
+                    text: 'Send Welcome Email',
+                    action: 'welcome-email'
                 }]
             }],
 
             listeners: {
                 'selectionchange': function(selectionModel, records) {
                   this.down('#removeSpeaker').setDisabled(!records.length);
+                }
+            }
+        });
+
+        this.callParent(arguments);
+    }
+});
+Ext.define("JCertifBO.view.country.Grid", {
+    extend: 'Ext.grid.Panel',
+    alias: 'widget.countrygrid',
+    
+    cls: 'admin-options-grid',
+
+    requires: ['Ext.toolbar.Toolbar'],
+    
+    border: false,
+    
+    initComponent: function() {
+        
+        Ext.apply(this, {
+            store: this.store,
+            
+            columns: [{
+                text: 'Name',
+                dataIndex: 'name',
+                flex: 1
+            }, {
+                text: 'cid',
+                dataIndex: 'cid',
+                hidden: true,
+                width: 200
+            }, {
+                text: 'version',
+                dataIndex: 'version',
+                hidden: true,
+                width: 200
+            }, {
+                text: 'delete',
+                dataIndex: 'delete',
+                hidden: true,
+                width: 200
+            }],
+            
+            dockedItems: [{
+                xtype: 'toolbar',
+                items: [{
+                    iconCls: 'admin-options-add',
+                    text: 'Add',
+                    action: 'add'
+                },{
+                    iconCls: 'admin-options-remove',
+                    text: 'Remove',
+                    itemId: 'removeCountry',
+                    action: 'remove',
+                    disabled: true
+                },{
+                    iconCls: 'admin-options-refresh',
+                    text: 'Refresh',
+                    action: 'refresh'
+                }]
+            }],
+
+            listeners: {
+                'selectionchange': function(selectionModel, records) {
+                  this.down('#removeCountry').setDisabled(!records.length);
+                }
+            }
+        });
+
+        this.callParent(arguments);
+    }
+});
+Ext.define("JCertifBO.view.city.Grid", {
+    extend: 'Ext.grid.Panel',
+    alias: 'widget.citygrid',
+    
+    cls: 'admin-options-grid',
+
+    requires: ['Ext.toolbar.Toolbar'],
+    
+    border: false,
+    
+    initComponent: function() {
+        
+        Ext.apply(this, {
+            store: this.store,
+            
+            columns: [{
+                text: 'Name',
+                dataIndex: 'name',
+                flex: 1
+            }, {
+                text: 'Country Id',
+                dataIndex: 'cid'
+            }, {
+                text: 'version',
+                dataIndex: 'version',
+                hidden: true,
+                width: 200
+            }, {
+                text: 'delete',
+                dataIndex: 'delete',
+                hidden: true,
+                width: 200
+            }],
+            
+            dockedItems: [{
+                xtype: 'toolbar',
+                items: [{
+                    iconCls: 'admin-options-add',
+                    text: 'Add',
+                    action: 'add'
+                },{
+                    iconCls: 'admin-options-remove',
+                    text: 'Remove',
+                    itemId: 'removeCity',
+                    action: 'remove',
+                    disabled: true
+                },{
+                    iconCls: 'admin-options-refresh',
+                    text: 'Refresh',
+                    action: 'refresh'
+                }]
+            }],
+
+            listeners: {
+                'selectionchange': function(selectionModel, records) {
+                  this.down('#removeCity').setDisabled(!records.length);
                 }
             }
         });
@@ -88984,208 +88717,6 @@ Ext.define('Ext.form.field.ComboBox', {
     }
 });
 
-Ext.define("JCertifBO.view.sponsor.Grid", {
-    extend: 'Ext.grid.Panel',
-    alias: 'widget.sponsorgrid',
-    
-    cls: 'admin-options-grid',
-
-    requires: [
-        'Ext.toolbar.Toolbar',
-        'Ext.form.field.ComboBox',
-        'JCertifBO.store.Countries',
-        'JCertifBO.store.Cities',
-    ],
-    
-    border: false,
-    
-    initComponent: function() {
-        
-        Ext.apply(this, {
-            store: this.store,
-
-            columns: [{
-                text: 'Email',
-                dataIndex: 'email',
-                flex: 1
-            }, {
-                text: 'Name',
-                dataIndex: 'name',
-                flex: 1
-            }, {
-                text: 'Logo',
-                dataIndex: 'logo',
-                flex: 1
-            }, {
-                text: 'Level',
-                dataIndex: 'level',
-                flex: 1
-            }, {
-                text: 'Website',
-                dataIndex: 'website',
-                flex: 1
-            }, {
-                text: 'Country',
-                dataIndex: 'country',
-                flex: 1
-            }, {
-                text: 'City',
-                dataIndex: 'city',
-                flex: 1
-            }, {
-                text: 'Phone',
-                dataIndex: 'phone',
-                flex: 1
-            }, {
-                text: 'About',
-                dataIndex: 'about',
-                flex: 1
-            }, {
-                text: 'version',
-                dataIndex: 'version',
-                hidden: true,
-                width: 200
-            }, {
-                text: 'delete',
-                dataIndex: 'delete',
-                hidden: true,
-                width: 200
-            }],
-            
-            dockedItems: [{
-                xtype: 'toolbar',
-                items: [{
-                    iconCls: 'admin-options-add',
-                    text: 'Add',
-                    action: 'add'
-                },{
-                    iconCls: 'admin-options-remove',
-                    text: 'Remove',
-                    itemId: 'removeSponsor',
-                    action: 'remove',
-                    disabled: true
-                },{
-                    iconCls: 'admin-options-refresh',
-                    text: 'Refresh',
-                    action: 'refresh'
-                }]
-            }],
-
-            listeners: {
-                'selectionchange': function(selectionModel, records) {
-                  this.down('#removeSponsor').setDisabled(!records.length);
-                }
-            }
-        });
-
-        this.callParent(arguments);
-    }
-});
-Ext.define("JCertifBO.view.site.Grid", {
-    extend: 'Ext.grid.Panel',
-    alias: 'widget.sitegrid',
-    
-    cls: 'admin-options-grid',
-
-    requires: [
-        'Ext.toolbar.Toolbar',
-        'Ext.form.field.ComboBox',
-        'JCertifBO.store.Countries',
-        'JCertifBO.store.Cities',
-    ],
-    
-    border: false,
-    
-    initComponent: function() {
-
-        Ext.apply(this, {
-
-            columns: [{
-                text: 'Id',
-                dataIndex: 'id',
-                flex: 1,
-                hidden: true
-            }, {
-                text: 'Name',
-                dataIndex: 'name',
-                flex: 1
-            }, {
-                text: 'Street',
-                dataIndex: 'street',
-                flex: 1
-            }, {
-                text: 'Country',
-                dataIndex: 'country',
-                flex: 1
-            }, {
-                text: 'City',
-                dataIndex: 'city',
-                flex: 1
-            }, {
-                text: 'Contact',
-                dataIndex: 'contact',
-                flex: 1
-            }, {
-                text: 'Website',
-                dataIndex: 'website',
-                flex: 1
-            }, {
-                text: 'Description',
-                dataIndex: 'description',
-                flex: 1
-            }, {
-                text: 'Photo',
-                dataIndex: 'photo',
-                flex: 1
-            }, {
-                text: 'Latitude',
-                dataIndex: 'latitude',
-                flex: 1
-            }, {
-                text: 'Longitude',
-                dataIndex: 'longitude',
-                flex: 1
-            }, {
-                text: 'version',
-                dataIndex: 'version',
-                hidden: true,
-                width: 200
-            }, {
-                text: 'delete',
-                dataIndex: 'delete',
-                hidden: true,
-                width: 200
-            }],
-            
-            dockedItems: [{
-                xtype: 'toolbar',
-                items: [{
-                    iconCls: 'admin-options-add',
-                    text: 'Add',
-                    action: 'add'
-                },{
-                    iconCls: 'admin-options-remove',
-                    text: 'Remove',
-                    itemId: 'removeSite',
-                    action: 'remove',
-                    disabled: true
-                },{
-                    iconCls: 'admin-options-refresh',
-                    text: 'Refresh',
-                    action: 'refresh'
-                }]
-            }],
-            
-            listeners: {
-                'selectionchange': function(selectionModel, records) {
-                  this.down('#removeSite').setDisabled(!records.length);
-                }
-            }
-        });
-
-        this.callParent(arguments);
-    }
-});
 /*
 This file is part of Ext JS 4.2
 
@@ -92531,9 +92062,8 @@ Ext.define("JCertifBO.view.sponsor.Form", {
 			xtype : 'combo',
 			fieldLabel : 'Country',
 			store: this.store,
-			queryMode: 'local',
 			triggerAction: 'all',
-			displayField: 'country',
+			displayField: 'name',
       valueField: 'cid',
 			name : 'country',
 			itemId : 'country',
@@ -92553,11 +92083,10 @@ Ext.define("JCertifBO.view.sponsor.Form", {
 			fieldLabel : 'City',
 			id:'add-combo-city',
 			store: this.store,
-			queryMode: 'local',
 			triggerAction: 'all',
 			disabled: true,
-			displayField: 'city',
-      valueField: 'city',
+			displayField: 'name',
+      valueField: 'name',
       lastQuery: '',
 			name : 'city',
 			itemId : 'city',
@@ -92597,7 +92126,7 @@ Ext.define("JCertifBO.view.sponsor.Add", {
   	alias : 'widget.sponsoradd',
   	title : "Ajout d'un nouveau sponsor",
   	width : 400,
-  	height : 400,
+  	height : 500,
   	autoShow : true,
   	closable : true,
   	draggable : true,
@@ -92638,7 +92167,7 @@ Ext.define("JCertifBO.view.sponsor.Edit", {
   	alias : 'widget.sponsoredit',
   	title : "Mise &agrave; jour d'un sponsor",
   	width : 400,
-  	height : 400,
+  	height : 500,
   	autoShow : true,
   	closable : true,
   	draggable : true,
@@ -92696,9 +92225,8 @@ Ext.define("JCertifBO.view.site.Form", {
 			xtype : 'combo',
 			fieldLabel : 'Country',
 			store: this.store,
-			queryMode: 'local',
 			triggerAction: 'all',
-			displayField: 'country',
+			displayField: 'name',
       valueField: 'cid',
 			name : 'country',
 			itemId : 'country',
@@ -92718,11 +92246,10 @@ Ext.define("JCertifBO.view.site.Form", {
 			fieldLabel : 'City',
 			id:'add-combo-city',
 			store: this.store,
-			queryMode: 'local',
 			triggerAction: 'all',
 			disabled: true,
-			displayField: 'city',
-      valueField: 'city',
+			displayField: 'name',
+      valueField: 'name',
       lastQuery: '',
 			name : 'city',
 			itemId : 'city',
@@ -92801,7 +92328,7 @@ Ext.define("JCertifBO.view.site.Add", {
   	alias : 'widget.siteadd',
   	title : "Ajout d'un nouveau site",
   	width : 400,
-  	height : 450,
+  	height : 500,
   	autoShow : true,
   	closable : true,
   	draggable : true,
@@ -92841,7 +92368,7 @@ Ext.define("JCertifBO.view.site.Edit", {
   	alias : 'widget.siteedit',
   	title : "Mise &agrave; jour d'un site",
   	width : 400,
-  	height : 450,
+  	height : 500,
   	autoShow : true,
   	closable : true,
   	draggable : true,
@@ -92991,7 +92518,7 @@ Ext.define("JCertifBO.view.room.Edit", {
   	alias : 'widget.roomedit',
   	title : "Mise &agrave; jour d'une salle",
   	width : 400,
-  	height : 300,
+  	height : 400,
   	autoShow : true,
   	closable : true,
   	draggable : true,
@@ -93261,9 +92788,8 @@ Ext.define("JCertifBO.view.speaker.Form", {
 			xtype : 'combo',
 			fieldLabel : 'Country',
 			store: this.store,
-			queryMode: 'local',
 			triggerAction: 'all',
-			displayField: 'country',
+			displayField: 'name',
       valueField: 'cid',
 			name : 'country',
 			itemId : 'country',
@@ -93283,11 +92809,10 @@ Ext.define("JCertifBO.view.speaker.Form", {
 			fieldLabel : 'City',
 			id:'add-combo-city',
 			store: this.store,
-			queryMode: 'local',
 			triggerAction: 'all',
 			disabled: true,
-			displayField: 'city',
-      valueField: 'city',
+			displayField: 'name',
+      valueField: 'name',
       lastQuery: '',
 			name : 'city',
 			itemId : 'city',
@@ -93301,13 +92826,13 @@ Ext.define("JCertifBO.view.speaker.Form", {
 			emptyText : 'company'
 		},{
 			xtype : 'textfield',
-			vtype : 'url',
 			fieldLabel : 'Phone',
 			name : 'phone',
 			itemId : 'phone',
 			emptyText : 'phone'
 		},{
 			xtype : 'textfield',
+			vtype : 'url',
 			fieldLabel : 'Photo',
 			name : 'photo',
 			itemId : 'photo',
@@ -93351,7 +92876,7 @@ Ext.define("JCertifBO.view.speaker.Add", {
   	alias : 'widget.speakeradd',
   	title : "Ajout d'un nouveau pr&eacute;sentateur",
   	width : 400,
-  	height : 500,
+  	height : 600,
   	autoShow : true,
   	closable : true,
   	draggable : true,
@@ -93391,7 +92916,7 @@ Ext.define("JCertifBO.view.speaker.Edit", {
   	alias : 'widget.speakeredit',
   	title : "Mise &agrave; jour d'un pr&eacute;sentateur",
   	width : 400,
-  	height : 500,
+  	height : 600,
   	autoShow : true,
   	closable : true,
   	draggable : true,
@@ -93479,9 +93004,8 @@ Ext.define("JCertifBO.view.participant.Form", {
 			xtype : 'combo',
 			fieldLabel : 'Country',
 			store: this.store,
-			queryMode: 'local',
 			triggerAction: 'all',
-			displayField: 'country',
+			displayField: 'name',
       valueField: 'cid',
 			name : 'country',
 			itemId : 'country',
@@ -93501,11 +93025,10 @@ Ext.define("JCertifBO.view.participant.Form", {
 			fieldLabel : 'City',
 			id:'add-combo-city',
 			store: this.store,
-			queryMode: 'local',
 			triggerAction: 'all',
 			disabled: true,
-			displayField: 'city',
-      valueField: 'city',
+			displayField: 'name',
+      valueField: 'name',
       lastQuery: '',
 			name : 'city',
 			itemId : 'city',
@@ -93580,7 +93103,7 @@ Ext.define("JCertifBO.view.participant.Add", {
   	alias : 'widget.participantadd',
   	title : "Ajout d'un nouveau participant",
   	width : 400,
-  	height : 500,
+  	height : 600,
   	autoShow : true,
   	closable : true,
   	draggable : true,
@@ -93620,7 +93143,7 @@ Ext.define("JCertifBO.view.participant.Edit", {
   	alias : 'widget.participantedit',
   	title : "Mise &agrave; jour d'un participant",
   	width : 400,
-  	height : 500,
+  	height : 600,
   	autoShow : true,
   	closable : true,
   	draggable : true,
@@ -97025,11 +96548,13 @@ Ext.define('JCertifBO.controller.ReferentielController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider')
       });
+      var controller = this;
   		if (form.isValid()) {
   			Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getReferentielGrid().getStore().model.modelName).get('createUrl'),
   				jsonData : Ext.JSON.encode(form.getValues()),
   				success : function(response) {
+  				  controller.getReferentielGrid().getStore().load();
             win.close();														
   				},
   				failure : function(response) {
@@ -97052,6 +96577,7 @@ Ext.define('JCertifBO.controller.ReferentielController', {
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider'),
       };
+      var controller = this;
       Ext.Ajax.request({
   				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getReferentielGrid().getStore().model.modelName).get('removeUrl'),
   				jsonData : Ext.JSON.encode(data),
@@ -97061,7 +96587,8 @@ Ext.define('JCertifBO.controller.ReferentielController', {
   						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; supprim&eacute;",
   						buttons : Ext.MessageBox.OK,
   						icon : Ext.MessageBox.INFO
-  					});														
+  					});		
+            controller.getReferentielGrid().getStore().load();												
   				},
   				failure : function(response) {
   					Ext.MessageBox.show({
@@ -97115,6 +96642,563 @@ Ext.define('JCertifBO.model.Site', {
     ]
 });
 
+Ext.define('JCertifBO.model.Room', {
+    extend: 'Ext.data.Model',
+    
+    fields: [
+        { name: 'id', type: 'auto' },
+        { name: 'name', type: 'auto' },
+        { name: 'site', type: 'auto' },
+        { name: 'seats', type: 'auto' },
+        { name: 'description', type: 'auto' },
+        { name: 'photo', type: 'auto' }
+
+    ]
+});
+
+Ext.define('JCertifBO.model.Session', {
+    extend: 'Ext.data.Model',
+    
+    fields: [
+        { name: 'id', type: 'auto' },
+        { name: 'title', type: 'auto' },
+        { name: 'summary', type: 'auto' },
+        { name: 'description', type: 'auto' },
+        { name: 'status', type: 'auto' },
+        { name: 'keyword', type: 'auto' },
+        { name: 'category', type: 'auto' },
+        { name: 'start', type: 'date', dateFormat: 'd/m/Y H:i' },
+        { name: 'end', type: 'date', dateFormat: 'd/m/Y H:i' },
+        { name: 'speakers', type: 'auto'},
+        { name: 'room', type: 'auto' }
+
+    ]
+});
+
+Ext.define('JCertifBO.model.Speaker', {
+    extend: 'Ext.data.Model',
+    
+    fields: [
+        { name: 'email', type: 'auto' },
+        { name: 'password', type: 'auto' },
+        { name: 'title', type: 'auto' },
+        { name: 'lastname', type: 'auto' },
+        { name: 'firstname', type: 'auto' },
+        { name: 'website', type: 'auto' },
+        { name: 'city', type: 'auto' },
+        { name: 'country', type: 'auto' },
+        { name: 'company', type: 'auto' },
+        { name: 'phone', type: 'auto' },
+        { name: 'photo', type: 'auto' },
+        { name: 'biography', type: 'auto' }
+
+    ]
+});
+
+Ext.define('JCertifBO.model.Participant', {
+    extend: 'Ext.data.Model',
+    
+    fields: [
+        { name: 'email', type: 'auto' },
+        { name: 'password', type: 'auto' },
+        { name: 'title', type: 'auto' },
+        { name: 'lastname', type: 'auto' },
+        { name: 'firstname', type: 'auto' },
+        { name: 'website', type: 'auto' },
+        { name: 'city', type: 'auto' },
+        { name: 'country', type: 'auto' },
+        { name: 'company', type: 'auto' },
+        { name: 'phone', type: 'auto' },
+        { name: 'photo', type: 'auto' },
+        { name: 'biography', type: 'auto' },
+        { name: 'sessions', type: 'auto' }
+
+    ]
+});
+
+Ext.define('JCertifBO.model.Country', {
+    extend: 'Ext.data.Model',
+    
+    fields: [
+        { name: 'cid', type: 'auto' },
+        { name: 'name', type: 'auto' }
+    ]
+});
+
+Ext.define('JCertifBO.controller.CountryController', {
+    extend: 'Ext.app.Controller',
+    
+    stores: ['AdminOptions'],
+    models: ['AdminOption', 'Country'],
+    
+    views: [
+        'country.Grid',
+        'country.Add'
+    ],
+
+
+    refs: [
+        {ref: 'viewer', selector: 'viewer'},
+        {ref: 'countryGrid', selector: 'countrygrid'}
+    ],
+    
+    init: function() {
+        this.control({
+            'countrygrid button[action=add]': {
+                click: this.showAddCountryView
+            },
+            'countrygrid button[action=refresh]': {
+                click: this.refreshCountryGrid
+            },
+            'countryadd button[action=add]' : {
+      				  click : this.addCountry
+      			},
+      			'countryadd button[action=cancel]' : {
+      				  click : this.cancel
+      			},
+      			'countrygrid button[action=remove]' : {
+      				  click : this.removeCountry
+      			}
+        });
+    },
+    
+    showAddCountryView: function(btn){
+      Ext.create('JCertifBO.view.country.Add');
+    },
+    
+    refreshCountryGrid: function(btn){
+      this.getCountryGrid().getStore().load();
+    },
+    
+    addCountry: function(btn){
+      var win = btn.up('window'), form = win.down('form').getForm();
+      form.setValues({
+        user: Ext.util.Cookies.get('user'),
+        access_token: Ext.util.Cookies.get('access_token'),
+        provider: Ext.util.Cookies.get('provider')
+      });
+      var controller = this;
+  		if (form.isValid()) {
+  			Ext.Ajax.request({
+  				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getCountryGrid().getStore().model.modelName).get('createUrl'),
+  				jsonData : Ext.JSON.encode(form.getValues()),
+  				success : function(response) {
+  				  controller.getCountryGrid().getStore().load();
+            win.close();														
+  				},
+  				failure : function(response) {
+  					Ext.MessageBox.show({
+  						title : 'Error',
+  						msg : response.responseText,
+  						buttons : Ext.MessageBox.OK,
+  						icon : Ext.MessageBox.ERROR
+  					});
+  				}
+  			});
+  		}
+    },
+    
+    removeCountry: function(btn){
+      var country = this.getCountryGrid().getSelectionModel().getSelection()[0];
+      var data = {
+        name: country.data.name,
+        user: Ext.util.Cookies.get('user'),
+        access_token: Ext.util.Cookies.get('access_token'),
+        provider: Ext.util.Cookies.get('provider'),
+      };
+      var controller = this;
+      Ext.Ajax.request({
+  				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getCountryGrid().getStore().model.modelName).get('removeUrl'),
+  				jsonData : Ext.JSON.encode(data),
+  				success : function(response) {
+            Ext.MessageBox.show({
+  						title : 'Message',
+  						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; supprim&eacute;",
+  						buttons : Ext.MessageBox.OK,
+  						icon : Ext.MessageBox.INFO
+  					});		
+            controller.getCountryGrid().getStore().load();												
+  				},
+  				failure : function(response) {
+  					Ext.MessageBox.show({
+  						title : 'Error',
+  						msg : response.responseText,
+  						buttons : Ext.MessageBox.OK,
+  						icon : Ext.MessageBox.ERROR
+  					});
+  				}
+  			});
+    },
+    
+    cancel: function(btn){
+      btn.up('window').close();
+    }
+});
+
+Ext.define('JCertifBO.model.City', {
+    extend: 'Ext.data.Model',
+    
+    fields: [
+        { name: 'name', type: 'auto' },
+        { name: 'cid', type: 'auto' }
+    ]
+});
+
+Ext.define('JCertifBO.store.Countries', {
+	extend : 'Ext.data.Store',
+	model : 'JCertifBO.model.Country',
+	autoLoad: true,
+	proxy: {
+      type: 'ajax',
+      api: {
+          read: BACKEND_URL + '/ref/country/list',
+          create: BACKEND_URL + '/ref/country/new',
+          destroy: BACKEND_URL + '/ref/country/remove'
+      },
+      reader: {
+          type: 'json'
+      },
+      writer: {
+          type: 'json'
+      }
+  }
+});
+Ext.define('JCertifBO.controller.CityController', {
+    extend: 'Ext.app.Controller',
+    
+    stores: ['AdminOptions', 'Countries'],
+    models: ['AdminOption', 'City', 'Country'],
+    
+    views: [
+        'city.Grid',
+        'city.Add'
+    ],
+
+
+    refs: [
+        {ref: 'viewer', selector: 'viewer'},
+        {ref: 'cityGrid', selector: 'citygrid'},
+        {ref: 'cityFormCountries', selector: 'cityadd combo#country'},
+    ],
+    
+    init: function() {
+        this.control({
+            'citygrid button[action=add]': {
+                click: this.showAddCityView
+            },
+            'citygrid button[action=refresh]': {
+                click: this.refreshCityGrid
+            },
+            'cityadd button[action=add]' : {
+      				  click : this.addCity
+      			},
+      			'cityadd button[action=cancel]' : {
+      				  click : this.cancel
+      			},
+      			'citygrid button[action=remove]' : {
+      				  click : this.removeCity
+      			}
+        });
+    },
+    
+    showAddCityView: function(btn){
+      Ext.create('JCertifBO.view.city.Add');
+      this.getCityFormCountries().bindStore(this.getCountriesStore());
+    },
+    
+    refreshCityGrid: function(btn){
+      this.getCityGrid().getStore().load();
+    },
+    
+    addCity: function(btn){
+      var win = btn.up('window'), form = win.down('form').getForm();
+      form.setValues({
+        user: Ext.util.Cookies.get('user'),
+        access_token: Ext.util.Cookies.get('access_token'),
+        provider: Ext.util.Cookies.get('provider')
+      });
+      var controller = this;
+  		if (form.isValid()) {
+  			Ext.Ajax.request({
+  				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getCityGrid().getStore().model.modelName).get('createUrl'),
+  				jsonData : Ext.JSON.encode(form.getValues()),
+  				success : function(response) {
+  				  controller.getCityGrid().getStore().load();
+            win.close();														
+  				},
+  				failure : function(response) {
+  					Ext.MessageBox.show({
+  						title : 'Error',
+  						msg : response.responseText,
+  						buttons : Ext.MessageBox.OK,
+  						icon : Ext.MessageBox.ERROR
+  					});
+  				}
+  			});
+  		}
+    },
+    
+    removeCity: function(btn){
+      var city = this.getCityGrid().getSelectionModel().getSelection()[0];
+      var data = {
+        name: city.data.name,
+        cid: city.data.cid,
+        user: Ext.util.Cookies.get('user'),
+        access_token: Ext.util.Cookies.get('access_token'),
+        provider: Ext.util.Cookies.get('provider'),
+      };
+      var controller = this;
+      Ext.Ajax.request({
+  				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getCityGrid().getStore().model.modelName).get('removeUrl'),
+  				jsonData : Ext.JSON.encode(data),
+  				success : function(response) {
+            Ext.MessageBox.show({
+  						title : 'Message',
+  						msg : "L'&eacute;l&eacute;ment &agrave; bien &eacute;t&eacute; supprim&eacute;",
+  						buttons : Ext.MessageBox.OK,
+  						icon : Ext.MessageBox.INFO
+  					});		
+            controller.getCityGrid().getStore().load();												
+  				},
+  				failure : function(response) {
+  					Ext.MessageBox.show({
+  						title : 'Error',
+  						msg : response.responseText,
+  						buttons : Ext.MessageBox.OK,
+  						icon : Ext.MessageBox.ERROR
+  					});
+  				}
+  			});
+    },
+    
+    cancel: function(btn){
+      btn.up('window').close();
+    }
+});
+
+Ext.define('JCertifBO.store.Cities', {
+	extend : 'Ext.data.Store',
+	model : 'JCertifBO.model.City',
+	autoLoad: true,
+	proxy: {
+      type: 'ajax',
+      api: {
+          read: BACKEND_URL + '/ref/city/list',
+          create: BACKEND_URL + '/ref/city/new',
+          destroy: BACKEND_URL + '/ref/city/remove'
+      },
+      reader: {
+          type: 'json'
+      },
+      writer: {
+          type: 'json'
+      }
+  }
+});
+
+
+Ext.define("JCertifBO.view.sponsor.Grid", {
+    extend: 'Ext.grid.Panel',
+    alias: 'widget.sponsorgrid',
+    
+    cls: 'admin-options-grid',
+
+    requires: [
+        'Ext.toolbar.Toolbar',
+        'Ext.form.field.ComboBox',
+        'JCertifBO.store.Countries',
+        'JCertifBO.store.Cities',
+    ],
+    
+    border: false,
+    
+    initComponent: function() {
+        
+        Ext.apply(this, {
+            store: this.store,
+
+            columns: [{
+                text: 'Email',
+                dataIndex: 'email',
+                flex: 1
+            }, {
+                text: 'Name',
+                dataIndex: 'name',
+                flex: 1
+            }, {
+                text: 'Logo',
+                dataIndex: 'logo',
+                flex: 1
+            }, {
+                text: 'Level',
+                dataIndex: 'level',
+                flex: 1
+            }, {
+                text: 'Website',
+                dataIndex: 'website',
+                flex: 1
+            }, {
+                text: 'Country',
+                dataIndex: 'country',
+                flex: 1
+            }, {
+                text: 'City',
+                dataIndex: 'city',
+                flex: 1
+            }, {
+                text: 'Phone',
+                dataIndex: 'phone',
+                flex: 1
+            }, {
+                text: 'About',
+                dataIndex: 'about',
+                flex: 1
+            }, {
+                text: 'version',
+                dataIndex: 'version',
+                hidden: true,
+                width: 200
+            }, {
+                text: 'delete',
+                dataIndex: 'delete',
+                hidden: true,
+                width: 200
+            }],
+            
+            dockedItems: [{
+                xtype: 'toolbar',
+                items: [{
+                    iconCls: 'admin-options-add',
+                    text: 'Add',
+                    action: 'add'
+                },{
+                    iconCls: 'admin-options-remove',
+                    text: 'Remove',
+                    itemId: 'removeSponsor',
+                    action: 'remove',
+                    disabled: true
+                },{
+                    iconCls: 'admin-options-refresh',
+                    text: 'Refresh',
+                    action: 'refresh'
+                }]
+            }],
+
+            listeners: {
+                'selectionchange': function(selectionModel, records) {
+                  this.down('#removeSponsor').setDisabled(!records.length);
+                }
+            }
+        });
+
+        this.callParent(arguments);
+    }
+});
+Ext.define("JCertifBO.view.site.Grid", {
+    extend: 'Ext.grid.Panel',
+    alias: 'widget.sitegrid',
+    
+    cls: 'admin-options-grid',
+
+    requires: [
+        'Ext.toolbar.Toolbar',
+        'Ext.form.field.ComboBox',
+        'JCertifBO.store.Countries',
+        'JCertifBO.store.Cities',
+    ],
+    
+    border: false,
+    
+    initComponent: function() {
+
+        Ext.apply(this, {
+
+            columns: [{
+                text: 'Id',
+                dataIndex: 'id',
+                flex: 1,
+                hidden: true
+            }, {
+                text: 'Name',
+                dataIndex: 'name',
+                flex: 1
+            }, {
+                text: 'Street',
+                dataIndex: 'street',
+                flex: 1
+            }, {
+                text: 'Country',
+                dataIndex: 'country',
+                flex: 1
+            }, {
+                text: 'City',
+                dataIndex: 'city',
+                flex: 1
+            }, {
+                text: 'Contact',
+                dataIndex: 'contact',
+                flex: 1
+            }, {
+                text: 'Website',
+                dataIndex: 'website',
+                flex: 1
+            }, {
+                text: 'Description',
+                dataIndex: 'description',
+                flex: 1
+            }, {
+                text: 'Photo',
+                dataIndex: 'photo',
+                flex: 1
+            }, {
+                text: 'Latitude',
+                dataIndex: 'latitude',
+                flex: 1
+            }, {
+                text: 'Longitude',
+                dataIndex: 'longitude',
+                flex: 1
+            }, {
+                text: 'version',
+                dataIndex: 'version',
+                hidden: true,
+                width: 200
+            }, {
+                text: 'delete',
+                dataIndex: 'delete',
+                hidden: true,
+                width: 200
+            }],
+            
+            dockedItems: [{
+                xtype: 'toolbar',
+                items: [{
+                    iconCls: 'admin-options-add',
+                    text: 'Add',
+                    action: 'add'
+                },{
+                    iconCls: 'admin-options-remove',
+                    text: 'Remove',
+                    itemId: 'removeSite',
+                    action: 'remove',
+                    disabled: true
+                },{
+                    iconCls: 'admin-options-refresh',
+                    text: 'Refresh',
+                    action: 'refresh'
+                }]
+            }],
+            
+            listeners: {
+                'selectionchange': function(selectionModel, records) {
+                  this.down('#removeSite').setDisabled(!records.length);
+                }
+            }
+        });
+
+        this.callParent(arguments);
+    }
+});
 Ext.define('JCertifBO.controller.SiteController', {
     extend: 'Ext.app.Controller',
     
@@ -97284,80 +97368,6 @@ Ext.define('JCertifBO.controller.SiteController', {
     cancel: function(btn){
       btn.up('window').close();
     }
-});
-
-Ext.define('JCertifBO.model.Room', {
-    extend: 'Ext.data.Model',
-    
-    fields: [
-        { name: 'id', type: 'auto' },
-        { name: 'name', type: 'auto' },
-        { name: 'site', type: 'auto' },
-        { name: 'seats', type: 'auto' },
-        { name: 'description', type: 'auto' },
-        { name: 'photo', type: 'auto' }
-
-    ]
-});
-
-Ext.define('JCertifBO.model.Session', {
-    extend: 'Ext.data.Model',
-    
-    fields: [
-        { name: 'id', type: 'auto' },
-        { name: 'title', type: 'auto' },
-        { name: 'summary', type: 'auto' },
-        { name: 'description', type: 'auto' },
-        { name: 'status', type: 'auto' },
-        { name: 'keyword', type: 'auto' },
-        { name: 'category', type: 'auto' },
-        { name: 'start', type: 'date', dateFormat: 'd/m/Y H:i' },
-        { name: 'end', type: 'date', dateFormat: 'd/m/Y H:i' },
-        { name: 'speakers', type: 'auto'},
-        { name: 'room', type: 'auto' }
-
-    ]
-});
-
-Ext.define('JCertifBO.model.Speaker', {
-    extend: 'Ext.data.Model',
-    
-    fields: [
-        { name: 'email', type: 'auto' },
-        { name: 'password', type: 'auto' },
-        { name: 'title', type: 'auto' },
-        { name: 'lastname', type: 'auto' },
-        { name: 'firstname', type: 'auto' },
-        { name: 'website', type: 'auto' },
-        { name: 'city', type: 'auto' },
-        { name: 'country', type: 'auto' },
-        { name: 'company', type: 'auto' },
-        { name: 'phone', type: 'auto' },
-        { name: 'photo', type: 'auto' },
-        { name: 'biography', type: 'auto' }
-
-    ]
-});
-
-Ext.define('JCertifBO.model.Participant', {
-    extend: 'Ext.data.Model',
-    
-    fields: [
-        { name: 'email', type: 'auto' },
-        { name: 'password', type: 'auto' },
-        { name: 'title', type: 'auto' },
-        { name: 'lastname', type: 'auto' },
-        { name: 'firstname', type: 'auto' },
-        { name: 'website', type: 'auto' },
-        { name: 'city', type: 'auto' },
-        { name: 'country', type: 'auto' },
-        { name: 'company', type: 'auto' },
-        { name: 'phone', type: 'auto' },
-        { name: 'photo', type: 'auto' },
-        { name: 'biography', type: 'auto' },
-        { name: 'sessions', type: 'auto' }
-
-    ]
 });
 
 Ext.define('JCertifBO.store.Sites', {
@@ -97643,7 +97653,21 @@ Ext.define('JCertifBO.controller.AdminOptionsController', {
     extend: 'Ext.app.Controller',
     
     stores: ['AdminOptions'],
-    models: ['AdminOption', 'Category', 'SponsorLevel', 'Title', 'SessionStatus', 'Sponsor', 'Site', 'Room', 'Session', 'Speaker', 'Participant'],
+    models: [
+        'AdminOption', 
+        'Category', 
+        'SponsorLevel', 
+        'Title', 
+        'SessionStatus', 
+        'Sponsor', 
+        'Site', 
+        'Room', 
+        'Session', 
+        'Speaker', 
+        'Participant',
+        'City',
+        'Country'
+    ],
     
     views: [
         'AdminOptionsList'
@@ -97658,6 +97682,8 @@ Ext.define('JCertifBO.controller.AdminOptionsController', {
         {ref: 'sponsorGrid', selector: 'sponsorgrid'},
         {ref: 'siteGrid', selector: 'sitegrid'},
         {ref: 'roomGrid', selector: 'roomgrid'},
+        {ref: 'countryGrid', selector: 'countrygrid'},
+        {ref: 'cityGrid', selector: 'citygrid'},
         {ref: 'sessionGrid', selector: 'sessiongrid'},
         {ref: 'speakerGrid', selector: 'speakergrid'},
         {ref: 'participantGrid', selector: 'participantgrid'}
@@ -97734,6 +97760,10 @@ Ext.define('JCertifBO.controller.AdminOptionsController', {
         return this.getSpeakerGrid();
       }else if('participantgrid' == gridName){
         return this.getParticipantGrid();
+      }else if('countrygrid' == gridName){
+        return this.getCountryGrid();
+      }else if('citygrid' == gridName){
+        return this.getCityGrid();
       }else{
         console.log('What the fuck!')
       }
@@ -98712,6 +98742,9 @@ Ext.define('JCertifBO.controller.ParticipantController', {
       			'participantgrid button[action=remove]' : {
       				  click : this.removeParticipant
       			},
+      			'participantgrid button[action=welcome-email]' : {
+      				  click : this.sendWelcomeEmail
+      			},
             'participantadd button[action=add]' : {
       				  click : this.addParticipant
       			},
@@ -98848,6 +98881,39 @@ Ext.define('JCertifBO.controller.ParticipantController', {
   			});
     },
     
+    sendWelcomeEmail: function(btn){
+      var participant = this.getParticipantGrid().getSelectionModel().getSelection()[0];
+        
+      var data = {};
+      //on rajoute la version de l'objet avant modification
+      data['email'] = participant.raw['email'];
+      data['user'] = Ext.util.Cookies.get('user');
+      data['access_token'] = Ext.util.Cookies.get('access_token');
+      data['provider'] = Ext.util.Cookies.get('provider');
+
+      var controller = this;
+      Ext.Ajax.request({
+  				url : BACKEND_URL + '/admin/email/welcome',
+  				jsonData : Ext.JSON.encode(data),
+  				success : function(response) {
+            Ext.MessageBox.show({
+  						title : 'Message',
+  						msg : "L'email de bienvenue a bien &eacute;t&eacute; envoy&eacute;",
+  						buttons : Ext.MessageBox.OK,
+  						icon : Ext.MessageBox.INFO
+  					});														
+  				},
+  				failure : function(response) {
+  					Ext.MessageBox.show({
+  						title : 'Error',
+  						msg : response.responseText,
+  						buttons : Ext.MessageBox.OK,
+  						icon : Ext.MessageBox.ERROR
+  					});
+  				}
+  			});
+    },
+    
     cancel: function(btn){
       btn.up('window').close();
     }
@@ -98860,8 +98926,8 @@ Ext.define('JCertifBO.store.AuthProviders', {
 
 	data: [
         {name: 'userpass', authorizationUrl: BACKEND_URL + '/admin', accessTokenUrl: BACKEND_URL + '/token/new', requestTokenUrl: BACKEND_URL + '/token/new'},
-        {name: 'google', authorizationUrl: 'https://accounts.google.com/o/oauth2/auth', accessTokenUrl: 'https://accounts.google.com/o/oauth2/token', clientId: '854354618002.apps.googleusercontent.com', scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email', logoutUrl: 'http://accounts.google.com/Logout'},
-        {name: 'github', authorizationUrl: 'https://github.com/login/oauth/authorize', accessTokenUrl: 'https://github.com/login/oauth/access_token', clientId: '672000c39117d988c3d9', clientSecret: 'e97fdd89ec9c08d27c4de56444f6908c285fcda3', scope: 'user:email'}
+        {name: 'google', authorizationUrl: 'https://accounts.google.com/o/oauth2/auth', accessTokenUrl: 'https://accounts.google.com/o/oauth2/token', clientId: '747879632386.apps.googleusercontent.com', scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email', logoutUrl: 'http://accounts.google.com/Logout'},
+        {name: 'github', authorizationUrl: 'https://github.com/login/oauth/authorize', accessTokenUrl: 'https://github.com/login/oauth/access_token', clientId: '8abe9e604edb2d0bb7b8', clientSecret: '5955946d098f7eab0c1160e35d76e4859fea1962', scope: 'user:email'}
     ]
 });
 Ext.define('JCertifBO.controller.LoginController', {

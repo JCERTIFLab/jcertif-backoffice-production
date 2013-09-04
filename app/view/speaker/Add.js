@@ -3,7 +3,7 @@ Ext.define("JCertifBO.view.speaker.Add", {
   	alias : 'widget.speakeradd',
   	title : "Ajout d'un nouveau pr&eacute;sentateur",
   	width : 400,
-  	height : 500,
+  	height : 600,
   	autoShow : true,
   	closable : true,
   	draggable : true,

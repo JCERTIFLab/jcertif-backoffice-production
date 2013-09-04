@@ -3,7 +3,7 @@ Ext.define("JCertifBO.view.speaker.Edit", {
   	alias : 'widget.speakeredit',
   	title : "Mise &agrave; jour d'un pr&eacute;sentateur",
   	width : 400,
-  	height : 500,
+  	height : 600,
   	autoShow : true,
   	closable : true,
   	draggable : true,

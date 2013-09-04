@@ -3,7 +3,7 @@ Ext.define("JCertifBO.view.room.Edit", {
   	alias : 'widget.roomedit',
   	title : "Mise &agrave; jour d'une salle",
   	width : 400,
-  	height : 300,
+  	height : 400,
   	autoShow : true,
   	closable : true,
   	draggable : true,

@@ -2,7 +2,21 @@ Ext.define('JCertifBO.controller.AdminOptionsController', {
     extend: 'Ext.app.Controller',
     
     stores: ['AdminOptions'],
-    models: ['AdminOption', 'Category', 'SponsorLevel', 'Title', 'SessionStatus', 'Sponsor', 'Site', 'Room', 'Session', 'Speaker', 'Participant'],
+    models: [
+        'AdminOption', 
+        'Category', 
+        'SponsorLevel', 
+        'Title', 
+        'SessionStatus', 
+        'Sponsor', 
+        'Site', 
+        'Room', 
+        'Session', 
+        'Speaker', 
+        'Participant',
+        'City',
+        'Country'
+    ],
     
     views: [
         'AdminOptionsList'
@@ -17,6 +31,8 @@ Ext.define('JCertifBO.controller.AdminOptionsController', {
         {ref: 'sponsorGrid', selector: 'sponsorgrid'},
         {ref: 'siteGrid', selector: 'sitegrid'},
         {ref: 'roomGrid', selector: 'roomgrid'},
+        {ref: 'countryGrid', selector: 'countrygrid'},
+        {ref: 'cityGrid', selector: 'citygrid'},
         {ref: 'sessionGrid', selector: 'sessiongrid'},
         {ref: 'speakerGrid', selector: 'speakergrid'},
         {ref: 'participantGrid', selector: 'participantgrid'}
@@ -93,6 +109,10 @@ Ext.define('JCertifBO.controller.AdminOptionsController', {
         return this.getSpeakerGrid();
       }else if('participantgrid' == gridName){
         return this.getParticipantGrid();
+      }else if('countrygrid' == gridName){
+        return this.getCountryGrid();
+      }else if('citygrid' == gridName){
+        return this.getCityGrid();
       }else{
         console.log('What the fuck!')
       }

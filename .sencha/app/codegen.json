@@ -933,6 +933,92 @@
         "name": "speaker.Import",
         "viewFileName": "speaker/Import"
       }
+    },
+    "app/model/City.js": {
+      "source": "{modelFileName}.js.tpl.merge",
+      "version": "31d5356142a167c72422f7902f19df3c583f3249",
+      "parameters": {
+        "appName": "JCertifBO",
+        "modelNamespace": "JCertifBO.model",
+        "baseClass": "Ext.data.Model",
+        "modelFileName": "City",
+        "name": "City",
+        "fields": "name:auto:null,cid:auto:null"
+      }
+    },
+    "app/model/Country.js": {
+      "source": "{modelFileName}.js.tpl.merge",
+      "version": "31d5356142a167c72422f7902f19df3c583f3249",
+      "parameters": {
+        "appName": "JCertifBO",
+        "modelNamespace": "JCertifBO.model",
+        "baseClass": "Ext.data.Model",
+        "modelFileName": "Country",
+        "name": "Country",
+        "fields": "cid:auto:null,name:auto:null"
+      }
+    },
+    "app/view/country/Add.js": {
+      "source": "{viewFileName}.js.tpl.merge",
+      "version": "acde5ea901286ca2f976bcddea23e159dbaa0e6f",
+      "parameters": {
+        "appName": "JCertifBO",
+        "viewName": "country.Add",
+        "name": "country.Add",
+        "viewFileName": "country/Add"
+      }
+    },
+    "app/view/country/Grid.js": {
+      "source": "{viewFileName}.js.tpl.merge",
+      "version": "acde5ea901286ca2f976bcddea23e159dbaa0e6f",
+      "parameters": {
+        "appName": "JCertifBO",
+        "viewName": "country.Grid",
+        "name": "country.Grid",
+        "viewFileName": "country/Grid"
+      }
+    },
+    "app/view/city/Grid.js": {
+      "source": "{viewFileName}.js.tpl.merge",
+      "version": "acde5ea901286ca2f976bcddea23e159dbaa0e6f",
+      "parameters": {
+        "appName": "JCertifBO",
+        "viewName": "city.Grid",
+        "name": "city.Grid",
+        "viewFileName": "city/Grid"
+      }
+    },
+    "app/view/city/Add.js": {
+      "source": "{viewFileName}.js.tpl.merge",
+      "version": "acde5ea901286ca2f976bcddea23e159dbaa0e6f",
+      "parameters": {
+        "appName": "JCertifBO",
+        "viewName": "city.Add",
+        "name": "city.Add",
+        "viewFileName": "city/Add"
+      }
+    },
+    "app/controller/CountryController.js": {
+      "source": "{controllerFileName}.js.tpl.merge",
+      "version": "b092f4aad11d2f7eaab5ce3e2dcc2fc3134f3188",
+      "parameters": {
+        "appName": "JCertifBO",
+        "controllerName": "CountryController",
+        "controllerFileName": "CountryController",
+        "name": "CountryController",
+        "controllerNamespace": "JCertifBO.controller"
+      }
+    },
+    "app/controller/CityController.js": {
+      "source": "{controllerFileName}.js.tpl.merge",
+      "version": "b092f4aad11d2f7eaab5ce3e2dcc2fc3134f3188",
+      "parameters": {
+        "appName": "JCertifBO",
+        "controllerName": "CityController",
+        "controllerFileName": "CityController",
+        "name": "CityController",
+        "controllerNamespace": "JCertifBO.controller"
+      }
     }
   }
 }

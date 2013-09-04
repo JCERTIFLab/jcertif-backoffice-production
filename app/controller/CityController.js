@@ -1,49 +1,51 @@
-Ext.define('JCertifBO.controller.ReferentielController', {
+Ext.define('JCertifBO.controller.CityController', {
     extend: 'Ext.app.Controller',
     
-    stores: ['AdminOptions'],
-    models: ['AdminOption', 'Referentiel'],
+    stores: ['AdminOptions', 'Countries'],
+    models: ['AdminOption', 'City', 'Country'],
     
     views: [
-        'referentiel.Grid',
-        'referentiel.Add'
+        'city.Grid',
+        'city.Add'
     ],
 
 
     refs: [
         {ref: 'viewer', selector: 'viewer'},
-        {ref: 'referentielGrid', selector: 'referentielgrid'}
+        {ref: 'cityGrid', selector: 'citygrid'},
+        {ref: 'cityFormCountries', selector: 'cityadd combo#country'},
     ],
     
     init: function() {
         this.control({
-            'referentielgrid button[action=add]': {
-                click: this.showAddReferentielView
+            'citygrid button[action=add]': {
+                click: this.showAddCityView
             },
-            'referentielgrid button[action=refresh]': {
-                click: this.refreshReferentielGrid
+            'citygrid button[action=refresh]': {
+                click: this.refreshCityGrid
             },
-            'referentieladd button[action=add]' : {
-      				  click : this.addReferentiel
+            'cityadd button[action=add]' : {
+      				  click : this.addCity
       			},
-      			'referentieladd button[action=cancel]' : {
+      			'cityadd button[action=cancel]' : {
       				  click : this.cancel
       			},
-      			'referentielgrid button[action=remove]' : {
-      				  click : this.removeReferentiel
+      			'citygrid button[action=remove]' : {
+      				  click : this.removeCity
       			}
         });
     },
     
-    showAddReferentielView: function(btn){
-      Ext.create('JCertifBO.view.referentiel.Add');
+    showAddCityView: function(btn){
+      Ext.create('JCertifBO.view.city.Add');
+      this.getCityFormCountries().bindStore(this.getCountriesStore());
     },
     
-    refreshReferentielGrid: function(btn){
-      this.getReferentielGrid().getStore().load();
+    refreshCityGrid: function(btn){
+      this.getCityGrid().getStore().load();
     },
     
-    addReferentiel: function(btn){
+    addCity: function(btn){
       var win = btn.up('window'), form = win.down('form').getForm();
       form.setValues({
         user: Ext.util.Cookies.get('user'),
@@ -53,10 +55,10 @@ Ext.define('JCertifBO.controller.ReferentielController', {
       var controller = this;
   		if (form.isValid()) {
   			Ext.Ajax.request({
-  				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getReferentielGrid().getStore().model.modelName).get('createUrl'),
+  				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getCityGrid().getStore().model.modelName).get('createUrl'),
   				jsonData : Ext.JSON.encode(form.getValues()),
   				success : function(response) {
-  				  controller.getReferentielGrid().getStore().load();
+  				  controller.getCityGrid().getStore().load();
             win.close();														
   				},
   				failure : function(response) {
@@ -71,17 +73,18 @@ Ext.define('JCertifBO.controller.ReferentielController', {
   		}
     },
     
-    removeReferentiel: function(btn){
-      var referentiel = this.getReferentielGrid().getSelectionModel().getSelection()[0];
+    removeCity: function(btn){
+      var city = this.getCityGrid().getSelectionModel().getSelection()[0];
       var data = {
-        label: referentiel.data.label,
+        name: city.data.name,
+        cid: city.data.cid,
         user: Ext.util.Cookies.get('user'),
         access_token: Ext.util.Cookies.get('access_token'),
         provider: Ext.util.Cookies.get('provider'),
       };
       var controller = this;
       Ext.Ajax.request({
-  				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getReferentielGrid().getStore().model.modelName).get('removeUrl'),
+  				url : BACKEND_URL + this.getAdminOptionsStore().findRecord('model', this.getCityGrid().getStore().model.modelName).get('removeUrl'),
   				jsonData : Ext.JSON.encode(data),
   				success : function(response) {
             Ext.MessageBox.show({
@@ -90,7 +93,7 @@ Ext.define('JCertifBO.controller.ReferentielController', {
   						buttons : Ext.MessageBox.OK,
   						icon : Ext.MessageBox.INFO
   					});		
-            controller.getReferentielGrid().getStore().load();												
+            controller.getCityGrid().getStore().load();												
   				},
   				failure : function(response) {
   					Ext.MessageBox.show({

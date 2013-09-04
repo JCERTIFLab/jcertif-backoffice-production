@@ -21,6 +21,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "JCertifBO.view.site.Edit": [],
   "JCertifBO.store.Titles": [],
   "ExtThemeNeptune.toolbar.Paging": [],
+  "JCertifBO.controller.CountryController": [],
   "JCertifBO.controller.SponsorController": [],
   "Ext.ux.ajax.XmlSimlet": [],
   "Ext.ux.event.Driver": [],
@@ -94,6 +95,7 @@ Ext.ClassManager.addNameAlternateMappings({
     "Ext.data.PagingMemoryProxy"
   ],
   "JCertifBO.controller.LoginController": [],
+  "JCertifBO.view.country.Add": [],
   "JCertifBO.view.speaker.Form": [],
   "JCertifBO.store.SessionStatuses": [],
   "ExtThemeNeptune.menu.Menu": [],
@@ -112,9 +114,11 @@ Ext.ClassManager.addNameAlternateMappings({
   "ExtThemeNeptune.panel.Panel": [],
   "Ext.ux.grid.filter.ListFilter": [],
   "JCertifBO.view.site.Add": [],
+  "JCertifBO.model.City": [],
   "JCertifBO.controller.RoomController": [],
   "JCertifBO.view.participant.Add": [],
   "Ext.ux.dd.PanelFieldDragZone": [],
+  "JCertifBO.model.Country": [],
   "Ext.ux.exporter.excelFormatter.Workbook": [],
   "JCertifBO.view.speaker.Edit": [],
   "JCertifBO.model.SponsorLevel": [],
@@ -137,12 +141,16 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.ux.DataView.Animated": [],
   "JCertifBO.controller.HomeController": [],
   "ExtThemeNeptune.resizer.Splitter": [],
+  "JCertifBO.view.city.Add": [],
+  "JCertifBO.view.city.Grid": [],
+  "JCertifBO.view.country.Grid": [],
   "JCertifBO.view.room.Add": [],
   "Ext.ux.statusbar.StatusBar": [
     "Ext.ux.StatusBar"
   ],
   "JCertifBO.view.session.Edit": [],
   "JCertifBO.model.AdminOption": [],
+  "JCertifBO.controller.CityController": [],
   "ExtThemeNeptune.layout.component.Dock": [],
   "Ext.ux.grid.menu.RangeMenu": [],
   "Ext.ux.RowExpander": [],
@@ -193,6 +201,7 @@ Ext.ClassManager.addNameAliasMappings({
   ],
   "JCertifBO.store.Titles": [],
   "ExtThemeNeptune.toolbar.Paging": [],
+  "JCertifBO.controller.CountryController": [],
   "JCertifBO.controller.SponsorController": [],
   "Ext.ux.ajax.XmlSimlet": [
     "simlet.xml"
@@ -323,6 +332,9 @@ Ext.ClassManager.addNameAliasMappings({
     "proxy.pagingmemory"
   ],
   "JCertifBO.controller.LoginController": [],
+  "JCertifBO.view.country.Add": [
+    "widget.countryadd"
+  ],
   "JCertifBO.view.speaker.Form": [
     "widget.speakerform"
   ],
@@ -355,11 +367,13 @@ Ext.ClassManager.addNameAliasMappings({
   "JCertifBO.view.site.Add": [
     "widget.siteadd"
   ],
+  "JCertifBO.model.City": [],
   "JCertifBO.controller.RoomController": [],
   "JCertifBO.view.participant.Add": [
     "widget.participantadd"
   ],
   "Ext.ux.dd.PanelFieldDragZone": [],
+  "JCertifBO.model.Country": [],
   "Ext.ux.exporter.excelFormatter.Workbook": [],
   "JCertifBO.view.speaker.Edit": [
     "widget.speakeredit"
@@ -398,6 +412,15 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.ux.DataView.Animated": [],
   "JCertifBO.controller.HomeController": [],
   "ExtThemeNeptune.resizer.Splitter": [],
+  "JCertifBO.view.city.Add": [
+    "widget.cityadd"
+  ],
+  "JCertifBO.view.city.Grid": [
+    "widget.citygrid"
+  ],
+  "JCertifBO.view.country.Grid": [
+    "widget.countrygrid"
+  ],
   "JCertifBO.view.room.Add": [
     "widget.roomadd"
   ],
@@ -408,6 +431,7 @@ Ext.ClassManager.addNameAliasMappings({
     "widget.sessionedit"
   ],
   "JCertifBO.model.AdminOption": [],
+  "JCertifBO.controller.CityController": [],
   "ExtThemeNeptune.layout.component.Dock": [],
   "Ext.ux.grid.menu.RangeMenu": [],
   "Ext.ux.RowExpander": [],

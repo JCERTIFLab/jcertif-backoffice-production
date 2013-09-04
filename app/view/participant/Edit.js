@@ -3,7 +3,7 @@ Ext.define("JCertifBO.view.participant.Edit", {
   	alias : 'widget.participantedit',
   	title : "Mise &agrave; jour d'un participant",
   	width : 400,
-  	height : 500,
+  	height : 600,
   	autoShow : true,
   	closable : true,
   	draggable : true,

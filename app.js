@@ -1,6 +1,6 @@
 var BACKEND_URL='http://www.jcertif.backend.vm-host.net';
 var BACKOFFICE_URL='http://jcertiflab.github.io/jcertif-backoffice-production';
-var VERSION='0.5';
+var VERSION='0.6';
 
 var splashscreen;
 
@@ -22,7 +22,9 @@ Ext.application({
         'RoomController',
         'SessionController',
         'SpeakerController',
-        'ParticipantController'
+        'ParticipantController',
+        'CountryController',
+        'CityController'
     ],      
     autoCreateViewport: true
 });
